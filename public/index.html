@@ -111,6 +111,7 @@
   .controls { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
   .fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px 18px; }
   .field { display: flex; flex-direction: column; gap: 6px; font-size: 13.5px; color: var(--muted); }
+  .field input:disabled { opacity: .45; cursor: not-allowed; }
   .field .val { color: var(--text); font-variant-numeric: tabular-nums; }
   .field-head { display: flex; justify-content: space-between; }
   input[type=text], input[type=password], input[type=number], select, textarea {
@@ -781,10 +782,10 @@
         <div class="st-side">
           <div class="styles" role="radiogroup" aria-label="Estilo del regalo más caro"></div>
           <div class="fields">
-            <label class="field">Título <input type="text" data-key="overlays.topGift.title" placeholder="Regalo más caro del stream"></label>
+            <label class="field">Título <input type="text" data-key="overlays.topGift.title" placeholder="Escribe un título" maxlength="60"></label>
             <label class="field" data-only="circulo cuadro">Cambiar foto ↔ regalo cada (segundos) <input type="number" min="2" max="30" data-key="overlays.topGift.swap"></label>
           </div>
-          <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.topGift.bg"><span class="track"></span>Con fondo</label></div>
+          <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.topGift.showTitle"><span class="track"></span>Mostrar título</label><label class="switch"><input type="checkbox" data-key="overlays.topGift.bg"><span class="track"></span>Con fondo</label></div>
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del regalo más caro" src="/top-regalo.html?demo=1"></iframe><span class="hint">Vista previa. Si aún no hay regalos se muestra un ejemplo.</span></div>
@@ -797,10 +798,10 @@
         <div class="st-side">
           <div class="styles" role="radiogroup" aria-label="Estilo del top taps"></div>
           <div class="fields">
-            <label class="field">Título <input type="text" data-key="overlays.likes.title" placeholder="❤️ Top taps"></label>
+            <label class="field">Título <input type="text" data-key="overlays.likes.title" placeholder="Escribe un título" maxlength="60"></label>
             <label class="field">Puestos <input type="number" min="1" max="10" data-key="overlays.likes.top"></label>
           </div>
-          <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.likes.bg"><span class="track"></span>Con fondo</label></div>
+          <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.likes.showTitle"><span class="track"></span>Mostrar título</label><label class="switch"><input type="checkbox" data-key="overlays.likes.bg"><span class="track"></span>Con fondo</label></div>
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del top taps" src="/ranking.html?demo=1"></iframe><span class="hint">Vista previa. Si aún no hay taps se muestra un ejemplo.</span></div>
@@ -813,10 +814,10 @@
         <div class="st-side">
           <div class="styles" role="radiogroup" aria-label="Estilo del top regalos"></div>
           <div class="fields">
-            <label class="field">Título <input type="text" data-key="overlays.gifts.title" placeholder="💎 Top regalos"></label>
+            <label class="field">Título <input type="text" data-key="overlays.gifts.title" placeholder="Escribe un título" maxlength="60"></label>
             <label class="field">Puestos <input type="number" min="1" max="10" data-key="overlays.gifts.top"></label>
           </div>
-          <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.gifts.bg"><span class="track"></span>Con fondo</label></div>
+          <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.gifts.showTitle"><span class="track"></span>Mostrar título</label><label class="switch"><input type="checkbox" data-key="overlays.gifts.bg"><span class="track"></span>Con fondo</label></div>
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del top regalos" src="/ranking.html?tipo=regalos&amp;demo=1"></iframe><span class="hint">Vista previa. Si aún no hay regalos se muestra un ejemplo.</span></div>
@@ -994,6 +995,11 @@ function updateLabels() {
   $('#v-volume').textContent = Math.round(settings.tts.volume * 100) + '%';
   $('#v-avol').textContent = Math.round(settings.alerts.volume * 100) + '%';
   renderDock();
+  // El campo del título se apaga si el título está oculto.
+  for (const k of ['topGift', 'likes', 'gifts']) {
+    const i = $(`[data-key="overlays.${k}.title"]`);
+    if (i && settings.overlays?.[k]) i.disabled = settings.overlays[k].showTitle === false;
+  }
 }
 $$('[data-key]').forEach((el) => {
   el.addEventListener(el.type === 'checkbox' || el.tagName === 'SELECT' ? 'change' : 'input', () => {

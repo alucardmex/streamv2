@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/fx.css">
 <style>
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja|circulo|cuadro  ?cambio=4 (segundos, estilos Círculo y Cuadro)  ?titulo=Rey%20del%20stream  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
+     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja|circulo|cuadro  ?cambio=4 (segundos, estilos Círculo y Cuadro)  ?titulo=Rey%20del%20stream (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
   .fxw { display: block; }
   :root { --gold: #ffc24b; --gold2: #ffe17a; --pink: #fe2c55; --cyan: #25f4ee; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
@@ -145,7 +145,7 @@ const P = new URLSearchParams(location.search);
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
 const STYLES = ['tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja', 'circulo', 'cuadro'];
-let cfg = { style: 'tarjeta', title: '', bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } };
+let cfg = { style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } };
 let record = null;
 let demoGift = null; // regalo de prueba del botón "Probar animación"
 const DEMO_GIFTS = [
@@ -161,12 +161,13 @@ const full = (n) => Number(n).toLocaleString('es-MX');
 function settings() {
   const s = { ...cfg };
   if (P.get('estilo') && STYLES.includes(P.get('estilo'))) s.style = P.get('estilo');
-  if (P.get('titulo')) s.title = P.get('titulo');
+  if (s.showTitle === false) s.title = '';
+  if (P.get('titulo') !== null) s.title = P.get('titulo') === '0' ? '' : P.get('titulo');
   if (P.get('fondo') === '0') s.bg = false;
   if (Number(P.get('cambio'))) s.swap = Number(P.get('cambio'));
   s.swap = Math.max(2, Math.min(30, Number(s.swap) || 4));
   if (!STYLES.includes(s.style)) s.style = 'tarjeta';
-  s.title = s.title || 'Regalo más caro del stream';
+  s.title = String(s.title || '').trim();
   return s;
 }
 
@@ -196,6 +197,7 @@ function render(isRecord = false) {
       : s.style === 'trofeo'
         ? `<div class="card"><div class="crown">👑</div><div class="t">${T}</div><div class="gimg">🎁</div><div class="n" style="font-size:20px">${msg}</div></div>`
         : `<div class="card"><div class="gimg">🎁</div><div><div class="t sh">${T}</div><div class="n sh" style="font-size:20px">${msg}</div></div></div>`;
+    root.innerHTML = noTitle(root.innerHTML);
     lastKey = '';
     FX.decorate(root.querySelector('.card'));
     FX.sync(root);
@@ -213,7 +215,7 @@ function render(isRecord = false) {
     circulo: `<div class="t">${T}</div><div class="card ${side === 'regalo' ? 'flipped' : ''}">${badge}<div class="faces"><div class="face front">${face(g)}</div><div class="face back"><div class="gimg float">${img}</div></div></div></div><div class="info"><div class="n sh">${esc(g.name)}</div><div class="v sh">${gift} · <b>${val}</b></div></div>`,
     burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh">${T}</div><div class="n sh">${esc(g.name)}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
   }[s.style === 'cuadro' ? 'circulo' : s.style];
-  root.innerHTML = `<div class="fxw">${html}</div>`;
+  root.innerHTML = `<div class="fxw">${noTitle(html)}</div>`;
 
   const card = root.querySelector('.card');
   FX.decorate(card);
@@ -232,6 +234,9 @@ function render(isRecord = false) {
   }
   lastKey = key;
 }
+
+// Sin título: se quita su renglón para que no deje hueco.
+const noTitle = (html) => html.replace(/<div class="t( sh)?"><\/div>/g, '');
 
 // Estilo Círculo: la cara de la foto (o la inicial si no hay foto).
 let side = 'foto';

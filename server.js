@@ -91,9 +91,9 @@ const DEFAULT_CONFIG = {
     overlays: {
       // anim: movimiento continuo (idle), efecto al cambiar (change), intensidad,
       // números que suben (counters) y resaltar a quien sube de puesto (rankUp).
-      likes: { style: 'lista', title: '', top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
-      gifts: { style: 'lista', title: '', top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
-      topGift: { style: 'tarjeta', title: '', bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
+      likes: { style: 'lista', title: '❤️ Top taps', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      gifts: { style: 'lista', title: '💎 Top regalos', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      topGift: { style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
     },
   },
 };
@@ -118,8 +118,21 @@ function loadJson(file, fallback) {
   }
 }
 
-let config = deepMerge(DEFAULT_CONFIG, loadJson(CONFIG_FILE, {}));
+const savedConfig = loadJson(CONFIG_FILE, {});
+let config = deepMerge(DEFAULT_CONFIG, savedConfig);
 migrateVoices();
+migrateTitles();
+
+// Antes el título vacío significaba "el de siempre"; ahora vacío significa sin título.
+// A quien venga de una versión anterior con el título vacío se le pone el de siempre.
+function migrateTitles() {
+  for (const k of ['likes', 'gifts', 'topGift']) {
+    const old = savedConfig.settings?.overlays?.[k];
+    if (old && old.showTitle === undefined && !String(old.title || '').trim()) {
+      config.settings.overlays[k].title = DEFAULT_CONFIG.settings.overlays[k].title;
+    }
+  }
+}
 
 // Versiones anteriores tenían varios servicios de voz; ahora solo Fish Audio.
 function migrateVoices() {

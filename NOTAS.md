@@ -1,6 +1,7 @@
-Nuevo estilo **Cuadro** para el overlay del **Regalo más caro**.
+Ahora puedes **editar o quitar el título** de los overlays de **Regalo más caro**, **Top taps** y **Top regalos**.
 
-- Igual que Círculo, pero cuadrado con esquinas redondeadas: se voltea entre la **foto de perfil** de quien mandó el regalo y el **regalo**
-- También eliges cada cuántos segundos cambia (de 2 a 30) en la pestaña Overlays
+- El campo **Título** ya muestra el texto real: bórralo o escribe el tuyo y tu stream se actualiza solo
+- Nuevo interruptor **Mostrar título** para ocultarlo sin perder el texto
+- Sin título, el overlay se acomoda y no deja hueco (en todos los estilos)
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.3.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.4.0 lista", toca **Actualizar**.

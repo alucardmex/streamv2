@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/fx.css">
 <style>
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?tipo=likes|regalos  ?estilo=lista|podio|lider|compacto|neon|cinta  ?top=5  ?titulo=Mis%20fans  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
+     ?tipo=likes|regalos  ?estilo=lista|podio|lider|compacto|neon|cinta  ?top=5  ?titulo=Mis%20fans (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
   :root { --acc: #fe2c55; --acc2: #25f4ee; --gold: #ffc24b; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
   .stage { display: inline-block; transform-origin: top left; padding: 10px; }
@@ -108,7 +108,7 @@ const icon = tipo === 'gifts' ? '💎' : '❤️';
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
 const STYLES = ['lista', 'podio', 'lider', 'compacto', 'neon', 'cinta'];
-let cfg = { style: 'lista', title: '', top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } };
+let cfg = { style: 'lista', title: tipo === 'gifts' ? '💎 Top regalos' : '❤️ Top taps', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } };
 let last = null;
 let prev = new Map();   // usuario -> { value, pos } de la vez anterior
 let lastKey = '';       // qué hay dibujado (si no cambia, solo se actualizan los números)
@@ -127,10 +127,11 @@ function settings() {
   const s = { ...cfg };
   if (P.get('estilo') && STYLES.includes(P.get('estilo'))) s.style = P.get('estilo');
   if (P.get('top')) s.top = Number(P.get('top')) || s.top;
-  if (P.get('titulo')) s.title = P.get('titulo');
+  if (s.showTitle === false) s.title = '';
+  if (P.get('titulo') !== null) s.title = P.get('titulo') === '0' ? '' : P.get('titulo');
   if (P.get('fondo') === '0') s.bg = false;
   s.top = Math.max(1, Math.min(10, s.top || 5));
-  s.title = s.title || (tipo === 'gifts' ? '💎 Top regalos' : '❤️ Top taps');
+  s.title = String(s.title || '').trim();
   return s;
 }
 
@@ -167,6 +168,8 @@ function build(s, rows) {
     const list = rows.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i}"><span class="pos">${i + 1}</span>${s.style === 'compacto' ? '' : av(u)}<span class="nm shadow">${esc(u.name)}</span><span class="v shadow">${cnt(u)}</span></li>`).join('');
     root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
   }
+  // Sin título: se quita su renglón para que no deje hueco.
+  if (!s.title) root.querySelectorAll('h1, .lider small, .cinta .tag').forEach((e) => { if (!e.textContent.trim()) e.remove(); });
   FX.decorate(root.querySelector('.box'));
 }
 
