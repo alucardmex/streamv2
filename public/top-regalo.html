@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/fx.css">
 <style>
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja|circulo  ?cambio=4 (segundos, estilo Círculo)  ?titulo=Rey%20del%20stream  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
+     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja|circulo|cuadro  ?cambio=4 (segundos, estilos Círculo y Cuadro)  ?titulo=Rey%20del%20stream  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
   .fxw { display: block; }
   :root { --gold: #ffc24b; --gold2: #ffe17a; --pink: #fe2c55; --cyan: #25f4ee; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
@@ -128,6 +128,9 @@
   .record.circulo .badge { animation: badgeC 6s ease forwards; }
   .record.circulo .card { animation: pulseC 1.4s ease-out 3; }
   @keyframes pulseC { 0% { box-shadow: 0 0 0 0 rgba(255,194,75,.8), 0 16px 40px rgba(0,0,0,.5); } 100% { box-shadow: 0 0 0 34px rgba(255,194,75,0), 0 16px 40px rgba(0,0,0,.5); } }
+  /* CUADRO: lo mismo que Círculo pero con esquinas redondeadas */
+  .cuadro .card { border-radius: 30px; }
+  .cuadro .faces, .cuadro .face { border-radius: 25px; }
   .nobg .circulo .t, .nobg .circulo .info { background: none; border-color: transparent; text-shadow: 0 2px 6px rgba(0,0,0,.9); }
 
   @media (prefers-reduced-motion: reduce) { body:not(.fx-on) * { animation: none !important; } body:not(.fx-on) .record .badge { opacity: 1; transform: none; } }
@@ -141,7 +144,7 @@
 const P = new URLSearchParams(location.search);
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
-const STYLES = ['tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja', 'circulo'];
+const STYLES = ['tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja', 'circulo', 'cuadro'];
 let cfg = { style: 'tarjeta', title: '', bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } };
 let record = null;
 let demoGift = null; // regalo de prueba del botón "Probar animación"
@@ -173,7 +176,8 @@ function render(isRecord = false) {
   document.body.classList.toggle('nobg', !s.bg);
   stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
   stage.classList.toggle('hidden', !g && P.get('ocultarVacio') === '1');
-  root.className = s.style;
+  const flip = s.style === 'circulo' || s.style === 'cuadro';
+  root.className = s.style === 'cuadro' ? 'circulo cuadro' : s.style;
 
   const letter = esc(((g?.name || '?')[0] || '?').toUpperCase());
   const av = g?.avatar ? `<img class="av" src="${esc(g.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=av>${letter}</span>'">` : `<span class="av">${letter}</span>`;
@@ -185,7 +189,7 @@ function render(isRecord = false) {
 
   if (!g) {
     const msg = '¡Sé el primero en mandar un regalo!';
-    root.innerHTML = s.style === 'circulo'
+    root.innerHTML = flip
       ? `<div class="fxw"><div class="t">${T}</div><div class="card"><div class="faces"><div class="face back" style="transform:none"><div class="gimg">🎁</div></div></div></div><div class="info"><div class="v" style="white-space:normal">${msg}</div></div></div>`
       : s.style === 'banner'
       ? `<div class="card"><div class="gimg">🎁</div><div><div class="t">${T}</div><div class="line"><span class="n">${msg}</span></div></div></div>`
@@ -208,7 +212,7 @@ function render(isRecord = false) {
     minimal: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="n">${gift} <span>${val}</span></div><div class="f">de ${esc(g.name)}</div></div></div>`,
     circulo: `<div class="t">${T}</div><div class="card ${side === 'regalo' ? 'flipped' : ''}">${badge}<div class="faces"><div class="face front">${face(g)}</div><div class="face back"><div class="gimg float">${img}</div></div></div></div><div class="info"><div class="n sh">${esc(g.name)}</div><div class="v sh">${gift} · <b>${val}</b></div></div>`,
     burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh">${T}</div><div class="n sh">${esc(g.name)}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
-  }[s.style];
+  }[s.style === 'cuadro' ? 'circulo' : s.style];
   root.innerHTML = `<div class="fxw">${html}</div>`;
 
   const card = root.querySelector('.card');
