@@ -1,5 +1,5 @@
-# Construye el instalador de Windows y lo publica en Releases cuando
-# el número de versión de package.json es nuevo (no existe una release v<versión>).
+# Construye el instalador de Windows y lo publica en Releases cuando el número
+# de versión de package.json todavía no tiene una release completa.
 # La app instalada lee esa release y se actualiza sola.
 name: Publicar versión
 
@@ -18,29 +18,35 @@ concurrency:
 jobs:
   windows:
     runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
 
       - name: ¿Es una versión nueva?
         id: ver
         shell: bash
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           V=$(node -p "require('./package.json').version")
+          TAG="v$V"
           echo "version=$V" >> "$GITHUB_OUTPUT"
-          ASSETS=$(gh release view "v$V" --repo "$GITHUB_REPOSITORY" --json assets -q '.assets[].name' 2>/dev/null || true)
-          if echo "$ASSETS" | grep -qx "latest.yml"; then
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          # Todas las releases con esta etiqueta (puede haber restos de intentos fallidos).
+          IDS=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" -q ".[] | select(.tag_name==\"$TAG\") | .id")
+          COMPLETE=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" -q ".[] | select(.tag_name==\"$TAG\" and .draft==false) | select([.assets[].name] | (index(\"latest.yml\") != null and index(\"StreamV2-Setup-$V.exe\") != null and index(\"StreamV2-Setup-$V.exe.blockmap\") != null)) | .id")
+          COUNT=$(echo "$IDS" | grep -c . || true)
+          if [ -n "$COMPLETE" ] && [ "$COUNT" = "1" ]; then
             echo "La versión $V ya está publicada; no hay nada que hacer."
             echo "nueva=false" >> "$GITHUB_OUTPUT"
-          else
-            if [ -n "$ASSETS" ] || gh release view "v$V" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-              echo "La release v$V está incompleta; se borra para publicarla de nuevo."
-              gh release delete "v$V" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
-            fi
-            echo "Publicando la versión $V."
-            echo "nueva=true" >> "$GITHUB_OUTPUT"
+            exit 0
           fi
+          for ID in $IDS; do
+            echo "Borrando release incompleta $ID ($TAG)."
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/$ID"
+          done
+          git push origin --delete "refs/tags/$TAG" 2>/dev/null || true
+          echo "Publicando la versión $V."
+          echo "nueva=true" >> "$GITHUB_OUTPUT"
 
       - uses: actions/setup-node@v4
         if: steps.ver.outputs.nueva == 'true'
@@ -52,18 +58,23 @@ jobs:
         if: steps.ver.outputs.nueva == 'true'
         run: npm ci
 
-      - name: Crear la etiqueta de la versión
+      - name: Preparar la release (borrador)
         if: steps.ver.outputs.nueva == 'true'
         shell: bash
         run: |
-          V="v${{ steps.ver.outputs.version }}"
+          TAG="${{ steps.ver.outputs.tag }}"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -f "$V"
-          git push -f origin "refs/tags/$V"
+          git tag -f "$TAG"
+          git push -f origin "refs/tags/$TAG"
+          NOTES=NOTAS.md; [ -f "$NOTES" ] || { echo "Nueva versión de StreamV2." > /tmp/notas.md; NOTES=/tmp/notas.md; }
+          gh release create "$TAG" --draft --verify-tag --title "StreamV2 ${{ steps.ver.outputs.version }}" --notes-file "$NOTES"
 
-      - name: Construir y publicar
+      - name: Construir y subir el instalador
         if: steps.ver.outputs.nueva == 'true'
         run: npx electron-builder --win --x64 --publish always
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publicar la release
+        if: steps.ver.outputs.nueva == 'true'
+        shell: bash
+        run: gh release edit "${{ steps.ver.outputs.tag }}" --draft=false --latest

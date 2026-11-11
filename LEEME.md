@@ -108,4 +108,4 @@ npm run dist         # crea el instalador en dist/
 npm run release      # crea el instalador y lo publica en GitHub Releases (requiere GH_TOKEN)
 ```
 
-Para publicar una actualización: sube `version` en `package.json`, haz commit y súbelo a `main`. GitHub Actions construye el instalador en Windows y lo publica en Releases; la app instalada lo detecta sola.
+Para publicar una actualización: sube `version` en `package.json`, escribe las novedades en `NOTAS.md`, haz commit y súbelo a `main`. GitHub Actions construye el instalador en Windows y lo publica en Releases; la app instalada lo detecta sola.
