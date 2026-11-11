@@ -1916,11 +1916,11 @@ function renderStudios() {
 }
 // Animaciones de cada overlay (se pueden apagar).
 const FX_IDLE = {
-  topGift: [['ninguno', 'Quieto'], ['brillo', 'Brillo'], ['borde', 'Borde de luz'], ['flotar', 'Flotar'], ['respirar', 'Respirar'], ['balanceo', 'Balanceo'], ['destellos', 'Destellos'], ['girar', 'Girar regalo']],
-  likes: [['ninguno', 'Quieto'], ['ola', 'Ola'], ['brillo', 'Brillo'], ['borde', 'Borde de luz'], ['flotar', 'Flotar'], ['respirar', 'Respirar'], ['balanceo', 'Balanceo'], ['destellos', 'Destellos']],
+  topGift: [['ninguno', 'Quieto'], ['brillo', 'Brillo'], ['borde', 'Borde de luz'], ['flotar', 'Flotar'], ['respirar', 'Respirar'], ['balanceo', 'Balanceo'], ['destellos', 'Destellos'], ['girar', 'Girar regalo'], ['inclinar3d', 'Inclinar 3D'], ['flotar3d', 'Profundidad 3D'], ['girar3d', 'Girar 3D']],
+  likes: [['ninguno', 'Quieto'], ['ola', 'Ola'], ['brillo', 'Brillo'], ['borde', 'Borde de luz'], ['flotar', 'Flotar'], ['respirar', 'Respirar'], ['balanceo', 'Balanceo'], ['destellos', 'Destellos'], ['inclinar3d', 'Inclinar 3D'], ['flotar3d', 'Profundidad 3D'], ['girar3d', 'Girar 3D']],
 };
 FX_IDLE.gifts = FX_IDLE.likes;
-const FX_CHANGE = [['pop', 'Pop'], ['deslizar', 'Deslizar'], ['zoom', 'Zoom'], ['voltear', 'Voltear'], ['sacudida', 'Sacudida']];
+const FX_CHANGE = [['pop', 'Pop'], ['deslizar', 'Deslizar'], ['zoom', 'Zoom'], ['voltear', 'Voltear'], ['sacudida', 'Sacudida'], ['giro3d', 'Giro 3D'], ['cubo3d', 'Cubo 3D'], ['fondo3d', 'Desde el fondo 3D']];
 const FX_INT = [['suave', 'Suave'], ['normal', 'Normal'], ['fuerte', 'Fuerte']];
 
 function renderAnim(st, key) {

@@ -1,9 +1,15 @@
-Nuevo estilo **Bolitas** para el **Top taps** y el **Top regalos**.
+**Efectos 3D** para los overlays de **Regalo más caro**, **Top taps** y **Top regalos**.
 
-- Vertical: la foto de perfil de cada fan en un círculo, uno debajo de otro, con su nombre y sus taps
-- El #1 más grande, con corona y aro dorado que brilla; el #2 plateado y el #3 bronce
-- El aro de colores gira, y a quien está dando taps le late la foto y le salen corazones (o diamantes en el top regalos)
-- Quien sube de puesto se desliza a su lugar y su aro brilla en verde con una flechita ▲
-- Tamaño sugerido para OBS: 250 × 760
+Nuevos movimientos todo el tiempo:
+- **Inclinar 3D:** el overlay se ladea como una tarjeta bajo la luz, con un reflejo que se mueve
+- **Profundidad 3D:** se acerca y se aleja de la cámara
+- **Girar 3D:** da una vuelta completa cada tantos segundos
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.5.0 lista", toca **Actualizar**.
+Nuevos efectos al cambiar (nuevo récord, alguien entra o sube de puesto):
+- **Giro 3D:** entra girando
+- **Cubo 3D:** gira como la cara de un cubo
+- **Desde el fondo 3D:** llega desde lejos hacia la cámara
+
+Todos respetan la intensidad Suave, Normal o Fuerte.
+
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.6.0 lista", toca **Actualizar**.

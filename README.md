@@ -51,8 +51,8 @@ En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previ
 
 Cada overlay tiene su propio bloque **Animaciones** (se puede apagar con el interruptor):
 
-- **Movimiento todo el tiempo:** Quieto, Brillo (un destello cruza la tarjeta), Borde de luz (borde de colores que gira), Flotar, Respirar, Balanceo y Destellos. El regalo más caro además tiene **Girar regalo**, y los rankings tienen **Ola** (los puestos se iluminan uno tras otro).
-- **Al cambiar:** Pop, Deslizar, Zoom, Voltear o Sacudida. En el regalo más caro se ve cuando hay nuevo récord; en los rankings cuando alguien entra o sube de puesto.
+- **Movimiento todo el tiempo:** Quieto, Brillo (un destello cruza la tarjeta), Borde de luz (borde de colores que gira), Flotar, Respirar, Balanceo y Destellos. El regalo más caro además tiene **Girar regalo**, y los rankings tienen **Ola** (los puestos se iluminan uno tras otro). En 3D: **Inclinar 3D** (se ladea como tarjeta bajo la luz, con reflejo), **Profundidad 3D** (se acerca y se aleja de la cámara) y **Girar 3D** (da una vuelta completa cada tantos segundos).
+- **Al cambiar:** Pop, Deslizar, Zoom, Voltear, Sacudida, Giro 3D, Cubo 3D o Desde el fondo 3D. En el regalo más caro se ve cuando hay nuevo récord; en los rankings cuando alguien entra o sube de puesto.
 - **Intensidad:** Suave, Normal o Fuerte.
 - **Números que suben:** los taps y diamantes cuentan hacia arriba en lugar de saltar.
 - **Resaltar a quien sube de puesto** (rankings): la fila brilla en verde con una flechita ▲, y las filas se reacomodan deslizándose.

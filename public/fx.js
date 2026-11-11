@@ -29,7 +29,7 @@ window.FX = (() => {
   // Efecto "al cambiar" sobre un elemento. La clave sirve para que, si el elemento se
   // vuelve a dibujar a medio efecto, el efecto siga donde iba en lugar de reiniciarse.
   const started = new Map();
-  const CHANGE_MS = 800;
+  const CHANGE_MS = 950;
   function change(el, key) {
     if (!el || !on()) return;
     const cls = `fx-c-${cfg.change || 'pop'}`;

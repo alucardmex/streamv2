@@ -19,6 +19,31 @@ body.fx-fuerte { --amp: 1.7; --spd: .7; }
 .fx-idle-balanceo #root { animation: fx-sway calc(3.6s * var(--spd)) ease-in-out infinite; }
 @keyframes fx-sway { 0%, 100% { transform: rotate(calc(-1.4deg * var(--amp))); } 50% { transform: rotate(calc(1.4deg * var(--amp))); } }
 
+/* ---------- Movimientos 3D ---------- */
+/* Inclinar 3D: el overlay se ladea como una tarjeta bajo la luz, con un reflejo que se mueve */
+.fx-idle-inclinar3d #root { animation: fx-tilt3d calc(6s * var(--spd)) ease-in-out infinite; }
+@keyframes fx-tilt3d {
+  0%, 100% { transform: perspective(900px) rotateX(calc(7deg * var(--amp))) rotateY(calc(-13deg * var(--amp))); }
+  25% { transform: perspective(900px) rotateX(calc(-6deg * var(--amp))) rotateY(calc(-4deg * var(--amp))); }
+  50% { transform: perspective(900px) rotateX(calc(-7deg * var(--amp))) rotateY(calc(13deg * var(--amp))); }
+  75% { transform: perspective(900px) rotateX(calc(6deg * var(--amp))) rotateY(calc(4deg * var(--amp))); } }
+.fx-idle-inclinar3d .fx-shine { display: block; }
+.fx-idle-inclinar3d .fx-shine::before { top: -60%; left: -60%; width: 220%; bottom: auto; height: 220%; transform: none;
+  background: radial-gradient(circle at center, rgba(255,255,255, calc(.22 * var(--amp))), transparent 32%);
+  animation: fx-glare calc(6s * var(--spd)) ease-in-out infinite; }
+@keyframes fx-glare { 0%, 100% { translate: -22% -22%; } 25% { translate: -8% 18%; } 50% { translate: 22% 22%; } 75% { translate: 8% -18%; } }
+
+/* Profundidad 3D: se acerca y se aleja de la cámara */
+.fx-idle-flotar3d #root { animation: fx-depth3d calc(4.4s * var(--spd)) ease-in-out infinite; }
+@keyframes fx-depth3d {
+  0%, 100% { transform: perspective(900px) translate3d(0, 0, 0) rotateX(0deg); filter: drop-shadow(0 8px 10px rgba(0,0,0,.35)); }
+  50% { transform: perspective(900px) translate3d(0, calc(-8px * var(--amp)), calc(50px * var(--amp))) rotateX(calc(9deg * var(--amp)));
+        filter: drop-shadow(0 calc(26px * var(--amp)) 22px rgba(0,0,0,.45)); } }
+
+/* Girar 3D: cada tantos segundos da una vuelta completa */
+.fx-idle-girar3d #root { animation: fx-spin3d calc(9s * var(--spd)) cubic-bezier(.6,0,.3,1) infinite; }
+@keyframes fx-spin3d { 0%, 72% { transform: perspective(1200px) rotateY(0deg); } 100% { transform: perspective(1200px) rotateY(360deg); } }
+
 /* Capas que fx.js agrega dentro de la tarjeta */
 .fx-target { position: relative; }
 .fx-shine, .fx-border { display: none; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
@@ -71,6 +96,17 @@ body.fx-on .fx-c-voltear { animation: fx-flip .75s cubic-bezier(.3,1.4,.5,1); }
 body.fx-on .fx-c-sacudida { animation: fx-shake .6s ease; }
 @keyframes fx-shake { 0%, 100% { translate: 0 0; rotate: 0deg; } 15% { translate: calc(-8px * var(--amp)) 0; rotate: -2deg; } 30% { translate: calc(8px * var(--amp)) 0; rotate: 2deg; }
   45% { translate: calc(-6px * var(--amp)) 0; rotate: -1deg; } 60% { translate: calc(6px * var(--amp)) 0; rotate: 1deg; } 80% { translate: calc(-3px * var(--amp)) 0; } }
+
+/* Efectos 3D al cambiar (necesitan perspectiva en el contenedor) */
+body.fx-on #root, body.fx-on #root ol, body.fx-on #root .stand { perspective: 1000px; }
+body.fx-on .fx-c-giro3d { animation: fx-giro3d .9s cubic-bezier(.25,1.2,.4,1); }
+@keyframes fx-giro3d { 0% { rotate: y -270deg; scale: .55; opacity: 0; } 35% { opacity: 1; } 100% { rotate: y 0deg; scale: 1; opacity: 1; } }
+
+body.fx-on .fx-c-cubo3d { animation: fx-cubo3d .8s cubic-bezier(.3,1.25,.45,1); transform-origin: left center; }
+@keyframes fx-cubo3d { 0% { rotate: y 95deg; opacity: .2; } 100% { rotate: y 0deg; opacity: 1; } }
+
+body.fx-on .fx-c-fondo3d { animation: fx-fondo3d .8s cubic-bezier(.2,1.15,.35,1); }
+@keyframes fx-fondo3d { 0% { translate: 0 0 calc(-700px * var(--amp)); opacity: 0; filter: blur(6px); } 100% { translate: 0 0 0; opacity: 1; filter: blur(0); } }
 
 /* Quien sube de puesto */
 .fx-up { position: relative; }
