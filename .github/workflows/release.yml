@@ -1,0 +1,32 @@
+# Construye el instalador de Windows y lo publica en Releases
+# cada vez que se sube una etiqueta de versión (por ejemplo v1.0.1).
+# La app instalada lee esa release y se actualiza sola.
+name: Publicar versión
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Construir y publicar
+        run: npx electron-builder --win --x64 --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
