@@ -29,10 +29,15 @@ jobs:
         run: |
           V=$(node -p "require('./package.json').version")
           echo "version=$V" >> "$GITHUB_OUTPUT"
-          if gh release view "v$V" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          ASSETS=$(gh release view "v$V" --repo "$GITHUB_REPOSITORY" --json assets -q '.assets[].name' 2>/dev/null || true)
+          if echo "$ASSETS" | grep -qx "latest.yml"; then
             echo "La versión $V ya está publicada; no hay nada que hacer."
             echo "nueva=false" >> "$GITHUB_OUTPUT"
           else
+            if [ -n "$ASSETS" ] || gh release view "v$V" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+              echo "La release v$V está incompleta; se borra para publicarla de nuevo."
+              gh release delete "v$V" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag || true
+            fi
             echo "Publicando la versión $V."
             echo "nueva=true" >> "$GITHUB_OUTPUT"
           fi
