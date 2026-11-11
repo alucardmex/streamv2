@@ -47,6 +47,16 @@ jobs:
         if: steps.ver.outputs.nueva == 'true'
         run: npm ci
 
+      - name: Crear la etiqueta de la versión
+        if: steps.ver.outputs.nueva == 'true'
+        shell: bash
+        run: |
+          V="v${{ steps.ver.outputs.version }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f "$V"
+          git push -f origin "refs/tags/$V"
+
       - name: Construir y publicar
         if: steps.ver.outputs.nueva == 'true'
         run: npx electron-builder --win --x64 --publish always
