@@ -1,7 +1,9 @@
-Ahora puedes **editar o quitar el título** de los overlays de **Regalo más caro**, **Top taps** y **Top regalos**.
+Nuevo estilo **Bolitas** para el **Top taps** y el **Top regalos**.
 
-- El campo **Título** ya muestra el texto real: bórralo o escribe el tuyo y tu stream se actualiza solo
-- Nuevo interruptor **Mostrar título** para ocultarlo sin perder el texto
-- Sin título, el overlay se acomoda y no deja hueco (en todos los estilos)
+- Vertical: la foto de perfil de cada fan en un círculo, uno debajo de otro, con su nombre y sus taps
+- El #1 más grande, con corona y aro dorado que brilla; el #2 plateado y el #3 bronce
+- El aro de colores gira, y a quien está dando taps le late la foto y le salen corazones (o diamantes en el top regalos)
+- Quien sube de puesto se desliza a su lugar y su aro brilla en verde con una flechita ▲
+- Tamaño sugerido para OBS: 250 × 760
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.4.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.5.0 lista", toca **Actualizar**.

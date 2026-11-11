@@ -45,7 +45,7 @@ Usa los botones **Probar** del panel para ver cómo se ven sin estar en vivo.
 En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previa en vivo, y le cambias el título (o lo quitas con **Mostrar título**), los puestos y si lleva fondo. **Tu stream se actualiza solo**: no hace falta volver a pegar el link en OBS.
 
 - **Regalo más caro:** Tarjeta, Banner (barra horizontal), Trofeo (vertical con corona, ideal para stream vertical), Neón, Minimal (solo texto), Burbuja (foto de quien lo mandó) Círculo y Cuadro (la foto de perfil y el regalo se van volteando como moneda; eliges cada cuántos segundos).
-- **Top taps** y **Top regalos:** Lista, Podio (top 3 en escalones), Líder (solo el #1 en grande), Compacto, Neón y Cinta (barra que se desplaza, ideal abajo de la pantalla).
+- **Top taps** y **Top regalos:** Lista, Podio (top 3 en escalones), Líder (solo el #1 en grande), Compacto, Neón, Cinta (barra que se desplaza, ideal abajo de la pantalla) y Bolitas (vertical: la foto de cada fan en un círculo con aro de color, y le salen corazones cuando da taps).
 
 ### Animaciones
 

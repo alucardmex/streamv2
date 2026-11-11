@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/fx.css">
 <style>
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?tipo=likes|regalos  ?estilo=lista|podio|lider|compacto|neon|cinta  ?top=5  ?titulo=Mis%20fans (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
+     ?tipo=likes|regalos  ?estilo=lista|podio|lider|compacto|neon|cinta|bolitas  ?top=5  ?titulo=Mis%20fans (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
   :root { --acc: #fe2c55; --acc2: #25f4ee; --gold: #ffc24b; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
   .stage { display: inline-block; transform-origin: top left; padding: 10px; }
@@ -88,6 +88,42 @@
   .cinta .it .av { width: 30px; height: 30px; font-size: 13px; }
   .cinta .it em { font-style: normal; color: var(--gold); }
   @keyframes run { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  /* ---------- BOLITAS (vertical: fotos en círculo, una debajo de otra) ---------- */
+  .bolitas .box { width: 210px; padding: 14px 10px 16px; border-radius: 30px; background: rgba(12,12,18,.72); border: 2px solid rgba(255,255,255,.1); box-shadow: 0 12px 40px rgba(0,0,0,.45); }
+  .nobg .bolitas .box { background: none; border: 0; box-shadow: none; }
+  .bolitas h1 { margin: 0 0 12px; font-size: 19px; font-weight: 900; text-align: center; }
+  .bolitas ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .bolitas li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; border-radius: 20px; }
+  .bolitas .orb { position: relative; width: 76px; height: 76px; --c1: #fe2c55; --c2: #25f4ee; }
+  .bolitas li:nth-child(1) .orb { width: 116px; height: 116px; --c1: #ffe17a; --c2: #f2a614; margin-top: 24px; }
+  .bolitas li:nth-child(2) .orb { width: 92px; height: 92px; --c1: #ffffff; --c2: #8f9aab; }
+  .bolitas li:nth-child(3) .orb { width: 92px; height: 92px; --c1: #f6c29a; --c2: #a65e25; }
+  .bolitas .ring { position: absolute; inset: -5px; border-radius: 50%; background: conic-gradient(from var(--fx-a), var(--c1), var(--c2), var(--c1), var(--c2), var(--c1)); }
+  .fx-on .bolitas .ring { animation: fx-spin calc(3s * var(--spd)) linear infinite; }
+  .bolitas li:nth-child(1) .ring { box-shadow: 0 0 22px rgba(255,194,75,.6); }
+  .fx-on .bolitas li:nth-child(1) .ring { animation: fx-spin calc(3s * var(--spd)) linear infinite, orbGlow calc(2s * var(--spd)) ease-in-out infinite; }
+  @keyframes orbGlow { 50% { box-shadow: 0 0 calc(30px + 10px * var(--amp)) rgba(255,194,75,.95); } }
+  .bolitas .pic { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; border: 3px solid #120d18; background: #2a2238; }
+  .bolitas .pic .av { width: 100%; height: 100%; border: 0; border-radius: 50%; font-size: 32px; background: linear-gradient(135deg, #fe2c55, #7a3cff); }
+  .bolitas li:nth-child(1) .pic .av { font-size: 48px; }
+  .bolitas .pos { position: absolute; right: -4px; bottom: -2px; z-index: 2; min-width: 26px; height: 26px; padding: 0 5px; box-sizing: border-box; border-radius: 999px;
+    display: grid; place-items: center; font-weight: 900; font-size: 14px; color: #1a1222; background: linear-gradient(135deg, var(--c1), var(--c2)); border: 2px solid #120d18; }
+  .bolitas .crown { position: absolute; top: -32px; left: 50%; translate: -50% 0; z-index: 2; font-size: 32px; filter: drop-shadow(0 3px 6px rgba(0,0,0,.5)); }
+  .bolitas .lbl { text-align: center; line-height: 1.15; max-width: 190px; }
+  .bolitas .nm { display: block; font-size: 16px; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .bolitas li:nth-child(1) .nm { font-size: 19px; }
+  .bolitas .v { display: inline-block; font-size: 14px; font-weight: 900; color: var(--gold); }
+  .bolitas .orb.tap { animation: orbTap .35s ease; }
+  /* Quien sube de puesto: brilla su aro en verde en lugar de toda la fila */
+  .bolitas li.fx-up::after { display: none; }
+  .bolitas li.fx-up .ring { outline: 3px solid #4fe0b6; outline-offset: 2px; filter: drop-shadow(0 0 12px rgba(79,224,182,.9)); }
+  .bolitas .fx-arrow { right: calc(50% - 60px); top: -4px; }
+  .bolitas li:nth-child(1) .fx-arrow { right: calc(50% - 72px); top: 16px; }
+  @keyframes orbTap { 40% { scale: calc(1 + .08 * var(--amp)); } }
+  /* Corazones (o diamantes) que salen de la foto de quien da taps */
+  .tapfx { position: fixed; z-index: 60; pointer-events: none; font-size: calc(14px + 6px * var(--amp)); animation: tapfx calc(1.2s * var(--spd)) ease-out both; }
+  @keyframes tapfx { 0% { opacity: 0; transform: translate(0, 0) scale(.4); } 15% { opacity: 1; transform: translate(calc(var(--dx) * .2), -10px) scale(1); }
+    100% { opacity: 0; transform: translate(var(--dx), -70px) scale(.8) rotate(var(--r)); } }
   body.fx-on .cinta .box { position: relative; }
   .podio .col, .lider .box { position: relative; }
   body.fx-on .fx-tick { animation: fx-tick .42s ease; }
@@ -107,7 +143,7 @@ const tipo = /regal|gift/i.test(P.get('tipo') || '') ? 'gifts' : 'likes';
 const icon = tipo === 'gifts' ? '💎' : '❤️';
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
-const STYLES = ['lista', 'podio', 'lider', 'compacto', 'neon', 'cinta'];
+const STYLES = ['lista', 'podio', 'lider', 'compacto', 'neon', 'cinta', 'bolitas'];
 let cfg = { style: 'lista', title: tipo === 'gifts' ? '💎 Top regalos' : '❤️ Top taps', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } };
 let last = null;
 let prev = new Map();   // usuario -> { value, pos } de la vez anterior
@@ -157,6 +193,9 @@ function build(s, rows) {
     root.innerHTML = a
       ? `<div class="box" data-id="${esc(a.user)}"><div class="who"><span class="crown">👑</span>${av(a)}</div><div><small>${esc(s.title)}</small><b class="shadow">${esc(a.name)}</b><div class="v">${cnt(a)}</div>${rows[1] ? `<div class="next">Le sigue ${esc(rows[1].name)} con ${plain(rows[1])}</div>` : ''}</div></div>`
       : `<div class="box"><div><small>${esc(s.title)}</small><b>¿Quién será el primero?</b></div></div>`;
+  } else if (s.style === 'bolitas') {
+    const list = rows.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i}"><div class="orb"><span class="ring"></span><div class="pic">${av(u)}</div><span class="pos">${i + 1}</span>${i === 0 ? '<span class="crown">👑</span>' : ''}</div><div class="lbl"><b class="nm shadow">${esc(u.name)}</b><span class="v shadow">${cnt(u)}</span></div></li>`).join('');
+    root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
   } else if (s.style === 'cinta') {
     const items = rows.map((u, i) => `<span class="it" style="--i:${i}">${i === 0 ? '👑' : `${i + 1}.`} ${av(u)} ${esc(u.name)} <em>${plain(u)} ${icon}</em></span>`).join('');
     const content = items || '<span class="it">¡Sé el primero en aparecer aquí!</span>';
@@ -178,6 +217,27 @@ function restart(el, cls) {
   el.classList.remove(cls);
   void el.offsetWidth;
   el.classList.add(cls);
+}
+
+// Bolitas: la foto late y le salen corazones (o diamantes) según cuántos taps llegaron.
+function tapBurst(li, diff) {
+  const orb = li?.querySelector('.orb');
+  if (!orb || document.hidden) return;
+  restart(orb, 'tap');
+  const r = orb.getBoundingClientRect();
+  const n = Math.min(7, 1 + Math.floor(Math.log10(Math.max(1, diff)) * 2.2));
+  for (let i = 0; i < n; i++) {
+    const h = document.createElement('span');
+    h.className = 'tapfx';
+    h.textContent = icon;
+    h.style.left = `${r.left + r.width * (0.2 + Math.random() * 0.6) - 10}px`;
+    h.style.top = `${r.top + r.height * (0.15 + Math.random() * 0.3)}px`;
+    h.style.setProperty('--dx', `${Math.round((Math.random() - 0.5) * 90)}px`);
+    h.style.setProperty('--r', `${Math.round((Math.random() - 0.5) * 60)}deg`);
+    h.style.animationDelay = `${i * 70}ms`;
+    document.body.appendChild(h);
+    setTimeout(() => h.remove(), 1800 + i * 70);
+  }
 }
 
 function render() {
@@ -226,7 +286,10 @@ function render() {
     const n = root.querySelector(`.cnt${sel(u.user)}`);
     FX.count(n, `${tipo}:${u.user}`, u.value, fmt, oldVal.get(u.user) ?? 0);
     if (changed.has(u.user) && !entered.has(u.user)) {
-      if (FX.on) restart(n?.closest('.v'), 'fx-tick');
+      if (FX.on) {
+        restart(n?.closest('.v'), 'fx-tick');
+        if (s.style === 'bolitas') tapBurst(el(u), u.value - (oldVal.get(u.user) || 0));
+      }
       else restart(el(u), 'bump');
     }
   });
