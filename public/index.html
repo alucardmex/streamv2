@@ -374,6 +374,27 @@
   .chip:hover { border-color: var(--muted); }
   .chip[aria-pressed=true] { border-color: var(--gift); background: rgba(255,194,75,.12); box-shadow: inset 0 0 0 1px var(--gift); }
   .chip:focus-visible, .st-anim .seg button:focus-visible { outline: 2px solid var(--voice); outline-offset: 2px; }
+  .cr-list { display: flex; flex-direction: column; gap: 12px; }
+  .cr { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
+  .cr.off { opacity: .55; }
+  .cr-media { display: flex; flex-direction: column; gap: 8px; }
+  .cr-thumb { width: 150px; height: 110px; border-radius: 12px; overflow: hidden; display: grid; place-items: center;
+    background: repeating-conic-gradient(#2a2238 0 25%, #221b30 0 50%) 0 0 / 16px 16px; position: relative; }
+  .cr-thumb img, .cr-thumb video { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+  .cr-thumb .kind { position: absolute; left: 6px; top: 6px; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 999px; background: rgba(0,0,0,.65); }
+  .cr-body { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .cr-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; }
+  .cr-row > span.lbl { font-size: 13px; font-weight: 700; color: var(--muted); }
+  .cr input[type=text], .cr input[type=number], .cr select { background: var(--ink); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font: inherit; font-size: 14px; }
+  .cr input[type=text] { width: 220px; }
+  .cr input[type=number] { width: 100px; }
+  .cr select { width: auto; min-width: 190px; }
+  .cr-when { display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .cr-gimg { width: 28px; height: 28px; object-fit: contain; }
+  .cr-warn { font-size: 12.5px; color: var(--gift); }
+  .cr-actions { display: flex; gap: 8px; margin-left: auto; }
+  .cr-empty { color: var(--muted); font-size: 14px; padding: 14px; border: 1px dashed var(--line); border-radius: 14px; }
+  @media (max-width: 760px) { .cr { grid-template-columns: 1fr; } }
   .al-prev { max-width: 1000px; display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 18px; align-items: start; margin-bottom: 10px; }
   .al-screen { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; border: 1px solid var(--line);
     background: radial-gradient(ellipse at 30% 20%, #3b4a5c, transparent 60%), radial-gradient(ellipse at 80% 90%, #3a2a4a, transparent 55%), linear-gradient(160deg, #26323f, #141a24); }
@@ -744,6 +765,18 @@
           <label class="switch"><input type="checkbox" data-key="alerts.showFollows"><span class="track"></span>Nuevos seguidores</label>
           <label class="switch"><input type="checkbox" data-key="alerts.showShares"><span class="track"></span>Compartidos</label>
         </div>
+      </div>
+    </section>
+    <section class="group">
+      <div><h2>Alertas personalizadas</h2><p>Sube un video, foto o GIF para un regalo en específico o para regalos desde cierta cantidad de diamantes. Lo que no tenga una alerta propia usa la animación de siempre.</p></div>
+      <div class="controls">
+        <div class="cr-list" id="cr-list"></div>
+        <div class="row">
+          <button class="btn go" id="cr-add">＋ Agregar video, foto o GIF</button>
+          <input type="file" id="cr-file" accept="video/mp4,video/webm,video/quicktime,.m4v,image/gif,image/png,image/jpeg,image/webp,.apng" hidden>
+          <span class="hint" id="cr-status"></span>
+        </div>
+        <datalist id="gift-catalog"></datalist>
       </div>
     </section>
     <section class="group">
@@ -1943,6 +1976,172 @@ function renderStudios() {
       <button class="btn sm" data-copy="${esc(url)}">Copiar link</button><button class="btn sm quiet" data-open-path="${esc(st.dataset.path)}">Abrir</button>`;
   });
 }
+// ---------------------------------------------------------------- alertas personalizadas
+let giftCatalog = [];
+let crRendered = '';
+let crTarget = null; // regla a la que se le cambia el archivo (null = nueva)
+const CR_SIZES = [['chico', 'Chico'], ['mediano', 'Mediano'], ['grande', 'Grande'], ['completo', 'Pantalla completa']];
+const crRules = () => (settings.alerts.custom ||= []);
+// Mientras hay cambios sin guardar, lo que llega del servidor (más viejo) no los pisa.
+let crLocal = null, crLocalTimer = null;
+const crSave = (now) => {
+  clearTimeout(saveTimer);
+  clearTimeout(crLocalTimer);
+  crLocal = crRules();
+  crLocalTimer = setTimeout(() => { crLocal = null; }, now ? 1500 : 2000);
+  if (now) socket.emit('saveSettings', settings);
+  else saveTimer = setTimeout(() => socket.emit('saveSettings', settings), 400);
+};
+
+function renderGiftCatalog() {
+  const dl = $('#gift-catalog');
+  if (dl) dl.innerHTML = giftCatalog.map((g) => `<option value="${esc(g.name)}">${g.diamonds ? `${fmt(g.diamonds)} 💎` : ''}</option>`).join('');
+}
+function crCard(r) {
+  const src = r.media ? `/media/${encodeURIComponent(r.media)}` : '';
+  const thumb = !src ? '<span class="hint">Sin archivo</span>'
+    : r.mediaType === 'video' ? `<video src="${src}" muted loop playsinline preload="metadata" onmouseenter="this.play()" onmouseleave="this.pause()"></video><span class="kind">VIDEO</span>`
+    : `<img src="${src}" alt=""><span class="kind">${/\.gif$/i.test(r.media) ? 'GIF' : 'FOTO'}</span>`;
+  const seg = (field, list) => `<div class="seg" role="group">${list.map(([v, l]) => `<button type="button" aria-pressed="${r[field] === v}" data-crset="${field}:${v}">${l}</button>`).join('')}</div>`;
+  const known = giftCatalog.find((g) => (r.giftId && g.id === r.giftId) || g.name === r.gift);
+  const gimg = r.giftImage || known?.image;
+  const when = r.kind === 'gift'
+    ? `<input type="text" list="gift-catalog" placeholder="Nombre del regalo" value="${esc(r.gift)}" data-crf="gift" aria-label="Regalo">${gimg ? `<img class="cr-gimg" src="${esc(gimg)}" alt="" referrerpolicy="no-referrer">` : ''}${!r.gift.trim() ? '<span class="cr-warn">Escribe qué regalo</span>' : ''}`
+    : `<span class="lbl">Desde</span><input type="number" min="1" value="${r.min}" data-crf="min" aria-label="Diamantes mínimos"><span class="lbl">💎 en total</span>`;
+  const sounds = [...(r.mediaType === 'video' ? [['video', 'Sonido del video']] : []), ['campana', 'Campanita de siempre'], ['ninguno', 'Sin sonido']];
+  return `<article class="cr${r.on === false ? ' off' : ''}" data-cr="${esc(r.id)}">
+    <div class="cr-media"><div class="cr-thumb">${thumb}</div><button type="button" class="btn sm quiet" data-cract="file">Cambiar archivo</button></div>
+    <div class="cr-body">
+      <div class="cr-row">
+        <label class="switch"><input type="checkbox" data-crf="on" ${r.on !== false ? 'checked' : ''}><span class="track"></span>Activa</label>
+        ${seg('kind', [['gift', 'Para un regalo'], ['amount', 'Desde cierta cantidad']])}
+        <span class="cr-when">${when}</span>
+      </div>
+      <div class="cr-row"><span class="lbl">Tamaño</span>${seg('size', CR_SIZES)}</div>
+      <div class="cr-row">
+        <span class="lbl">Sonido</span><select data-crf="sound" aria-label="Sonido">${sounds.map(([v, l]) => `<option value="${v}" ${r.sound === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <span class="lbl">Segundos</span><input type="number" min="0" max="60" value="${r.secs || ''}" placeholder="${r.mediaType === 'video' ? 'lo que dure' : 'los de siempre'}" data-crf="secs" aria-label="Segundos en pantalla">
+        <label class="switch"><input type="checkbox" data-crf="showText" ${r.showText !== false ? 'checked' : ''}><span class="track"></span>Mostrar nombre y regalo</label>
+        <div class="cr-actions"><button type="button" class="btn sm" data-cract="test">▶ Probar</button><button type="button" class="btn sm quiet" data-cract="del">Eliminar</button></div>
+      </div>
+    </div>
+  </article>`;
+}
+function renderCustom(force) {
+  const list = $('#cr-list');
+  if (!list || !settings) return;
+  const json = JSON.stringify([crRules(), giftCatalog.length]);
+  if (!force && json === crRendered) return;
+  // No redibujar mientras escribes un nombre o una cantidad (se perdería lo que vas escribiendo).
+  if (!force && list.contains(document.activeElement) && /^(text|number)$/.test(document.activeElement.type)) return;
+  crRendered = json;
+  const ae = document.activeElement;
+  const keep = list.contains(ae) && ae.dataset.crf ? { id: ae.closest('[data-cr]').dataset.cr, f: ae.dataset.crf, pos: ae.selectionStart } : null;
+  list.innerHTML = crRules().length ? crRules().map(crCard).join('') : '<div class="cr-empty">Todavía no tienes alertas personalizadas. Todos los regalos usan la animación de siempre.</div>';
+  if (keep) {
+    const el = list.querySelector(`[data-cr="${CSS.escape(keep.id)}"] [data-crf="${keep.f}"]`);
+    if (el) { el.focus(); try { if (keep.pos != null) el.setSelectionRange(keep.pos, keep.pos); } catch {} }
+  }
+}
+const crRule = (el) => crRules().find((r) => r.id === el.closest('[data-cr]')?.dataset.cr);
+
+$('#cr-add')?.addEventListener('click', () => { crTarget = null; $('#cr-file').click(); });
+$('#cr-file')?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  const status = $('#cr-status');
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', `/api/media?name=${encodeURIComponent(file.name)}`);
+  xhr.upload.onprogress = (ev) => { if (ev.lengthComputable) status.textContent = `Subiendo ${file.name}… ${Math.round((ev.loaded / ev.total) * 100)}%`; };
+  xhr.onload = () => {
+    let res = {};
+    try { res = JSON.parse(xhr.responseText); } catch {}
+    if (xhr.status !== 200) { status.textContent = ''; return toast(res.error || 'No se pudo subir el archivo'); }
+    status.textContent = '';
+    const target = crTarget && crRules().find((r) => r.id === crTarget);
+    if (target) {
+      target.media = res.file;
+      target.mediaType = res.kind;
+      if (res.kind !== 'video' && target.sound === 'video') target.sound = 'campana';
+    } else {
+      crRules().push({ id: Math.random().toString(36).slice(2, 10), on: true, kind: 'gift', gift: '', giftId: '', giftImage: '', min: 100,
+        media: res.file, mediaType: res.kind, size: 'mediano', sound: res.kind === 'video' ? 'video' : 'campana', showText: true, secs: 0 });
+    }
+    crSave(true);
+    renderCustom(true);
+    if (!target) $('#cr-list [data-cr]:last-child [data-crf="gift"]')?.focus();
+    toast(target ? 'Archivo cambiado' : 'Listo. Ahora elige para qué regalo es.');
+  };
+  xhr.onerror = () => { status.textContent = ''; toast('No se pudo subir el archivo'); };
+  status.textContent = `Subiendo ${file.name}…`;
+  xhr.send(file);
+});
+document.addEventListener('input', (e) => {
+  const el = e.target.closest('[data-crf]');
+  if (!el || el.type === 'checkbox' || el.tagName === 'SELECT') return;
+  const r = crRule(el);
+  if (!r) return;
+  const f = el.dataset.crf;
+  if (f === 'gift') {
+    r.gift = el.value;
+    const g = giftCatalog.find((x) => x.name === el.value.trim());
+    r.giftId = g?.id || '';
+    r.giftImage = g?.image || '';
+  } else if (f === 'min') r.min = Math.max(1, Number(el.value) || 1);
+  else if (f === 'secs') r.secs = Math.max(0, Math.min(60, Number(el.value) || 0));
+  crSave();
+});
+document.addEventListener('change', (e) => {
+  const el = e.target.closest('[data-crf]');
+  if (!el) return;
+  const r = crRule(el);
+  if (!r) return;
+  if (el.type === 'checkbox') r[el.dataset.crf] = el.checked;
+  else if (el.tagName === 'SELECT') r[el.dataset.crf] = el.value;
+  else if (el.dataset.crf === 'gift') {
+    // Solo se actualiza la imagen del regalo junto al campo (redibujar todo aquí se comería el siguiente clic).
+    el.parentElement.querySelectorAll('.cr-gimg, .cr-warn').forEach((x) => x.remove());
+    const known = giftCatalog.find((g) => (r.giftId && g.id === r.giftId) || g.name === r.gift);
+    const gimg = r.giftImage || known?.image;
+    el.insertAdjacentHTML('afterend', (gimg ? `<img class="cr-gimg" src="${esc(gimg)}" alt="" referrerpolicy="no-referrer">` : '') + (!r.gift.trim() ? '<span class="cr-warn">Escribe qué regalo</span>' : ''));
+    crRendered = JSON.stringify([crRules(), giftCatalog.length]);
+    return;
+  }
+  else return;
+  crSave(true);
+  renderCustom(true);
+});
+document.addEventListener('click', (e) => {
+  const set = e.target.closest('[data-crset]');
+  if (set) {
+    const r = crRule(set);
+    const [f, v] = set.dataset.crset.split(':');
+    if (r) { r[f] = v; crSave(true); renderCustom(true); }
+    return;
+  }
+  const act = e.target.closest('[data-cract]');
+  if (!act) return;
+  const r = crRule(act);
+  if (!r) return;
+  if (act.dataset.cract === 'file') { crTarget = r.id; $('#cr-file').click(); }
+  else if (act.dataset.cract === 'del') {
+    settings.alerts.custom = crRules().filter((x) => x !== r);
+    crSave(true);
+    renderCustom(true);
+  } else if (act.dataset.cract === 'test') {
+    crSave(true);
+    $('#al-screen').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    setTimeout(() => { try { $('#al-frame').contentWindow.previewRule?.(r.id); } catch {} }, 450);
+  }
+});
+socket.on('config', (cfg) => {
+  if (crLocal) settings.alerts.custom = crLocal;
+  if (cfg.giftCatalog) { giftCatalog = cfg.giftCatalog; renderGiftCatalog(); }
+  renderCustom();
+});
+socket.on('giftCatalog', (list) => { giftCatalog = list || []; renderGiftCatalog(); renderCustom(); });
+
 // Vista previa de alertas: el overlay a tamaño real (1280×720 o 720×1280) encogido dentro del recuadro.
 let alPos = 'centro';
 try { alPos = localStorage.getItem('al-pos') || 'centro'; } catch {}

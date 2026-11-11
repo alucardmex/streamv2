@@ -1,9 +1,10 @@
-**Vista previa de alertas** en la pestaña **Alertas**.
+**Alertas personalizadas:** tu propio video, foto o GIF para un regalo o desde cierta cantidad de diamantes.
 
-- Ve cómo se ven las alertas sin salir en tu stream: regalo chico, regalo de 100+ 💎 (con confeti), regalo de 1,000+ 💎, nuevo seguidor y compartido
-- Suena con el volumen que tengas, para ajustarlo antes del live
-- Cambia entre pantalla **Horizontal** y **Vertical**
-- Elige la **posición** (arriba, centro o abajo) y el link para OBS se arma solo
-- Los botones de prueba que sí salen en el stream siguen ahí, con su link para copiar
+- En la pestaña **Alertas → Alertas personalizadas**, toca **＋ Agregar video, foto o GIF**
+- Elige si es **para un regalo** (los regalos que ya te han mandado aparecen en la lista) o **desde cierta cantidad** de diamantes
+- Tamaño Chico, Mediano, Grande o **Pantalla completa**
+- Sonido del video, la campanita de siempre o sin sonido
+- Botón **▶ Probar** para verla en la vista previa sin que salga en tu stream
+- Lo que no tenga alerta propia sigue usando la animación de siempre
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.7.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.8.0 lista", toca **Actualizar**.

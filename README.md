@@ -66,6 +66,18 @@ Con **▶ Probar animación** ves en la vista previa cómo se vería un récord 
 - Regalo más caro: `?estilo=trofeo`, `?titulo=Rey%20del%20stream` (`?titulo=0` sin título), `?fondo=0`, `?escala=1.2`, `?ocultarVacio=1` (no se muestra hasta el primer regalo), `?cambio=4` (segundos entre foto y regalo, estilos Círculo y Cuadro), `?animacion=0`
 - Chat: `?ocultar=30` (segundos; `0` = nunca), `?max=8`, `?regalos=0`, `?escala=1.2`
 
+### Alertas personalizadas (tu propio video, foto o GIF)
+
+En la pestaña **Alertas**, sección **Alertas personalizadas**, toca **＋ Agregar video, foto o GIF** y elige:
+
+- **Para un regalo:** escribe el nombre del regalo tal como lo manda TikTok. Los regalos que ya te han mandado aparecen en la lista para elegirlos.
+- **Desde cierta cantidad:** por ejemplo, "Desde 1,000 💎". Cuenta el total (precio × cantidad). Si hay varias, gana la más alta que alcance.
+- **Tamaño:** Chico, Mediano, Grande o Pantalla completa.
+- **Sonido:** el del video, la campanita de siempre o sin sonido.
+- **Segundos:** los videos duran lo que dure el video (hasta 60 s); las fotos y GIF usan los segundos de siempre, o los que pongas.
+
+Si un regalo tiene alerta para él y además alcanza una cantidad, gana la del regalo. Lo que no tenga alerta propia usa la animación de siempre. Una alerta para un regalo se muestra aunque ese regalo cueste menos que el mínimo de diamantes. Formatos: MP4 o WEBM para video; GIF, PNG, JPG o WEBP para imagen. Los archivos se guardan en tu carpeta de datos (`media`).
+
 ## 5. El bot lector de chat
 
 - Habla desde la ventana de StreamV2, aunque esté minimizada.

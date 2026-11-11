@@ -83,6 +83,9 @@ const DEFAULT_CONFIG = {
       volume: 0.6,
       showFollows: true,
       showShares: false,
+      // Alertas con tu propio video, foto o GIF para un regalo o desde cierta cantidad de diamantes.
+      // Lo que no tenga una propia usa la animación de siempre.
+      custom: [],
     },
     ranking: {
       top: 5,
@@ -154,6 +157,59 @@ function migrateVoices() {
   }
 }
 const saveConfig = () => fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+
+// ---------------------------------------------------------------------------
+// Alertas personalizadas: archivos que subes (video, foto o GIF)
+// ---------------------------------------------------------------------------
+const MEDIA_DIR = path.join(DATA_DIR, 'media');
+fs.mkdirSync(MEDIA_DIR, { recursive: true });
+const MEDIA_EXT = { mp4: 'video', webm: 'video', mov: 'video', m4v: 'video', gif: 'image', png: 'image', jpg: 'image', jpeg: 'image', webp: 'image', apng: 'image' };
+const MEDIA_NAME = /^[a-z0-9][a-z0-9-]{0,80}\.(mp4|webm|mov|m4v|gif|png|jpe?g|webp|apng)$/;
+const pick1 = (v, list, d) => (list.includes(v) ? v : d);
+
+function cleanCustom(list) {
+  if (!Array.isArray(list)) return [];
+  return list.slice(0, 60).filter((r) => r && typeof r === 'object').map((r) => ({
+    id: String(r.id || Math.random().toString(36).slice(2, 10)).slice(0, 24),
+    on: r.on !== false,
+    kind: pick1(r.kind, ['gift', 'amount'], 'gift'),
+    gift: String(r.gift || '').slice(0, 60),
+    giftId: String(r.giftId || '').slice(0, 30),
+    giftImage: String(r.giftImage || '').slice(0, 600),
+    min: Math.max(1, Math.round(Number(r.min) || 100)),
+    media: MEDIA_NAME.test(String(r.media || '')) ? String(r.media) : '',
+    mediaType: pick1(r.mediaType, ['video', 'image'], 'image'),
+    size: pick1(r.size, ['chico', 'mediano', 'grande', 'completo'], 'mediano'),
+    sound: pick1(r.sound, ['video', 'campana', 'ninguno'], 'campana'),
+    showText: r.showText !== false,
+    secs: Math.max(0, Math.min(60, Number(r.secs) || 0)),
+  }));
+}
+config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
+
+// Al abrir, borra los archivos que ya no usa ninguna alerta.
+try {
+  const used = new Set(config.settings.alerts.custom.map((r) => r.media));
+  for (const f of fs.readdirSync(MEDIA_DIR)) if (MEDIA_NAME.test(f) && !used.has(f)) fs.rmSync(path.join(MEDIA_DIR, f), { force: true });
+} catch {}
+
+// Regalos que te han mandado (nombre tal como lo manda TikTok, imagen y precio), para elegirlos en el panel.
+const GIFTS_FILE = path.join(DATA_DIR, 'regalos.json');
+const giftCatalog = new Map(Object.entries(loadJson(GIFTS_FILE, {})));
+let catalogTimer = null;
+const catalogList = () => [...giftCatalog.values()].sort((a, b) => (b.diamonds - a.diamonds) || a.name.localeCompare(b.name)).slice(0, 300);
+function rememberGift(p) {
+  const key = p.giftId || p.gift;
+  if (!key) return;
+  const prev = giftCatalog.get(key);
+  if (prev && prev.name === p.gift && prev.image === (p.image || prev.image) && prev.diamonds === p.diamonds) return;
+  giftCatalog.set(key, { id: p.giftId, name: p.gift, image: p.image || prev?.image || '', diamonds: p.diamonds });
+  clearTimeout(catalogTimer);
+  catalogTimer = setTimeout(() => {
+    fs.writeFile(GIFTS_FILE, JSON.stringify(Object.fromEntries(giftCatalog), null, 1), () => {});
+    io.emit('giftCatalog', catalogList());
+  }, 1500);
+}
 
 // Caracteres usados por servicio de voz, por mes (para cuidar lo que gastas).
 const USAGE_FILE = path.join(DATA_DIR, 'uso-voz.json');
@@ -278,6 +334,7 @@ function handleGift(d, isTest = false) {
   const type = g.type ?? ext.type ?? d.giftType;
   const count = Number(d.repeatCount || d.comboCount || 1);
   const payload = { ...who, gift: name, giftId: String(d.giftId || ''), image, diamonds, count, test: isTest };
+  if (!isTest) rememberGift(payload);
 
   // Regalos tipo "racha" (type 1): TikTok manda un evento por cada toque.
   // Mostramos el contador en vivo, pero la alerta y el conteo final van al terminar la racha.
@@ -431,6 +488,24 @@ async function disconnectLive() {
 const app = express();
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json({ limit: '64kb' }));
+app.use('/media', express.static(MEDIA_DIR, { maxAge: '1h' }));
+
+// Sube un archivo para una alerta personalizada. El panel manda el archivo tal cual.
+app.post('/api/media', express.raw({ type: () => true, limit: '400mb' }), (req, res) => {
+  const orig = String(req.query.name || 'archivo');
+  const ext = (orig.split('.').pop() || '').toLowerCase();
+  const kind = MEDIA_EXT[ext];
+  if (!kind) return res.status(400).json({ error: 'Formato no compatible. Usa MP4, WEBM, GIF, PNG, JPG o WEBP.' });
+  if (!req.body?.length) return res.status(400).json({ error: 'El archivo llegó vacío.' });
+  const slug = orig.slice(0, -(ext.length + 1)).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'alerta';
+  const file = `${Date.now().toString(36)}-${slug}.${ext === 'jpeg' ? 'jpg' : ext}`;
+  try {
+    fs.writeFileSync(path.join(MEDIA_DIR, file), req.body);
+    res.json({ file, kind });
+  } catch (e) {
+    res.status(500).json({ error: 'No se pudo guardar el archivo: ' + e.message });
+  }
+});
 
 // Genera el audio de una voz. El panel manda la voz y el texto; la key se queda aquí.
 app.post('/api/tts', async (req, res) => {
@@ -532,6 +607,7 @@ io.on('connection', (socket) => {
 
   socket.on('saveSettings', (settings) => {
     config.settings = deepMerge(DEFAULT_CONFIG.settings, settings);
+    config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
     saveConfig();
     io.emit('config', publicConfig());
   });
@@ -579,6 +655,7 @@ function publicConfig() {
     fishModels: FISH_MODELS,
     voiceUsage: usage[monthKey()] || {},
     settings: config.settings,
+    giftCatalog: catalogList(),
     port: PORT,
   };
 }

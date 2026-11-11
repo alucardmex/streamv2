@@ -5,3 +5,5 @@ ranking.json
 uso-voz.json
 dev-app-update.yml
 *.log
+media/
+regalos.json

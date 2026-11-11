@@ -51,6 +51,15 @@
   .alert.tier3 .gift-img { width: 240px; height: 240px; font-size: 170px; }
   .alert.follow { --accent: #25f4ee; }
 
+  /* Alertas personalizadas (tu video, foto o GIF) */
+  .custom-media { position: relative; display: block; max-width: 92vw; object-fit: contain; border-radius: 14px; filter: drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
+  .size-chico .custom-media { max-height: 220px; max-width: 360px; }
+  .size-mediano .custom-media { max-height: 340px; max-width: 560px; }
+  .size-grande .custom-media { max-height: 480px; max-width: 800px; }
+  .alert.size-completo { position: fixed; inset: 0; justify-content: flex-end; padding-bottom: 6vh; }
+  .size-completo .custom-media { position: fixed; inset: 0; width: 100vw; height: 100vh; max-width: none; border-radius: 0; filter: none; }
+  .alert.custom .card { margin-top: 14px; }
+
   .confetti { position: fixed; top: -20px; width: 10px; height: 16px; border-radius: 2px; animation: fall linear forwards; pointer-events: none; }
   @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
 </style>
@@ -77,7 +86,8 @@ const fmt = (n) => Number(n).toLocaleString('es-MX');
 
 socket.on('gift', (g) => {
   if (PREVIEW) return;
-  if (g.total < (settings.alerts.minDiamonds || 0)) return;
+  // Un regalo con alerta propia se muestra aunque cueste menos que el mínimo.
+  if (g.total < (settings.alerts.minDiamonds || 0) && !findRule({ type: 'gift', ...g }, true)) return;
   queue.push({ type: 'gift', ...g });
   run();
 });
@@ -99,6 +109,23 @@ window.preview = (kind) => {
   run();
 };
 window.setPosition = (pos) => { stage.className = pos || 'centro'; };
+// Probar una alerta personalizada desde el panel.
+window.previewRule = (id) => {
+  const r = (settings.alerts.custom || []).find((x) => x.id === id);
+  if (!r) return;
+  queue.push({ type: 'gift', name: 'Lupita', avatar: '', gift: r.kind === 'gift' ? (r.gift || 'Regalo') : 'Regalo', image: r.giftImage || '', count: 1, total: r.kind === 'amount' ? r.min : 1, rule: r });
+  run();
+};
+
+// ¿Este regalo tiene alerta propia? Primero la de ese regalo; si no, la de mayor cantidad que alcance.
+const norm = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+function findRule(a, giftOnly = false) {
+  if (a.type !== 'gift') return null;
+  const rules = (settings.alerts.custom || []).filter((r) => r.on !== false && r.media);
+  const byGift = rules.find((r) => r.kind === 'gift' && ((r.giftId && r.giftId === a.giftId) || (r.gift && norm(r.gift) === norm(a.gift))));
+  if (byGift || giftOnly) return byGift || null;
+  return rules.filter((r) => r.kind === 'amount' && (a.total || 0) >= r.min).sort((x, y) => y.min - x.min)[0] || null;
+}
 
 function tierOf(a) {
   if (a.type !== 'gift') return 1;
@@ -119,11 +146,12 @@ function run() {
   const tier = tierOf(a);
   const base = Math.max(2, settings.alerts.duration || 6);
   const hurry = queue.length > 4 ? 0.5 : queue.length > 1 ? 0.75 : 1;
-  const ms = (base + (tier === 3 ? 3 : tier === 2 ? 1 : 0)) * 1000 * hurry;
+  let ms = (base + (tier === 3 ? 3 : tier === 2 ? 1 : 0)) * 1000 * hurry;
+  const rule = a.rule || findRule(a);
 
   const el = document.createElement('div');
-  el.className = `alert tier${tier} ${a.type}`;
-  el.style.setProperty('--s', scale);
+  el.className = `alert tier${tier} ${a.type}${rule ? ` custom size-${rule.size}` : ''}`;
+  el.style.setProperty('--s', rule?.size === 'completo' ? 1 : scale);
   let visual, what, value = '';
   if (a.type === 'gift') {
     visual = a.image
@@ -138,15 +166,46 @@ function run() {
     visual = `<div class="gift-img">📢</div>`;
     what = `¡<b>compartió</b> el live!`;
   }
-  el.innerHTML = `<div class="halo"></div>${visual}
-    <div class="card">${avatarHtml(a)}<div class="txt"><div class="name">${esc(a.name)}</div><div class="what">${what}</div>${value ? `<div class="value">${value}</div>` : ''}</div></div>`;
+  const card = `<div class="card">${avatarHtml(a)}<div class="txt"><div class="name">${esc(a.name)}</div><div class="what">${what}</div>${value ? `<div class="value">${value}</div>` : ''}</div></div>`;
+  if (rule) {
+    const src = `/media/${encodeURIComponent(rule.media)}`;
+    const media = rule.mediaType === 'video'
+      ? `<video class="custom-media" src="${src}" autoplay playsinline ${rule.sound === 'video' && !forceMute && settings.alerts.sound ? '' : 'muted'}></video>`
+      : `<img class="custom-media" src="${src}" alt="">`;
+    el.innerHTML = media + (rule.showText ? card : '');
+    if (rule.secs) ms = rule.secs * 1000 * hurry;
+  } else {
+    el.innerHTML = `<div class="halo"></div>${visual}${card}`;
+  }
   stage.appendChild(el);
 
-  playSound(tier, a.type);
-  if (tier >= 2) confetti(tier === 3 ? 90 : 40);
+  if (!rule || rule.sound === 'campana') playSound(tier, a.type);
+  if (tier >= 2 && rule?.size !== 'completo') confetti(tier === 3 ? 90 : 40);
 
-  setTimeout(() => el.classList.add('out'), ms);
-  setTimeout(() => { el.remove(); busy = false; setTimeout(run, 250); }, ms + 450);
+  let done = false;
+  const finish = () => {
+    if (done) return;
+    done = true;
+    el.classList.add('out');
+    setTimeout(() => { el.remove(); busy = false; setTimeout(run, 250); }, 450);
+  };
+  const video = el.querySelector('video');
+  if (video && !rule.secs) {
+    // El video dura lo que dure (hasta 60 s); si hay muchas alertas en fila, se corta antes.
+    video.volume = Math.min(1, settings.alerts.volume ?? 0.6);
+    const limit = queue.length > 4 ? 5000 : 60000;
+    const t = setTimeout(finish, limit);
+    video.addEventListener('ended', () => { clearTimeout(t); finish(); });
+    video.addEventListener('error', () => { clearTimeout(t); setTimeout(finish, ms); });
+    video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
+  } else {
+    if (video) {
+      video.loop = true;
+      video.volume = Math.min(1, settings.alerts.volume ?? 0.6);
+      video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
+    }
+    setTimeout(finish, ms);
+  }
 }
 
 function confetti(n) {
