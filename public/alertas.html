@@ -108,6 +108,8 @@ window.preview = (kind) => {
   queue.push({ ...a, avatar: '', image: '' });
   run();
 };
+// Probador de alertas del panel: una alerta armada a mano (regalo, cantidad, quién).
+window.previewAlert = (a) => { if (a && a.type) { queue.push({ avatar: '', image: '', ...a }); run(); } };
 window.setPosition = (pos) => { stage.className = pos || 'centro'; };
 // Probar una alerta personalizada desde el panel.
 window.previewRule = (id) => {

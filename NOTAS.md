@@ -1,10 +1,8 @@
-**Alertas personalizadas:** tu propio video, foto o GIF para un regalo o desde cierta cantidad de diamantes.
+**Probador de alertas** en la pestaña **Alertas**.
 
-- En la pestaña **Alertas → Alertas personalizadas**, toca **＋ Agregar video, foto o GIF**
-- Elige si es **para un regalo** (los regalos que ya te han mandado aparecen en la lista) o **desde cierta cantidad** de diamantes
-- Tamaño Chico, Mediano, Grande o **Pantalla completa**
-- Sonido del video, la campanita de siempre o sin sonido
-- Botón **▶ Probar** para verla en la vista previa sin que salga en tu stream
-- Lo que no tenga alerta propia sigue usando la animación de siempre
+- Arma la alerta que quieras: regalo, seguidor o compartido, quién lo manda, qué regalo y cuántos
+- Regalos rápidos con un toque (los que te han mandado, los de tus alertas personalizadas y algunos de ejemplo)
+- Te dice qué alerta va a salir: tu video/foto/GIF o la animación de siempre, y si tu mínimo de diamantes la dejaría fuera
+- **Ver en la vista previa**, **Mandar a mi stream** (sale en OBS y el bot la lee, pero no cuenta para el ranking ni el regalo más caro) o **Probar 5 seguidas**
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.8.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.9.0 lista", toca **Actualizar**.

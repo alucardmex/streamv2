@@ -639,6 +639,20 @@ io.on('connection', (socket) => {
   });
   socket.on('test:follow', () => handleFollow({ user: fakeUser() }));
 
+  // Probador de alertas del panel: sale en OBS y el bot la lee, pero no cuenta para rankings ni récords.
+  socket.on('test:alert', (t = {}) => {
+    const name = String(t.name || 'Prueba').slice(0, 40);
+    const who = { user: name.toLowerCase().replace(/[^a-z0-9._]/g, '') || 'prueba', name, avatar: '' };
+    if (t.type === 'follow') return io.emit('follow', { ...who, test: true });
+    if (t.type === 'share') return io.emit('share', { ...who, test: true });
+    const diamonds = Math.max(0, Math.min(1e6, Math.round(Number(t.diamonds) || 0)));
+    const count = Math.max(1, Math.min(9999, Math.round(Number(t.count) || 1)));
+    io.emit('gift', {
+      ...who, gift: String(t.gift || 'Regalo').slice(0, 60), giftId: String(t.giftId || '').slice(0, 30),
+      image: String(t.image || '').slice(0, 600), diamonds, count, total: diamonds * count, test: true,
+    });
+  });
+
   // Solo para desarrollo: inyecta eventos con la forma exacta de TikTok.
   if (process.env.KIT_DEBUG) {
     socket.on('debug:raw', ({ type, data }) => {

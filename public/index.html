@@ -374,6 +374,18 @@
   .chip:hover { border-color: var(--muted); }
   .chip[aria-pressed=true] { border-color: var(--gift); background: rgba(255,194,75,.12); box-shadow: inset 0 0 0 1px var(--gift); }
   .chip:focus-visible, .st-anim .seg button:focus-visible { outline: 2px solid var(--voice); outline-offset: 2px; }
+  .tester { max-width: 1000px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); padding: 18px 20px; margin: 4px 0 18px; display: flex; flex-direction: column; gap: 14px; }
+  .tester h2 { font: 700 17px var(--display); margin: 0; }
+  .tester .sub { color: var(--muted); font-size: 13.5px; margin: 4px 0 0; }
+  .tt-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px 16px; align-items: end; }
+  .tt-grid .field input { width: 100%; box-sizing: border-box; }
+  .tt-gift { display: flex; align-items: center; gap: 8px; }
+  .tt-gift img { width: 30px; height: 30px; object-fit: contain; }
+  .tt-quick { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tt-result { line-height: 1.5; padding: 10px 14px; border-radius: 12px; background: var(--ink); font-size: 14px; }
+  .tt-result b { color: var(--gift); }
+  .tt-result .warn { color: var(--live); font-weight: 700; }
+  .tt-actions { display: flex; flex-wrap: wrap; gap: 8px; }
   .cr-list { display: flex; flex-direction: column; gap: 12px; }
   .cr { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; padding: 14px; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); }
   .cr.off { opacity: .55; }
@@ -754,6 +766,27 @@
         <p>La vista previa no sale en tu stream ni la lee el bot. Suena con el volumen de abajo. La posición se guarda en el link para OBS.</p>
       </div>
     </div>
+    <section class="tester" id="tester" aria-labelledby="tt-title">
+      <div><h2 id="tt-title">Probador de alertas</h2><p class="sub">Arma la alerta que quieras: quién, qué regalo y cuántos. Te dice qué alerta va a salir y la puedes ver aquí o mandarla a tu stream.</p></div>
+      <div class="seg" role="group" aria-label="Tipo de alerta" style="align-self:flex-start">
+        <button type="button" aria-pressed="true" data-tttype="gift">🎁 Regalo</button><button type="button" aria-pressed="false" data-tttype="follow">💖 Seguidor</button><button type="button" aria-pressed="false" data-tttype="share">📢 Compartido</button>
+      </div>
+      <div class="tt-grid">
+        <label class="field">Quién lo manda <input type="text" id="tt-name" value="Lupita" maxlength="40"></label>
+        <label class="field tt-only-gift">Regalo <span class="tt-gift"><input type="text" id="tt-gift" list="tt-gifts" value="Rosa" maxlength="60"><span id="tt-gimg"></span></span></label>
+        <label class="field tt-only-gift">Diamantes por regalo <input type="number" id="tt-diamonds" min="0" value="1"></label>
+        <label class="field tt-only-gift">Cantidad <input type="number" id="tt-count" min="1" max="9999" value="1"></label>
+      </div>
+      <div class="tt-quick tt-only-gift" id="tt-quick" aria-label="Regalos rápidos"></div>
+      <datalist id="tt-gifts"></datalist>
+      <div class="tt-result" id="tt-result" aria-live="polite"></div>
+      <div class="tt-actions">
+        <button type="button" class="btn" id="tt-preview">▶ Ver en la vista previa</button>
+        <button type="button" class="btn go" id="tt-stream">📡 Mandar a mi stream</button>
+        <button type="button" class="btn quiet" id="tt-burst">Probar 5 seguidas (vista previa)</button>
+      </div>
+      <p class="sub" style="margin:0">"Mandar a mi stream" sale en OBS y el bot la lee, pero no cuenta para el ranking ni para el regalo más caro.</p>
+    </section>
     <section class="group">
       <div><h2>Cuándo aparecen</h2><p>El mínimo también decide qué regalos lee el bot.</p></div>
       <div class="controls">
@@ -790,10 +823,6 @@
       <div><h2>En tu stream</h2><p>Pon este link como fuente de navegador en OBS o TikTok LIVE Studio, del tamaño de tu pantalla.</p></div>
       <div class="controls">
         <div class="st-link" id="al-link"></div>
-        <div class="row">
-          <button class="btn" data-test="gift">Mandar regalo de prueba al stream</button>
-          <button class="btn" data-test="follow">Mandar seguidor de prueba al stream</button>
-        </div>
       </div>
     </section>
   </main>
@@ -1976,6 +2005,112 @@ function renderStudios() {
       <button class="btn sm" data-copy="${esc(url)}">Copiar link</button><button class="btn sm quiet" data-open-path="${esc(st.dataset.path)}">Abrir</button>`;
   });
 }
+// ---------------------------------------------------------------- probador de alertas
+const TT_EXAMPLES = [{ name: 'Rosa', diamonds: 1 }, { name: 'Dona', diamonds: 30 }, { name: 'Perfume', diamonds: 20 }, { name: 'León', diamonds: 29999 }, { name: 'Universo', diamonds: 44999 }];
+let ttType = 'gift';
+const ttNorm = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+// Todos los regalos que conoce el probador: los que te han mandado, los de tus alertas y unos de ejemplo.
+function ttGifts() {
+  const out = new Map();
+  for (const g of giftCatalog) out.set(ttNorm(g.name), { name: g.name, id: g.id, image: g.image, diamonds: g.diamonds });
+  for (const r of crRules()) if (r.kind === 'gift' && r.gift.trim() && !out.has(ttNorm(r.gift))) out.set(ttNorm(r.gift), { name: r.gift.trim(), id: r.giftId, image: r.giftImage, diamonds: null });
+  for (const g of TT_EXAMPLES) {
+    const k = ttNorm(g.name);
+    if (!out.has(k)) out.set(k, { ...g, id: '', image: '' });
+    else if (out.get(k).diamonds == null) out.get(k).diamonds = g.diamonds;
+  }
+  return [...out.values()];
+}
+function ttCurrent() {
+  const name = $('#tt-name').value.trim() || 'Prueba';
+  if (ttType !== 'gift') return { type: ttType, name };
+  const giftName = $('#tt-gift').value.trim() || 'Regalo';
+  const known = ttGifts().find((g) => ttNorm(g.name) === ttNorm(giftName));
+  const diamonds = Math.max(0, Number($('#tt-diamonds').value) || 0);
+  const count = Math.max(1, Math.round(Number($('#tt-count').value) || 1));
+  return { type: 'gift', name, gift: giftName, giftId: known?.id || '', image: known?.image || '', diamonds, count, total: diamonds * count };
+}
+// La misma regla que usa el overlay para escoger la alerta.
+function ttRule(a) {
+  if (a.type !== 'gift') return null;
+  const rules = crRules().filter((r) => r.on !== false && r.media);
+  return rules.find((r) => r.kind === 'gift' && ((r.giftId && r.giftId === a.giftId) || (r.gift && ttNorm(r.gift) === ttNorm(a.gift))))
+    || rules.filter((r) => r.kind === 'amount' && a.total >= r.min).sort((x, y) => y.min - x.min)[0] || null;
+}
+function renderTester() {
+  if (!settings || !$('#tester')) return;
+  $$('[data-tttype]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tttype === ttType)));
+  $$('#tester .tt-only-gift').forEach((el) => { el.hidden = ttType !== 'gift'; });
+  const gifts = ttGifts();
+  $('#tt-gifts').innerHTML = gifts.map((g) => `<option value="${esc(g.name)}">${g.diamonds != null ? `${fmt(g.diamonds)} 💎` : ''}</option>`).join('');
+  $('#tt-quick').innerHTML = gifts.slice(0, 14).map((g) => `<button type="button" class="chip" data-ttgift="${esc(g.name)}">${g.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px">` : ''}${esc(g.name)}${g.diamonds != null ? ` · ${fmt(g.diamonds)}` : ''}</button>`).join('');
+  renderTesterResult();
+}
+function renderTesterResult() {
+  const a = ttCurrent();
+  const out = $('#tt-result');
+  const known = a.type === 'gift' && ttGifts().find((g) => ttNorm(g.name) === ttNorm(a.gift));
+  $('#tt-gimg').innerHTML = known?.image ? `<img src="${esc(known.image)}" alt="" referrerpolicy="no-referrer">` : '';
+  if (a.type === 'follow') {
+    out.innerHTML = settings.alerts.showFollows ? 'Alerta de nuevo seguidor (la de siempre).' : '<span class="warn">Tienes apagados los nuevos seguidores: en tu stream no saldría.</span> En la vista previa sí la puedes ver.';
+    return;
+  }
+  if (a.type === 'share') {
+    out.innerHTML = settings.alerts.showShares ? 'Alerta de compartido (la de siempre).' : '<span class="warn">Tienes apagados los compartidos: en tu stream no saldría.</span> En la vista previa sí la puedes ver.';
+    return;
+  }
+  const r = ttRule(a);
+  const tier = a.total >= 1000 ? 'grande, con mucho confeti' : a.total >= 100 ? 'mediana, con confeti' : 'normal';
+  const which = r
+    ? `tu ${r.mediaType === 'video' ? 'video' : /\.gif$/i.test(r.media) ? 'GIF' : 'foto'} <b>${esc(r.media.replace(/^[a-z0-9]+-/, ''))}</b> (${r.kind === 'gift' ? `para ${esc(r.gift)}` : `desde ${fmt(r.min)} 💎`})`
+    : `la animación de siempre (${tier})`;
+  const min = settings.alerts.minDiamonds || 0;
+  const hidden = a.total < min && !(r && r.kind === 'gift');
+  out.innerHTML = `Total <b>${a.total.toLocaleString('es-MX')} 💎</b> · Va a salir ${which}.${hidden ? ` <span class="warn">Cuesta menos que tu mínimo de ${fmt(min)} 💎: en tu stream no saldría.</span>` : ''}`;
+}
+const ttFrame = () => { try { return $('#al-frame').contentWindow; } catch { return null; } };
+document.addEventListener('click', (e) => {
+  const tb = e.target.closest('[data-tttype]');
+  if (tb) { ttType = tb.dataset.tttype; renderTester(); return; }
+  const gb = e.target.closest('[data-ttgift]');
+  if (gb) {
+    const g = ttGifts().find((x) => x.name === gb.dataset.ttgift);
+    $('#tt-gift').value = g.name;
+    if (g.diamonds != null) $('#tt-diamonds').value = g.diamonds;
+    renderTesterResult();
+  }
+});
+$('#tt-gift')?.addEventListener('input', () => {
+  const g = ttGifts().find((x) => ttNorm(x.name) === ttNorm($('#tt-gift').value));
+  if (g?.diamonds != null) $('#tt-diamonds').value = g.diamonds;
+  renderTesterResult();
+});
+['#tt-name', '#tt-diamonds', '#tt-count'].forEach((id) => $(id)?.addEventListener('input', renderTesterResult));
+$('#tt-preview')?.addEventListener('click', () => {
+  $('#al-screen').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  ttFrame()?.previewAlert?.(ttCurrent());
+});
+$('#tt-stream')?.addEventListener('click', () => {
+  const a = ttCurrent();
+  socket.emit('test:alert', a);
+  toast(a.type === 'gift' ? `Mandado a tu stream: ${a.count} × ${a.gift}` : a.type === 'follow' ? 'Mandado a tu stream: nuevo seguidor' : 'Mandado a tu stream: compartido');
+});
+$('#tt-burst')?.addEventListener('click', () => {
+  // Cinco alertas distintas seguidas, para ver cómo se forman en fila.
+  const names = ['Lupita', 'ElPana_77', 'Sofi.gg', 'DonCarlos', 'Valeria'];
+  const gifts = ttGifts().filter((g) => g.diamonds != null);
+  $('#al-screen').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  names.forEach((n, i) => {
+    const g = gifts[(i * 3) % Math.max(1, gifts.length)] || TT_EXAMPLES[i];
+    const count = 1 + ((i * 7) % 5);
+    const a = i === 3 ? { type: 'follow', name: n } : { type: 'gift', name: n, gift: g.name, giftId: g.id || '', image: g.image || '', diamonds: g.diamonds, count, total: g.diamonds * count };
+    ttFrame()?.previewAlert?.(a);
+  });
+});
+// Después de que se actualicen la lista de regalos y tus alertas.
+socket.on('config', () => queueMicrotask(renderTester));
+socket.on('giftCatalog', () => queueMicrotask(renderTester));
+
 // ---------------------------------------------------------------- alertas personalizadas
 let giftCatalog = [];
 let crRendered = '';

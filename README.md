@@ -66,6 +66,10 @@ Con **▶ Probar animación** ves en la vista previa cómo se vería un récord 
 - Regalo más caro: `?estilo=trofeo`, `?titulo=Rey%20del%20stream` (`?titulo=0` sin título), `?fondo=0`, `?escala=1.2`, `?ocultarVacio=1` (no se muestra hasta el primer regalo), `?cambio=4` (segundos entre foto y regalo, estilos Círculo y Cuadro), `?animacion=0`
 - Chat: `?ocultar=30` (segundos; `0` = nunca), `?max=8`, `?regalos=0`, `?escala=1.2`
 
+### Probador de alertas
+
+En la pestaña **Alertas** está el **Probador de alertas**: eliges si es regalo, seguidor o compartido, quién lo manda, qué regalo y cuántos. Te dice qué alerta va a salir (tu video/foto/GIF o la animación de siempre) y si tu mínimo de diamantes la dejaría fuera. Puedes verla en la vista previa, mandarla a tu stream (sale en OBS y el bot la lee, pero no cuenta para el ranking ni para el regalo más caro) o probar 5 seguidas para ver cómo se forman en fila.
+
 ### Alertas personalizadas (tu propio video, foto o GIF)
 
 En la pestaña **Alertas**, sección **Alertas personalizadas**, toca **＋ Agregar video, foto o GIF** y elige:
