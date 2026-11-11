@@ -1,16 +1,19 @@
-# Construye el instalador de Windows y lo publica en Releases
-# cada vez que se sube una etiqueta de versión (por ejemplo v1.0.1).
+# Construye el instalador de Windows y lo publica en Releases cuando
+# el número de versión de package.json es nuevo (no existe una release v<versión>).
 # La app instalada lee esa release y se actualiza sola.
 name: Publicar versión
 
 on:
   push:
-    tags:
-      - "v*"
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: publicar
+  cancel-in-progress: false
 
 jobs:
   windows:
@@ -18,15 +21,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: ¿Es una versión nueva?
+        id: ver
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          V=$(node -p "require('./package.json').version")
+          echo "version=$V" >> "$GITHUB_OUTPUT"
+          if gh release view "v$V" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "La versión $V ya está publicada; no hay nada que hacer."
+            echo "nueva=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Publicando la versión $V."
+            echo "nueva=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-node@v4
+        if: steps.ver.outputs.nueva == 'true'
         with:
           node-version: 22
           cache: npm
 
       - name: Instalar dependencias
+        if: steps.ver.outputs.nueva == 'true'
         run: npm ci
 
       - name: Construir y publicar
+        if: steps.ver.outputs.nueva == 'true'
         run: npx electron-builder --win --x64 --publish always
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
