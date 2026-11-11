@@ -374,6 +374,17 @@
   .chip:hover { border-color: var(--muted); }
   .chip[aria-pressed=true] { border-color: var(--gift); background: rgba(255,194,75,.12); box-shadow: inset 0 0 0 1px var(--gift); }
   .chip:focus-visible, .st-anim .seg button:focus-visible { outline: 2px solid var(--voice); outline-offset: 2px; }
+  .al-prev { max-width: 1000px; display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 18px; align-items: start; margin-bottom: 10px; }
+  .al-screen { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; border: 1px solid var(--line);
+    background: radial-gradient(ellipse at 30% 20%, #3b4a5c, transparent 60%), radial-gradient(ellipse at 80% 90%, #3a2a4a, transparent 55%), linear-gradient(160deg, #26323f, #141a24); }
+  .al-screen.vertical { aspect-ratio: 9 / 16; width: auto; height: 520px; justify-self: center; }
+  .al-screen iframe { position: absolute; top: 0; left: 0; border: 0; transform-origin: 0 0; background: transparent; }
+  .al-screen .tag { position: absolute; left: 12px; bottom: 10px; font-size: 12px; color: rgba(255,255,255,.55); pointer-events: none; }
+  .al-side { display: flex; flex-direction: column; gap: 8px; }
+  .al-side .btn { justify-content: flex-start; width: 100%; }
+  .al-side h3 { font: 700 14px var(--display); margin: 6px 0 2px; color: var(--muted); }
+  .al-side p { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; }
+  @media (max-width: 1100px) { .al-prev { grid-template-columns: 1fr; } }
   .st-preview { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .st-preview iframe { width: 100%; height: 240px; border: 0; border-radius: 14px; display: block; transition: height .2s;
     background: linear-gradient(135deg, #2b3a4a, #142030 60%, #2a1f38); }
@@ -706,6 +717,22 @@
   <main class="view" id="view-alerts" role="tabpanel">
     <h1>Alertas en pantalla</h1>
     <p class="lede">Aparecen en tu stream cuando alguien te manda un regalo o te sigue. Los regalos de más de 100 diamantes llevan confeti y duran un poco más.</p>
+    <div class="al-prev">
+      <div class="al-screen" id="al-screen"><iframe id="al-frame" src="/alertas.html?vista=1" title="Vista previa de las alertas" tabindex="-1"></iframe><span class="tag">Vista previa · así se verá en tu stream</span></div>
+      <div class="al-side">
+        <h3>Ver alerta de</h3>
+        <button class="btn" data-alprev="regalo">🌹 Regalo chico</button>
+        <button class="btn" data-alprev="mediano">🍩 Regalo de 100+ 💎</button>
+        <button class="btn" data-alprev="grande">🦁 Regalo de 1,000+ 💎</button>
+        <button class="btn" data-alprev="seguidor">💖 Nuevo seguidor</button>
+        <button class="btn" data-alprev="compartido">📢 Compartido</button>
+        <h3>Pantalla</h3>
+        <div class="seg" role="group" aria-label="Forma de la pantalla"><button aria-pressed="true" data-alshape="h">Horizontal</button><button aria-pressed="false" data-alshape="v">Vertical</button></div>
+        <h3>Posición</h3>
+        <div class="seg" role="group" aria-label="Posición de la alerta"><button aria-pressed="false" data-alpos="arriba">Arriba</button><button aria-pressed="true" data-alpos="centro">Centro</button><button aria-pressed="false" data-alpos="abajo">Abajo</button></div>
+        <p>La vista previa no sale en tu stream ni la lee el bot. Suena con el volumen de abajo. La posición se guarda en el link para OBS.</p>
+      </div>
+    </div>
     <section class="group">
       <div><h2>Cuándo aparecen</h2><p>El mínimo también decide qué regalos lee el bot.</p></div>
       <div class="controls">
@@ -727,12 +754,14 @@
       </div>
     </section>
     <section class="group">
-      <div><h2>Probar</h2><p>Abre el overlay de alertas en otra pestaña para verlas.</p></div>
-      <div class="controls"><div class="row">
-        <button class="btn" data-test="gift">Mandar regalo de prueba</button>
-        <button class="btn" data-test="follow">Mandar seguidor de prueba</button>
-        <button class="btn quiet" data-open-path="/alertas.html">Abrir overlay</button>
-      </div></div>
+      <div><h2>En tu stream</h2><p>Pon este link como fuente de navegador en OBS o TikTok LIVE Studio, del tamaño de tu pantalla.</p></div>
+      <div class="controls">
+        <div class="st-link" id="al-link"></div>
+        <div class="row">
+          <button class="btn" data-test="gift">Mandar regalo de prueba al stream</button>
+          <button class="btn" data-test="follow">Mandar seguidor de prueba al stream</button>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -1914,6 +1943,47 @@ function renderStudios() {
       <button class="btn sm" data-copy="${esc(url)}">Copiar link</button><button class="btn sm quiet" data-open-path="${esc(st.dataset.path)}">Abrir</button>`;
   });
 }
+// Vista previa de alertas: el overlay a tamaño real (1280×720 o 720×1280) encogido dentro del recuadro.
+let alPos = 'centro';
+try { alPos = localStorage.getItem('al-pos') || 'centro'; } catch {}
+function fitAlertPreview() {
+  const box = $('#al-screen'), f = $('#al-frame');
+  if (!box || !f) return;
+  const vertical = box.classList.contains('vertical');
+  const w = vertical ? 720 : 1280, h = vertical ? 1280 : 720;
+  f.style.width = w + 'px';
+  f.style.height = h + 'px';
+  f.style.transform = `scale(${box.clientWidth / w})`;
+}
+function renderAlertLink() {
+  const el = $('#al-link');
+  if (!el) return;
+  const url = `${location.origin}/alertas.html${alPos !== 'centro' ? `?posicion=${alPos}` : ''}`;
+  el.innerHTML = `<code>${esc(url)}</code><span class="row"><button class="btn sm" data-copy="${esc(url)}">Copiar link</button><button class="btn sm quiet" data-open-path="/alertas.html${alPos !== 'centro' ? `?posicion=${alPos}` : ''}">Abrir</button></span>`;
+  $$('[data-alpos]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.alpos === alPos)));
+  try { $('#al-frame').contentWindow.setPosition?.(alPos); } catch {}
+}
+if (window.ResizeObserver && $('#al-screen')) new ResizeObserver(fitAlertPreview).observe($('#al-screen'));
+$('#al-frame')?.addEventListener('load', () => { fitAlertPreview(); renderAlertLink(); });
+renderAlertLink();
+document.addEventListener('click', (e) => {
+  const p = e.target.closest('[data-alprev]');
+  if (p) { try { $('#al-frame').contentWindow.preview?.(p.dataset.alprev); } catch {} return; }
+  const sh = e.target.closest('[data-alshape]');
+  if (sh) {
+    $('#al-screen').classList.toggle('vertical', sh.dataset.alshape === 'v');
+    $$('[data-alshape]').forEach((b) => b.setAttribute('aria-pressed', String(b === sh)));
+    fitAlertPreview();
+    return;
+  }
+  const ps = e.target.closest('[data-alpos]');
+  if (ps) {
+    alPos = ps.dataset.alpos;
+    try { localStorage.setItem('al-pos', alPos); } catch {}
+    renderAlertLink();
+  }
+});
+
 // Animaciones de cada overlay (se pueden apagar).
 const FX_IDLE = {
   topGift: [['ninguno', 'Quieto'], ['brillo', 'Brillo'], ['borde', 'Borde de luz'], ['flotar', 'Flotar'], ['respirar', 'Respirar'], ['balanceo', 'Balanceo'], ['destellos', 'Destellos'], ['girar', 'Girar regalo'], ['inclinar3d', 'Inclinar 3D'], ['flotar3d', 'Profundidad 3D'], ['girar3d', 'Girar 3D']],

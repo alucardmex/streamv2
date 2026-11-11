@@ -61,7 +61,7 @@ Con **▶ Probar animación** ves en la vista previa cómo se vería un récord 
 
 **Opciones extra en el link** (se combinan con `&`):
 
-- Alertas: `?escala=1.3`, `?posicion=arriba` / `abajo`, `?sonido=0`
+- Alertas: `?escala=1.3`, `?posicion=arriba` / `abajo`, `?sonido=0` (la posición también la eliges en la pestaña **Alertas**, junto a la vista previa, y el link se arma solo)
 - Top taps / top regalos: `?tipo=regalos`, `?estilo=podio`, `?top=3`, `?titulo=Mis%20fans` (`?titulo=0` sin título), `?fondo=0` (sin caja), `?ancho=1200` (estilo Cinta), `?escala=1.2`, `?animacion=0` (sin animaciones)
 - Regalo más caro: `?estilo=trofeo`, `?titulo=Rey%20del%20stream` (`?titulo=0` sin título), `?fondo=0`, `?escala=1.2`, `?ocultarVacio=1` (no se muestra hasta el primer regalo), `?cambio=4` (segundos entre foto y regalo, estilos Círculo y Cuadro), `?animacion=0`
 - Chat: `?ocultar=30` (segundos; `0` = nunca), `?max=8`, `?regalos=0`, `?escala=1.2`
