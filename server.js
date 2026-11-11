@@ -627,9 +627,12 @@ io.on('connection', (socket) => {
 
   // --- Modo de prueba (para revisar overlays sin estar en vivo) ---
   socket.on('test:gift', () => {
-    const g = pick(TEST_GIFTS);
+    // Si ya te han mandado regalos, la prueba usa uno de esos (nombre e imagen reales).
+    const known = catalogList().filter((x) => x.diamonds > 0);
+    const real = known.length ? pick(known) : null;
+    const g = real || pick(TEST_GIFTS);
     handleGift(
-      { user: fakeUser(), giftName: g.name, diamondCount: g.diamonds, repeatCount: 1 + Math.floor(Math.random() * 5), repeatEnd: 1 },
+      { user: fakeUser(), giftName: g.name, giftId: real?.id || '', giftPictureUrl: real?.image || '', diamondCount: g.diamonds, repeatCount: 1 + Math.floor(Math.random() * 5), repeatEnd: 1 },
       true
     );
   });

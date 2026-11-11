@@ -1032,6 +1032,7 @@
 
 
 <script src="/socket.io/socket.io.js"></script>
+<script src="/gifts.js"></script>
 <script>
 const socket = io();
 const $ = (s) => document.querySelector(s);
@@ -1922,8 +1923,8 @@ document.addEventListener('change', (e) => {
 let topGiftList = [];
 const full = (n) => Number(n).toLocaleString('es-MX');
 const giftPic = (g) => g.image
-  ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('🎁'))">`
-  : '🎁';
+  ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${giftEmoji(g.gift)}'))">`
+  : giftEmoji(g.gift);
 const ago = (ts) => {
   const m = Math.round((Date.now() - ts) / 60000);
   return m < 1 ? 'hace un momento' : m < 60 ? `hace ${m} min` : `a las ${new Date(ts).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' })}`;
@@ -2034,7 +2035,7 @@ function ttCurrent() {
 function ttRule(a) {
   if (a.type !== 'gift') return null;
   const rules = crRules().filter((r) => r.on !== false && r.media);
-  return rules.find((r) => r.kind === 'gift' && ((r.giftId && r.giftId === a.giftId) || (r.gift && ttNorm(r.gift) === ttNorm(a.gift))))
+  return rules.find((r) => r.kind === 'gift' && ((r.giftId && r.giftId === a.giftId) || (r.gift && giftEmoji.same(r.gift, a.gift))))
     || rules.filter((r) => r.kind === 'amount' && a.total >= r.min).sort((x, y) => y.min - x.min)[0] || null;
 }
 function renderTester() {
@@ -2043,14 +2044,14 @@ function renderTester() {
   $$('#tester .tt-only-gift').forEach((el) => { el.hidden = ttType !== 'gift'; });
   const gifts = ttGifts();
   $('#tt-gifts').innerHTML = gifts.map((g) => `<option value="${esc(g.name)}">${g.diamonds != null ? `${fmt(g.diamonds)} 💎` : ''}</option>`).join('');
-  $('#tt-quick').innerHTML = gifts.slice(0, 14).map((g) => `<button type="button" class="chip" data-ttgift="${esc(g.name)}">${g.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px">` : ''}${esc(g.name)}${g.diamonds != null ? ` · ${fmt(g.diamonds)}` : ''}</button>`).join('');
+  $('#tt-quick').innerHTML = gifts.slice(0, 14).map((g) => `<button type="button" class="chip" data-ttgift="${esc(g.name)}">${g.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" style="width:16px;height:16px;vertical-align:-3px;margin-right:4px">` : `${giftEmoji(g.name)} `}${esc(g.name)}${g.diamonds != null ? ` · ${fmt(g.diamonds)}` : ''}</button>`).join('');
   renderTesterResult();
 }
 function renderTesterResult() {
   const a = ttCurrent();
   const out = $('#tt-result');
   const known = a.type === 'gift' && ttGifts().find((g) => ttNorm(g.name) === ttNorm(a.gift));
-  $('#tt-gimg').innerHTML = known?.image ? `<img src="${esc(known.image)}" alt="" referrerpolicy="no-referrer">` : '';
+  $('#tt-gimg').innerHTML = a.type !== 'gift' ? '' : known?.image ? `<img src="${esc(known.image)}" alt="" referrerpolicy="no-referrer">` : `<span style="font-size:24px">${giftEmoji(a.gift)}</span>`;
   if (a.type === 'follow') {
     out.innerHTML = settings.alerts.showFollows ? 'Alerta de nuevo seguidor (la de siempre).' : '<span class="warn">Tienes apagados los nuevos seguidores: en tu stream no saldría.</span> En la vista previa sí la puedes ver.';
     return;

@@ -59,6 +59,9 @@
   .alert.size-completo { position: fixed; inset: 0; justify-content: flex-end; padding-bottom: 6vh; }
   .size-completo .custom-media { position: fixed; inset: 0; width: 100vw; height: 100vh; max-width: none; border-radius: 0; filter: none; }
   .alert.custom .card { margin-top: 14px; }
+  /* El regalo en la línea de texto (se ve en las alertas con tu video o foto) */
+  .gi { display: none; }
+  .alert.custom .gi { display: inline-block; width: 32px; height: 32px; object-fit: contain; vertical-align: -8px; margin-right: 4px; font-size: 26px; line-height: 32px; }
 
   .confetti { position: fixed; top: -20px; width: 10px; height: 16px; border-radius: 2px; animation: fall linear forwards; pointer-events: none; }
   @keyframes fall { to { transform: translateY(110vh) rotate(720deg); } }
@@ -67,6 +70,7 @@
 <body>
 <div id="stage"></div>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/gifts.js"></script>
 <script>
 const params = new URLSearchParams(location.search);
 const scale = Number(params.get('escala')) || 1;
@@ -77,7 +81,9 @@ stage.className = params.get('posicion') || 'centro';
 
 const socket = io();
 let settings = { alerts: { minDiamonds: 1, duration: 6, sound: true, volume: 0.6, showFollows: true, showShares: false } };
-socket.on('config', (c) => { settings = c.settings; });
+let catalog = [];
+socket.on('config', (c) => { settings = c.settings; if (c.giftCatalog) catalog = c.giftCatalog; });
+socket.on('giftCatalog', (l) => { catalog = l || []; });
 
 const queue = [];
 let busy = false;
@@ -105,9 +111,29 @@ const SAMPLES = {
 window.preview = (kind) => {
   const a = SAMPLES[kind];
   if (!a) return;
-  queue.push({ ...a, avatar: '', image: '' });
+  // Si ya te han mandado regalos, la vista previa usa uno real (con su imagen) del precio que toca.
+  const real = a.type === 'gift' && sampleFromCatalog(kind);
+  queue.push({ ...a, avatar: '', image: '', ...(real || {}) });
   run();
 };
+function sampleFromCatalog(kind) {
+  const pick = (l) => l[Math.floor(Math.random() * l.length)];
+  const list = catalog.filter((g) => g.diamonds > 0);
+  if (kind === 'regalo') {
+    const g = pick(list.filter((x) => x.diamonds < 20));
+    return g && { gift: g.name, giftId: g.id, image: g.image, count: 5, total: g.diamonds * 5 };
+  }
+  if (kind === 'mediano') {
+    const g = pick(list.filter((x) => x.diamonds >= 10 && x.diamonds < 1000));
+    const count = g ? Math.max(1, Math.min(99, Math.ceil(150 / g.diamonds))) : 1;
+    return g && g.diamonds * count < 1000 && { gift: g.name, giftId: g.id, image: g.image, count, total: g.diamonds * count };
+  }
+  if (kind === 'grande') {
+    const g = pick(list.filter((x) => x.diamonds >= 1000));
+    return g && { gift: g.name, giftId: g.id, image: g.image, count: 1, total: g.diamonds };
+  }
+  return null;
+}
 // Probador de alertas del panel: una alerta armada a mano (regalo, cantidad, quién).
 window.previewAlert = (a) => { if (a && a.type) { queue.push({ avatar: '', image: '', ...a }); run(); } };
 window.setPosition = (pos) => { stage.className = pos || 'centro'; };
@@ -124,7 +150,7 @@ const norm = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g,
 function findRule(a, giftOnly = false) {
   if (a.type !== 'gift') return null;
   const rules = (settings.alerts.custom || []).filter((r) => r.on !== false && r.media);
-  const byGift = rules.find((r) => r.kind === 'gift' && ((r.giftId && r.giftId === a.giftId) || (r.gift && norm(r.gift) === norm(a.gift))));
+  const byGift = rules.find((r) => r.kind === 'gift' && ((r.giftId && r.giftId === a.giftId) || (r.gift && giftEmoji.same(r.gift, a.gift))));
   if (byGift || giftOnly) return byGift || null;
   return rules.filter((r) => r.kind === 'amount' && (a.total || 0) >= r.min).sort((x, y) => y.min - x.min)[0] || null;
 }
@@ -156,10 +182,15 @@ function run() {
   el.style.setProperty('--s', rule?.size === 'completo' ? 1 : scale);
   let visual, what, value = '';
   if (a.type === 'gift') {
+    // Siempre se ve el regalo que mandaron: su imagen de TikTok o, si no hay, su dibujo.
+    const emo = giftEmoji(a.gift);
     visual = a.image
-      ? `<img class="gift-img" src="${esc(a.image)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=gift-img>🎁</div>'">`
-      : `<div class="gift-img">🎁</div>`;
-    what = `envió <span class="count">${a.count}×</span> <b>${esc(a.gift)}</b>`;
+      ? `<img class="gift-img" src="${esc(a.image)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<div class=gift-img>${emo}</div>'">`
+      : `<div class="gift-img">${emo}</div>`;
+    const icon = a.image
+      ? `<img class="gi" src="${esc(a.image)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=gi>${emo}</span>'">`
+      : `<span class="gi">${emo}</span>`;
+    what = `envió <span class="count">${a.count}×</span> ${icon}<b>${esc(a.gift)}</b>`;
     if (a.total) value = `${fmt(a.total)} 💎`;
   } else if (a.type === 'follow') {
     visual = `<div class="gift-img">💖</div>`;

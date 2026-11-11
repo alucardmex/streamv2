@@ -1,8 +1,9 @@
-**Probador de alertas** en la pestaña **Alertas**.
+Las alertas siempre muestran **el regalo que te mandaron**.
 
-- Arma la alerta que quieras: regalo, seguidor o compartido, quién lo manda, qué regalo y cuántos
-- Regalos rápidos con un toque (los que te han mandado, los de tus alertas personalizadas y algunos de ejemplo)
-- Te dice qué alerta va a salir: tu video/foto/GIF o la animación de siempre, y si tu mínimo de diamantes la dejaría fuera
-- **Ver en la vista previa**, **Mandar a mi stream** (sale en OBS y el bot la lee, pero no cuenta para el ranking ni el regalo más caro) o **Probar 5 seguidas**
+- Con regalos reales se ve la imagen del regalo de TikTok (rosa, león, universo…)
+- Si la imagen no carga o es una prueba, se ve el dibujo de ese regalo (🌹, 🦁, 🍩…) en lugar de una caja genérica
+- En tus alertas personalizadas (video, foto o GIF) también aparece el regalo junto al nombre
+- La vista previa y las pruebas usan regalos reales que ya te han mandado, con su imagen
+- Una alerta para "Rosa" también sirve si TikTok manda el nombre en inglés ("Rose"), y así con los regalos más comunes
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.9.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.9.1 lista", toca **Actualizar**.

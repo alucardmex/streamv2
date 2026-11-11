@@ -139,6 +139,7 @@
 <body>
 <div class="stage" id="stage"><div id="root"></div></div>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/gifts.js"></script>
 <script src="/fx.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
@@ -182,7 +183,8 @@ function render(isRecord = false) {
 
   const letter = esc(((g?.name || '?')[0] || '?').toUpperCase());
   const av = g?.avatar ? `<img class="av" src="${esc(g.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=av>${letter}</span>'">` : `<span class="av">${letter}</span>`;
-  const img = g?.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('🎁'))">` : '🎁';
+  const emo = g ? giftEmoji(g.gift) : '🎁';
+  const img = g?.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${emo}'))">` : emo;
   const gift = g ? `${esc(g.gift)}${g.count > 1 ? ` ×${g.count}` : ''}` : '';
   const val = g ? `<span class="cnt">${full(g.diamonds)}</span> 💎` : '';
   const T = esc(s.title);

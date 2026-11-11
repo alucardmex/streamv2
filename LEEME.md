@@ -74,7 +74,7 @@ En la pestaña **Alertas** está el **Probador de alertas**: eliges si es regalo
 
 En la pestaña **Alertas**, sección **Alertas personalizadas**, toca **＋ Agregar video, foto o GIF** y elige:
 
-- **Para un regalo:** escribe el nombre del regalo tal como lo manda TikTok. Los regalos que ya te han mandado aparecen en la lista para elegirlos.
+- **Para un regalo:** escribe el nombre del regalo. Los regalos que ya te han mandado aparecen en la lista para elegirlos. Los más comunes funcionan en español o en inglés ("Rosa" o "Rose").
 - **Desde cierta cantidad:** por ejemplo, "Desde 1,000 💎". Cuenta el total (precio × cantidad). Si hay varias, gana la más alta que alcance.
 - **Tamaño:** Chico, Mediano, Grande o Pantalla completa.
 - **Sonido:** el del video, la campanita de siempre o sin sonido.
