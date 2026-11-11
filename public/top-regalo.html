@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Regalo más caro</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Bungee&display=swap" rel="stylesheet">
+<style>
+  /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
+     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja  ?titulo=Rey%20del%20stream  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1 */
+  :root { --gold: #ffc24b; --gold2: #ffe17a; --pink: #fe2c55; --cyan: #25f4ee; }
+  html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
+  .stage { display: inline-block; transform-origin: top left; padding: 18px 12px 12px; }
+  .hidden { display: none; }
+  .sh { text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+  .av { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #3a3348; display: grid; place-items: center; font-size: 13px; font-weight: 900; border: 2px solid #fff; flex: none; }
+  .gimg { display: grid; place-items: center; position: relative; flex: none; }
+  .gimg img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0,0,0,.5)); }
+  .float img { animation: bob 2.4s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(-6px) rotate(-3deg); } }
+  .badge { position: absolute; z-index: 3; padding: 5px 14px; border-radius: 999px; font-weight: 900; font-size: 15px; color: #2a1700; white-space: nowrap;
+    background: linear-gradient(90deg, var(--gold2), #ffb547); box-shadow: 0 6px 18px rgba(255,181,71,.45); opacity: 0; transform: scale(.6); pointer-events: none; }
+  .record .badge { animation: badge 6s ease forwards; }
+  @keyframes badge { 0% { opacity: 0; transform: scale(.6); } 8% { opacity: 1; transform: scale(1.12); } 14% { transform: scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+  .enter { animation: enter .6s cubic-bezier(.2,1.5,.4,1) both; }
+  @keyframes enter { from { opacity: 0; transform: scale(.7) translateY(20px); } }
+  .spark { position: fixed; width: 8px; height: 8px; border-radius: 50%; background: #ffd56b; pointer-events: none; animation: spark 1.1s ease-out forwards; }
+  @keyframes spark { to { transform: translate(var(--dx), var(--dy)) scale(.2); opacity: 0; } }
+
+  /* ---------- TARJETA ---------- */
+  .tarjeta .card { position: relative; display: flex; align-items: center; gap: 18px; padding: 16px 26px 16px 16px; min-width: 380px; border-radius: 24px;
+    background: rgba(14,12,20,.82); border: 2px solid rgba(255,194,75,.55); box-shadow: 0 14px 44px rgba(0,0,0,.5); }
+  .tarjeta .gimg { width: 110px; height: 110px; font-size: 74px; }
+  .tarjeta .gimg::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: radial-gradient(circle, rgba(255,194,75,.45), transparent 70%); z-index: -1; }
+  .tarjeta .t { font-size: 15px; font-weight: 700; color: var(--gold); }
+  .tarjeta .n { font-size: 30px; font-weight: 900; line-height: 1.05; margin: 2px 0 4px; max-width: 360px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tarjeta .v { font-size: 22px; font-weight: 900; color: var(--gold); }
+  .tarjeta .f { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 17px; font-weight: 700; }
+  .tarjeta .badge { top: -14px; right: 18px; }
+  .record.tarjeta .card { animation: pulse 1.4s ease-out 3; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(255,194,75,.8), 0 14px 44px rgba(0,0,0,.5); } 100% { box-shadow: 0 0 0 30px rgba(255,194,75,0), 0 14px 44px rgba(0,0,0,.5); } }
+
+  /* ---------- BANNER (barra horizontal delgada) ---------- */
+  .banner .card { position: relative; display: flex; align-items: center; gap: 14px; height: 64px; padding: 0 22px 0 8px; border-radius: 999px; min-width: 520px;
+    background: linear-gradient(90deg, #ffb547, #ff7a2e 55%, #fe2c55); box-shadow: 0 10px 30px rgba(254,44,85,.35); }
+  .banner .gimg { width: 56px; height: 56px; font-size: 38px; background: rgba(255,255,255,.22); border-radius: 50%; }
+  .banner .gimg img { width: 84%; height: 84%; }
+  .banner .t { font-size: 13px; font-weight: 900; opacity: .9; color: #2a1200; }
+  .banner .line { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+  .banner .n { font-size: 22px; font-weight: 900; }
+  .banner .v { font-size: 20px; font-weight: 900; color: #fff7d6; }
+  .banner .f { margin-left: auto; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; padding-left: 16px; border-left: 2px solid rgba(255,255,255,.4); white-space: nowrap; }
+  .banner .badge { top: -16px; left: 70px; }
+  .nobg .banner .card { background: none; box-shadow: none; }
+
+  /* ---------- TROFEO (vertical, ideal para stream vertical) ---------- */
+  .trofeo .card { position: relative; width: 260px; padding: 22px 18px 18px; border-radius: 28px; text-align: center;
+    background: linear-gradient(180deg, rgba(60,40,10,.92), rgba(14,12,20,.9)); border: 2px solid rgba(255,194,75,.7); box-shadow: 0 0 40px rgba(255,194,75,.25), 0 16px 40px rgba(0,0,0,.5); }
+  .trofeo .crown { font-size: 34px; line-height: 1; }
+  .trofeo .t { font-size: 14px; font-weight: 800; color: var(--gold); letter-spacing: .3px; margin-top: 2px; }
+  .trofeo .gimg { width: 150px; height: 150px; font-size: 100px; margin: 8px auto 6px; }
+  .trofeo .gimg::after { content: ''; position: absolute; left: 15%; right: 15%; bottom: -4px; height: 14px; border-radius: 50%; background: radial-gradient(rgba(255,194,75,.55), transparent 70%); }
+  .trofeo .n { font-size: 28px; font-weight: 900; line-height: 1.05; }
+  .trofeo .v { display: inline-block; margin: 8px 0 12px; padding: 5px 14px; border-radius: 999px; background: rgba(255,194,75,.18); color: var(--gold2); font-size: 20px; font-weight: 900; }
+  .trofeo .f { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 17px; font-weight: 800; }
+  .trofeo .badge { top: -16px; left: 50%; transform: translateX(-50%) scale(.6); }
+  .record.trofeo .badge { animation: badgeC 6s ease forwards; }
+  @keyframes badgeC { 0% { opacity: 0; transform: translateX(-50%) scale(.6); } 8% { opacity: 1; transform: translateX(-50%) scale(1.12); } 14% { transform: translateX(-50%) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
+  .nobg .trofeo .card { background: none; border: 0; box-shadow: none; }
+
+  /* ---------- NEÓN ---------- */
+  .neon .card { position: relative; display: flex; align-items: center; gap: 18px; padding: 18px 26px 18px 18px; min-width: 380px; border-radius: 18px;
+    background: rgba(5,3,12,.86); border: 2px solid var(--pink); box-shadow: 0 0 18px rgba(254,44,85,.7), inset 0 0 18px rgba(254,44,85,.3); }
+  .neon .gimg { width: 96px; height: 96px; font-size: 64px; filter: drop-shadow(0 0 12px rgba(37,244,238,.8)); }
+  .neon .t { font-family: 'Bungee', sans-serif; font-size: 14px; color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
+  .neon .n { font-family: 'Bungee', sans-serif; font-size: 26px; line-height: 1.1; margin: 4px 0; text-shadow: 0 0 6px #fff, 0 0 16px var(--pink), 0 0 30px var(--pink); max-width: 340px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .neon .v { font-size: 22px; font-weight: 900; color: #ffe0a0; text-shadow: 0 0 10px var(--gold); }
+  .neon .f { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 17px; font-weight: 700; text-shadow: 0 0 8px rgba(255,255,255,.6); }
+  .neon .av { border-color: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+  .neon .badge { top: -14px; right: 18px; background: var(--cyan); color: #04201f; box-shadow: 0 0 18px var(--cyan); }
+  .record.neon .card { animation: flick 1.2s steps(2) 3; }
+  @keyframes flick { 50% { box-shadow: 0 0 40px rgba(254,44,85,1), inset 0 0 30px rgba(254,44,85,.6); } }
+  .nobg .neon .card { background: none; }
+
+  /* ---------- MINIMAL (solo texto) ---------- */
+  .minimal .card { position: relative; display: flex; align-items: center; gap: 12px; padding: 4px; }
+  .minimal .gimg { width: 58px; height: 58px; font-size: 44px; }
+  .minimal .t { font-size: 13px; font-weight: 800; color: var(--gold); text-shadow: 0 1px 4px rgba(0,0,0,.9); }
+  .minimal .n { font-size: 22px; font-weight: 900; text-shadow: 0 2px 6px rgba(0,0,0,.9), 0 0 2px rgba(0,0,0,.9); }
+  .minimal .n span { color: var(--gold); }
+  .minimal .f { font-size: 15px; font-weight: 700; opacity: .95; text-shadow: 0 1px 4px rgba(0,0,0,.9); }
+  .minimal .badge { top: -18px; left: 0; font-size: 12px; padding: 3px 10px; }
+
+  /* ---------- BURBUJA (foto de quien lo mandó) ---------- */
+  .burbuja .card { position: relative; display: flex; align-items: center; gap: 16px; padding: 10px 26px 10px 10px; border-radius: 999px; min-width: 360px;
+    background: rgba(14,12,20,.82); border: 2px solid rgba(255,255,255,.14); box-shadow: 0 12px 34px rgba(0,0,0,.45); }
+  .burbuja .who { position: relative; flex: none; }
+  .burbuja .who .av { width: 92px; height: 92px; font-size: 36px; border: 4px solid var(--gold); }
+  .burbuja .who .gimg { position: absolute; right: -10px; bottom: -6px; width: 50px; height: 50px; font-size: 32px; background: #1d1729; border-radius: 50%; border: 3px solid var(--gold); }
+  .burbuja .who .gimg img { width: 80%; height: 80%; }
+  .burbuja .t { font-size: 14px; font-weight: 700; color: var(--gold); }
+  .burbuja .n { font-size: 28px; font-weight: 900; line-height: 1.05; max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .burbuja .v { font-size: 18px; font-weight: 800; opacity: .95; }
+  .burbuja .v b { color: var(--gold); }
+  .burbuja .badge { top: -14px; left: 110px; }
+  .nobg .burbuja .card { background: none; border: 0; box-shadow: none; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } .record .badge { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"><div id="root"></div></div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const P = new URLSearchParams(location.search);
+const stage = document.getElementById('stage');
+const root = document.getElementById('root');
+const STYLES = ['tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja'];
+let cfg = { style: 'tarjeta', title: '', bg: true };
+let record = null;
+let lastKey = '';
+const DEMO = { user: 'elpana77', name: 'ElPana_77', avatar: '', gift: 'León', image: '', diamonds: 29999, count: 1, total: 29999, ts: Date.now() };
+
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const full = (n) => Number(n).toLocaleString('es-MX');
+
+function settings() {
+  const s = { ...cfg };
+  if (P.get('estilo') && STYLES.includes(P.get('estilo'))) s.style = P.get('estilo');
+  if (P.get('titulo')) s.title = P.get('titulo');
+  if (P.get('fondo') === '0') s.bg = false;
+  if (!STYLES.includes(s.style)) s.style = 'tarjeta';
+  s.title = s.title || 'Regalo más caro del stream';
+  return s;
+}
+
+function render(isRecord = false) {
+  const s = settings();
+  const g = record || (P.get('demo') === '1' ? DEMO : null);
+  document.body.classList.toggle('nobg', !s.bg);
+  stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
+  stage.classList.toggle('hidden', !g && P.get('ocultarVacio') === '1');
+  root.className = s.style;
+
+  const letter = esc(((g?.name || '?')[0] || '?').toUpperCase());
+  const av = g?.avatar ? `<img class="av" src="${esc(g.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=av>${letter}</span>'">` : `<span class="av">${letter}</span>`;
+  const img = g?.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('🎁'))">` : '🎁';
+  const gift = g ? `${esc(g.gift)}${g.count > 1 ? ` ×${g.count}` : ''}` : '';
+  const val = g ? `${full(g.diamonds)} 💎` : '';
+  const T = esc(s.title);
+  const badge = '<span class="badge">¡Nuevo récord!</span>';
+
+  if (!g) {
+    const msg = '¡Sé el primero en mandar un regalo!';
+    root.innerHTML = s.style === 'banner'
+      ? `<div class="card"><div class="gimg">🎁</div><div><div class="t">${T}</div><div class="line"><span class="n">${msg}</span></div></div></div>`
+      : s.style === 'trofeo'
+        ? `<div class="card"><div class="crown">👑</div><div class="t">${T}</div><div class="gimg">🎁</div><div class="n" style="font-size:20px">${msg}</div></div>`
+        : `<div class="card"><div class="gimg">🎁</div><div><div class="t sh">${T}</div><div class="n sh" style="font-size:20px">${msg}</div></div></div>`;
+    lastKey = '';
+    return;
+  }
+
+  const html = {
+    tarjeta: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t sh">${T}</div><div class="n sh">${gift}</div><div class="v sh">${val}</div><div class="f sh">${av}${esc(g.name)}</div></div></div>`,
+    banner: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="line"><span class="n sh">${gift}</span><span class="v sh">${val}</span></div></div><div class="f sh">${av}${esc(g.name)}</div></div>`,
+    trofeo: `<div class="card">${badge}<div class="crown">👑</div><div class="t">${T}</div><div class="gimg float">${img}</div><div class="n sh">${gift}</div><div class="v">${val}</div><div class="f sh">${av}${esc(g.name)}</div></div>`,
+    neon: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t">${T}</div><div class="n">${gift}</div><div class="v">${val}</div><div class="f">${av}${esc(g.name)}</div></div></div>`,
+    minimal: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="n">${gift} <span>${val}</span></div><div class="f">de ${esc(g.name)}</div></div></div>`,
+    burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh">${T}</div><div class="n sh">${esc(g.name)}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
+  }[s.style];
+  root.innerHTML = html;
+
+  const key = `${g.ts}-${g.user}-${g.gift}`;
+  const card = root.querySelector('.card');
+  if (key !== lastKey) { card.classList.add('enter'); }
+  if (isRecord) {
+    root.classList.add('record');
+    sparks(card);
+    clearTimeout(render.t);
+    render.t = setTimeout(() => root.classList.remove('record'), 6500);
+  }
+  lastKey = key;
+}
+
+function sparks(card) {
+  const r = card.getBoundingClientRect();
+  const cx = r.left + Math.min(80, r.width / 2), cy = r.top + r.height / 2;
+  for (let i = 0; i < 26; i++) {
+    const s = document.createElement('span');
+    s.className = 'spark';
+    const ang = (Math.PI * 2 * i) / 26, dist = 60 + Math.random() * 90;
+    s.style.left = cx + 'px'; s.style.top = cy + 'px';
+    s.style.setProperty('--dx', Math.cos(ang) * dist + 'px');
+    s.style.setProperty('--dy', Math.sin(ang) * dist + 'px');
+    document.body.appendChild(s);
+    setTimeout(() => s.remove(), 1200);
+  }
+}
+
+const socket = io();
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.topGift || {}) }; render(); });
+socket.on('topGifts', ({ list, record: isNew }) => { record = (list || [])[0] || null; render(!!isNew); });
+render();
+</script>
+</body>
+</html>

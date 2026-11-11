@@ -1,0 +1,7 @@
+node_modules/
+dist/
+config.json
+ranking.json
+uso-voz.json
+dev-app-update.yml
+*.log

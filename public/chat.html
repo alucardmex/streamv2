@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Chat</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Opciones por URL: ?ocultar=30 (segundos, 0 = nunca)  ?max=12  ?escala=1.2  ?regalos=0 */
+  html, body { margin: 0; height: 100%; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
+  #chat { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px; display: flex; flex-direction: column; gap: 8px; transform-origin: bottom left; }
+  .msg {
+    display: flex; gap: 10px; align-items: flex-start; padding: 8px 14px 8px 8px; border-radius: 16px; max-width: 100%;
+    background: rgba(12, 12, 18, .72); box-shadow: 0 6px 20px rgba(0,0,0,.35); animation: in .35s cubic-bezier(.2,1.3,.4,1) both;
+    width: fit-content;
+  }
+  .msg.out { animation: out .5s ease-in both; }
+  @keyframes in { from { opacity: 0; transform: translateX(-30px); } }
+  @keyframes out { to { opacity: 0; transform: translateX(-30px); } }
+  .av { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; background: #333; display: grid; place-items: center; font-weight: 800; flex: none; }
+  .who { font-weight: 800; color: #25f4ee; margin-right: 6px; }
+  .text { font-size: 19px; line-height: 1.3; word-break: break-word; text-shadow: 0 1px 3px rgba(0,0,0,.6); padding-top: 4px; }
+  .msg.gift { background: linear-gradient(90deg, rgba(254,44,85,.85), rgba(12,12,18,.72)); }
+  .msg.gift .who { color: #fff; }
+</style>
+</head>
+<body>
+<div id="chat"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const p = new URLSearchParams(location.search);
+const hideAfter = p.has('ocultar') ? Number(p.get('ocultar')) : 45;
+const max = Number(p.get('max')) || 12;
+const showGifts = p.get('regalos') !== '0';
+const chat = document.getElementById('chat');
+chat.style.transform = `scale(${Number(p.get('escala')) || 1})`;
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function add(u, html, cls = '') {
+  const el = document.createElement('div');
+  el.className = 'msg ' + cls;
+  const letter = esc((u.name || '?')[0].toUpperCase());
+  const av = u.avatar
+    ? `<img class="av" src="${esc(u.avatar)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=av>${letter}</span>'">`
+    : `<span class="av">${letter}</span>`;
+  el.innerHTML = `${av}<div class="text"><span class="who">${esc(u.name)}</span>${html}</div>`;
+  chat.appendChild(el);
+  while (chat.children.length > max) chat.firstChild.remove();
+  if (hideAfter > 0) setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 500); }, hideAfter * 1000);
+}
+
+const socket = io();
+let loaded = false;
+socket.on('chatHistory', (list) => {
+  if (loaded) return;
+  loaded = true;
+  if (hideAfter === 0) list.slice(-max).forEach((m) => add(m, esc(m.text)));
+});
+socket.on('chat', (m) => add(m, esc(m.text)));
+socket.on('gift', (g) => { if (showGifts) add(g, `envió ${g.count}× <b>${esc(g.gift)}</b> 🎁`, 'gift'); });
+</script>
+</body>
+</html>
