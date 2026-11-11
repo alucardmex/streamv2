@@ -3,7 +3,7 @@
   "productName": "StreamV2",
   "version": "1.0.0",
   "description": "Alertas de regalos, rankings y bot de voz para TikTok LIVE",
-  "author": "StreamV2",
+  "author": "alucardmex",
   "type": "module",
   "main": "electron/main.js",
   "scripts": {
@@ -68,7 +68,7 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "OWNER",
+        "owner": "alucardmex",
         "repo": "streamv2",
         "releaseType": "release"
       }
