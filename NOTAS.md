@@ -1,11 +1,9 @@
-Animaciones para los overlays de **Regalo más caro**, **Top taps** y **Top regalos**.
+Nuevo estilo **Círculo** para el overlay del **Regalo más caro**.
 
-- Movimiento todo el tiempo: Brillo, Borde de luz, Flotar, Respirar, Balanceo, Destellos, Girar regalo y Ola
-- Efecto al cambiar: Pop, Deslizar, Zoom, Voltear o Sacudida (nuevo récord, alguien entra o sube de puesto)
-- Intensidad Suave, Normal o Fuerte
-- Los taps y diamantes cuentan hacia arriba, y los puestos se reacomodan deslizándose
-- Quien sube de puesto se resalta con una flechita ▲
-- Todo se puede apagar por overlay, y hay un botón **▶ Probar animación** en la pestaña Overlays
-- Arreglo: el estilo Cinta ya no vuelve a empezar cada vez que llegan taps
+- Un círculo que se voltea como moneda entre la **foto de perfil** de quien mandó el regalo y el **regalo**
+- Abajo se ve su nombre, el regalo y los diamantes
+- Eliges cada cuántos segundos cambia (de 2 a 30) en la pestaña Overlays
+- Cuando hay nuevo récord empieza mostrando la foto de quien lo mandó
+- Funciona con todas las animaciones (Borde de luz, Brillo, Destellos…)
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.1.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.2.0 lista", toca **Actualizar**.

@@ -93,7 +93,7 @@ const DEFAULT_CONFIG = {
       // números que suben (counters) y resaltar a quien sube de puesto (rankUp).
       likes: { style: 'lista', title: '', top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
       gifts: { style: 'lista', title: '', top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
-      topGift: { style: 'tarjeta', title: '', bg: true, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
+      topGift: { style: 'tarjeta', title: '', bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
     },
   },
 };

@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/fx.css">
 <style>
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja  ?titulo=Rey%20del%20stream  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
+     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja|circulo  ?cambio=4 (segundos, estilo Círculo)  ?titulo=Rey%20del%20stream  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
   .fxw { display: block; }
   :root { --gold: #ffc24b; --gold2: #ffe17a; --pink: #fe2c55; --cyan: #25f4ee; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
@@ -107,6 +107,29 @@
   .nobg .burbuja .card { background: none; border: 0; box-shadow: none; }
 
   /* Con animaciones apagadas se respeta "reducir movimiento" de Windows. */
+  /* ---------- CÍRCULO (alterna foto de perfil y regalo, como moneda) ---------- */
+  .circulo .fxw { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 300px; padding-top: 4px; }
+  .circulo .t { font-size: 14px; font-weight: 800; color: var(--gold); padding: 5px 14px; border-radius: 999px; background: rgba(14,12,20,.82); white-space: nowrap; }
+  .circulo .card { position: relative; width: 200px; height: 200px; border-radius: 50%; border: 5px solid var(--gold); perspective: 900px; background: #120d18;
+    box-shadow: 0 0 34px rgba(255,194,75,.45), 0 16px 40px rgba(0,0,0,.5); }
+  .circulo .faces { position: absolute; inset: 0; border-radius: 50%; transform-style: preserve-3d; transition: transform .9s cubic-bezier(.45,1.45,.5,1); }
+  .circulo .card.flipped .faces { transform: rotateY(180deg); }
+  .circulo .face { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; display: grid; place-items: center; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+  .circulo .face.front { background: linear-gradient(135deg, #fe2c55, #7a3cff); }
+  .circulo .face.front img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .circulo .face.front .letter { font-size: 92px; font-weight: 900; text-shadow: 0 4px 16px rgba(0,0,0,.4); }
+  .circulo .face.back { transform: rotateY(180deg); background: radial-gradient(circle at 50% 42%, #6b4510, #2a1c0c 55%, #120d18); }
+  .circulo .gimg { width: 140px; height: 140px; font-size: 96px; }
+  .circulo .info { text-align: center; padding: 8px 18px 10px; border-radius: 18px; background: rgba(14,12,20,.82); border: 2px solid rgba(255,194,75,.45); max-width: 300px; box-sizing: border-box; }
+  .circulo .n { font-size: 24px; font-weight: 900; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .circulo .v { font-size: 17px; font-weight: 800; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .circulo .v b { color: var(--gold); }
+  .circulo .badge { top: auto; bottom: -14px; left: 50%; transform: translateX(-50%) scale(.6); }
+  .record.circulo .badge { animation: badgeC 6s ease forwards; }
+  .record.circulo .card { animation: pulseC 1.4s ease-out 3; }
+  @keyframes pulseC { 0% { box-shadow: 0 0 0 0 rgba(255,194,75,.8), 0 16px 40px rgba(0,0,0,.5); } 100% { box-shadow: 0 0 0 34px rgba(255,194,75,0), 0 16px 40px rgba(0,0,0,.5); } }
+  .nobg .circulo .t, .nobg .circulo .info { background: none; border-color: transparent; text-shadow: 0 2px 6px rgba(0,0,0,.9); }
+
   @media (prefers-reduced-motion: reduce) { body:not(.fx-on) * { animation: none !important; } body:not(.fx-on) .record .badge { opacity: 1; transform: none; } }
 </style>
 </head>
@@ -118,8 +141,8 @@
 const P = new URLSearchParams(location.search);
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
-const STYLES = ['tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja'];
-let cfg = { style: 'tarjeta', title: '', bg: true, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } };
+const STYLES = ['tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja', 'circulo'];
+let cfg = { style: 'tarjeta', title: '', bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } };
 let record = null;
 let demoGift = null; // regalo de prueba del botón "Probar animación"
 const DEMO_GIFTS = [
@@ -137,6 +160,8 @@ function settings() {
   if (P.get('estilo') && STYLES.includes(P.get('estilo'))) s.style = P.get('estilo');
   if (P.get('titulo')) s.title = P.get('titulo');
   if (P.get('fondo') === '0') s.bg = false;
+  if (Number(P.get('cambio'))) s.swap = Number(P.get('cambio'));
+  s.swap = Math.max(2, Math.min(30, Number(s.swap) || 4));
   if (!STYLES.includes(s.style)) s.style = 'tarjeta';
   s.title = s.title || 'Regalo más caro del stream';
   return s;
@@ -160,7 +185,9 @@ function render(isRecord = false) {
 
   if (!g) {
     const msg = '¡Sé el primero en mandar un regalo!';
-    root.innerHTML = s.style === 'banner'
+    root.innerHTML = s.style === 'circulo'
+      ? `<div class="fxw"><div class="t">${T}</div><div class="card"><div class="faces"><div class="face back" style="transform:none"><div class="gimg">🎁</div></div></div></div><div class="info"><div class="v" style="white-space:normal">${msg}</div></div></div>`
+      : s.style === 'banner'
       ? `<div class="card"><div class="gimg">🎁</div><div><div class="t">${T}</div><div class="line"><span class="n">${msg}</span></div></div></div>`
       : s.style === 'trofeo'
         ? `<div class="card"><div class="crown">👑</div><div class="t">${T}</div><div class="gimg">🎁</div><div class="n" style="font-size:20px">${msg}</div></div>`
@@ -171,17 +198,19 @@ function render(isRecord = false) {
     return;
   }
 
+  const key = `${g.ts}-${g.user}-${g.gift}`;
+  if (key !== lastKey) { side = 'foto'; swapLoop(); } // regalo nuevo: en el estilo Círculo primero se ve la foto
   const html = {
     tarjeta: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t sh">${T}</div><div class="n sh">${gift}</div><div class="v sh">${val}</div><div class="f sh">${av}${esc(g.name)}</div></div></div>`,
     banner: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="line"><span class="n sh">${gift}</span><span class="v sh">${val}</span></div></div><div class="f sh">${av}${esc(g.name)}</div></div>`,
     trofeo: `<div class="card">${badge}<div class="crown">👑</div><div class="t">${T}</div><div class="gimg float">${img}</div><div class="n sh">${gift}</div><div class="v">${val}</div><div class="f sh">${av}${esc(g.name)}</div></div>`,
     neon: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t">${T}</div><div class="n">${gift}</div><div class="v">${val}</div><div class="f">${av}${esc(g.name)}</div></div></div>`,
     minimal: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="n">${gift} <span>${val}</span></div><div class="f">de ${esc(g.name)}</div></div></div>`,
+    circulo: `<div class="t">${T}</div><div class="card ${side === 'regalo' ? 'flipped' : ''}">${badge}<div class="faces"><div class="face front">${face(g)}</div><div class="face back"><div class="gimg float">${img}</div></div></div></div><div class="info"><div class="n sh">${esc(g.name)}</div><div class="v sh">${gift} · <b>${val}</b></div></div>`,
     burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh">${T}</div><div class="n sh">${esc(g.name)}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
   }[s.style];
   root.innerHTML = `<div class="fxw">${html}</div>`;
 
-  const key = `${g.ts}-${g.user}-${g.gift}`;
   const card = root.querySelector('.card');
   FX.decorate(card);
   if (key !== lastKey) FX.reset('diamantes'); // regalo nuevo: los diamantes cuentan desde 0
@@ -199,6 +228,29 @@ function render(isRecord = false) {
   }
   lastKey = key;
 }
+
+// Estilo Círculo: la cara de la foto (o la inicial si no hay foto).
+let side = 'foto';
+function face(g) {
+  const letter = esc(((g.name || '?')[0] || '?').toUpperCase());
+  return g.avatar
+    ? `<img src="${esc(g.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=letter>${letter}</span>'">`
+    : `<span class="letter">${letter}</span>`;
+}
+// Voltea entre foto y regalo cada tantos segundos (siempre, aunque las animaciones estén apagadas:
+// es la forma de este estilo de mostrar las dos cosas).
+function swapLoop() {
+  clearTimeout(swapLoop.t);
+  swapLoop.t = setTimeout(() => {
+    const card = root.querySelector('.circulo .card');
+    if (card && card.querySelector('.face.front')) {
+      side = side === 'foto' ? 'regalo' : 'foto';
+      card.classList.toggle('flipped', side === 'regalo');
+    }
+    swapLoop();
+  }, settings().swap * 1000);
+}
+swapLoop();
 
 function sparks(card) {
   const r = card.getBoundingClientRect();

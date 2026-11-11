@@ -782,6 +782,7 @@
           <div class="styles" role="radiogroup" aria-label="Estilo del regalo más caro"></div>
           <div class="fields">
             <label class="field">Título <input type="text" data-key="overlays.topGift.title" placeholder="Regalo más caro del stream"></label>
+            <label class="field" data-only="circulo">Cambiar foto ↔ regalo cada (segundos) <input type="number" min="2" max="30" data-key="overlays.topGift.swap"></label>
           </div>
           <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.topGift.bg"><span class="track"></span>Con fondo</label></div>
           <div class="st-anim"></div>
@@ -1873,6 +1874,7 @@ const OV_STYLES = {
     ['neon', 'Neón', 'Brillos de colores'],
     ['minimal', 'Minimal', 'Solo texto, sin caja'],
     ['burbuja', 'Burbuja', 'Foto de quien lo mandó'],
+    ['circulo', 'Círculo', 'Alterna foto y regalo'],
   ],
   likes: [
     ['lista', 'Lista', 'Clásica con fotos'],
@@ -1885,7 +1887,7 @@ const OV_STYLES = {
 };
 OV_STYLES.gifts = OV_STYLES.likes;
 const OV_SIZE = {
-  topGift: { tarjeta: '520 × 220', banner: '640 × 120', trofeo: '320 × 480', neon: '520 × 220', minimal: '420 × 120', burbuja: '520 × 180' },
+  topGift: { tarjeta: '520 × 220', banner: '640 × 120', trofeo: '320 × 480', neon: '520 × 220', minimal: '420 × 120', burbuja: '520 × 180', circulo: '340 × 400' },
   likes: { lista: '500 × 600', podio: '480 × 420', lider: '520 × 200', compacto: '340 × 360', neon: '500 × 600', cinta: '940 × 90' },
 };
 OV_SIZE.gifts = OV_SIZE.likes;
@@ -1899,6 +1901,7 @@ function renderStudios() {
       `<button type="button" class="sty" role="radio" aria-checked="${cur === id}" data-ovstyle="${key}:${id}"><b>${name}</b><small>${desc}</small></button>`).join('');
     const url = location.origin + st.dataset.path;
     renderAnim(st, key);
+    st.querySelectorAll('[data-only]').forEach((el) => { el.hidden = el.dataset.only !== cur; });
     st.querySelector('.st-link').innerHTML = `<code>${esc(url)}</code><span class="hint">Tamaño sugerido ${OV_SIZE[key][cur] || ''}</span>
       <button class="btn sm" data-copy="${esc(url)}">Copiar link</button><button class="btn sm quiet" data-open-path="${esc(st.dataset.path)}">Abrir</button>`;
   });
