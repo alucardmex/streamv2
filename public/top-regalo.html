@@ -4,9 +4,11 @@
 <meta charset="utf-8">
 <title>Regalo más caro</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Bungee&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fx.css">
 <style>
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja  ?titulo=Rey%20del%20stream  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1 */
+     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja  ?titulo=Rey%20del%20stream  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
+  .fxw { display: block; }
   :root { --gold: #ffc24b; --gold2: #ffe17a; --pink: #fe2c55; --cyan: #25f4ee; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
   .stage { display: inline-block; transform-origin: top left; padding: 18px 12px 12px; }
@@ -15,7 +17,7 @@
   .av { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; background: #3a3348; display: grid; place-items: center; font-size: 13px; font-weight: 900; border: 2px solid #fff; flex: none; }
   .gimg { display: grid; place-items: center; position: relative; flex: none; }
   .gimg img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 8px 18px rgba(0,0,0,.5)); }
-  .float img { animation: bob 2.4s ease-in-out infinite; }
+  .fx-on .float img { animation: bob calc(2.4s * var(--spd)) ease-in-out infinite; }
   @keyframes bob { 50% { transform: translateY(-6px) rotate(-3deg); } }
   .badge { position: absolute; z-index: 3; padding: 5px 14px; border-radius: 999px; font-weight: 900; font-size: 15px; color: #2a1700; white-space: nowrap;
     background: linear-gradient(90deg, var(--gold2), #ffb547); box-shadow: 0 6px 18px rgba(255,181,71,.45); opacity: 0; transform: scale(.6); pointer-events: none; }
@@ -104,19 +106,26 @@
   .burbuja .badge { top: -14px; left: 110px; }
   .nobg .burbuja .card { background: none; border: 0; box-shadow: none; }
 
-  @media (prefers-reduced-motion: reduce) { * { animation: none !important; } .record .badge { opacity: 1; transform: none; } }
+  /* Con animaciones apagadas se respeta "reducir movimiento" de Windows. */
+  @media (prefers-reduced-motion: reduce) { body:not(.fx-on) * { animation: none !important; } body:not(.fx-on) .record .badge { opacity: 1; transform: none; } }
 </style>
 </head>
 <body>
 <div class="stage" id="stage"><div id="root"></div></div>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/fx.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
 const STYLES = ['tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja'];
-let cfg = { style: 'tarjeta', title: '', bg: true };
+let cfg = { style: 'tarjeta', title: '', bg: true, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } };
 let record = null;
+let demoGift = null; // regalo de prueba del botón "Probar animación"
+const DEMO_GIFTS = [
+  { user: 'lupita', name: 'Lupita', avatar: '', gift: 'Universo', image: '', diamonds: 34999, count: 1 },
+  { user: 'doncarlos', name: 'DonCarlos', avatar: '', gift: 'Fénix', image: '', diamonds: 41999, count: 1 },
+];
 let lastKey = '';
 const DEMO = { user: 'elpana77', name: 'ElPana_77', avatar: '', gift: 'León', image: '', diamonds: 29999, count: 1, total: 29999, ts: Date.now() };
 
@@ -135,7 +144,7 @@ function settings() {
 
 function render(isRecord = false) {
   const s = settings();
-  const g = record || (P.get('demo') === '1' ? DEMO : null);
+  const g = demoGift || record || (P.get('demo') === '1' ? DEMO : null);
   document.body.classList.toggle('nobg', !s.bg);
   stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
   stage.classList.toggle('hidden', !g && P.get('ocultarVacio') === '1');
@@ -145,7 +154,7 @@ function render(isRecord = false) {
   const av = g?.avatar ? `<img class="av" src="${esc(g.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=av>${letter}</span>'">` : `<span class="av">${letter}</span>`;
   const img = g?.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('🎁'))">` : '🎁';
   const gift = g ? `${esc(g.gift)}${g.count > 1 ? ` ×${g.count}` : ''}` : '';
-  const val = g ? `${full(g.diamonds)} 💎` : '';
+  const val = g ? `<span class="cnt">${full(g.diamonds)}</span> 💎` : '';
   const T = esc(s.title);
   const badge = '<span class="badge">¡Nuevo récord!</span>';
 
@@ -157,6 +166,8 @@ function render(isRecord = false) {
         ? `<div class="card"><div class="crown">👑</div><div class="t">${T}</div><div class="gimg">🎁</div><div class="n" style="font-size:20px">${msg}</div></div>`
         : `<div class="card"><div class="gimg">🎁</div><div><div class="t sh">${T}</div><div class="n sh" style="font-size:20px">${msg}</div></div></div>`;
     lastKey = '';
+    FX.decorate(root.querySelector('.card'));
+    FX.sync(root);
     return;
   }
 
@@ -168,11 +179,18 @@ function render(isRecord = false) {
     minimal: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="n">${gift} <span>${val}</span></div><div class="f">de ${esc(g.name)}</div></div></div>`,
     burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh">${T}</div><div class="n sh">${esc(g.name)}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
   }[s.style];
-  root.innerHTML = html;
+  root.innerHTML = `<div class="fxw">${html}</div>`;
 
   const key = `${g.ts}-${g.user}-${g.gift}`;
   const card = root.querySelector('.card');
-  if (key !== lastKey) { card.classList.add('enter'); }
+  FX.decorate(card);
+  if (key !== lastKey) FX.reset('diamantes'); // regalo nuevo: los diamantes cuentan desde 0
+  FX.count(root.querySelector('.cnt'), 'diamantes', g.diamonds, full);
+  if (key !== lastKey) {
+    if (FX.on) FX.change(root.querySelector('.fxw'), 'regalo');
+    else card.classList.add('enter');
+  }
+  FX.sync(root);
   if (isRecord) {
     root.classList.add('record');
     sparks(card);
@@ -197,9 +215,26 @@ function sparks(card) {
   }
 }
 
+// Botón "Probar animación" del panel: simula un récord nuevo y luego vuelve a lo real.
+window.fxDemo = () => {
+  const i = (fxDemo.n = ((fxDemo.n ?? -1) + 1)) % DEMO_GIFTS.length;
+  demoGift = { ...DEMO_GIFTS[i], ts: Date.now() };
+  demoGift.total = demoGift.diamonds * demoGift.count;
+  render(true);
+  clearTimeout(fxDemo.t);
+  fxDemo.t = setTimeout(() => { demoGift = null; render(); }, 7000);
+};
+
+function applyFx() {
+  const a = { ...cfg.anim };
+  if (P.get('animacion') === '0') a.on = false;
+  FX.apply(a);
+}
+
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.topGift || {}) }; render(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.topGift || {}) }; applyFx(); render(); });
 socket.on('topGifts', ({ list, record: isNew }) => { record = (list || [])[0] || null; render(!!isNew); });
+applyFx();
 render();
 </script>
 </body>

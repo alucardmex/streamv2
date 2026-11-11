@@ -1,0 +1,83 @@
+/* StreamV2 — animaciones de overlays.
+   Se activan con clases en <body> (las pone fx.js según lo que elijas en el panel):
+   fx-on · fx-idle-<movimiento> · fx-suave|fx-normal|fx-fuerte */
+
+@property --fx-a { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+
+body { --amp: 1; --spd: 1; }
+body.fx-suave { --amp: .55; --spd: 1.35; }
+body.fx-fuerte { --amp: 1.7; --spd: .7; }
+
+/* ---------- Movimiento continuo (sobre todo el overlay) ---------- */
+#root { transform-origin: center; }
+.fx-idle-flotar #root { animation: fx-float calc(3.4s * var(--spd)) ease-in-out infinite; }
+@keyframes fx-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(calc(-9px * var(--amp))); } }
+
+.fx-idle-respirar #root { animation: fx-breathe calc(2.8s * var(--spd)) ease-in-out infinite; }
+@keyframes fx-breathe { 0%, 100% { transform: scale(1); } 50% { transform: scale(calc(1 + .035 * var(--amp))); } }
+
+.fx-idle-balanceo #root { animation: fx-sway calc(3.6s * var(--spd)) ease-in-out infinite; }
+@keyframes fx-sway { 0%, 100% { transform: rotate(calc(-1.4deg * var(--amp))); } 50% { transform: rotate(calc(1.4deg * var(--amp))); } }
+
+/* Capas que fx.js agrega dentro de la tarjeta */
+.fx-target { position: relative; }
+.fx-shine, .fx-border { display: none; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; }
+
+/* Brillo que cruza la tarjeta */
+.fx-shine { overflow: hidden; z-index: 2; }
+.fx-idle-brillo .fx-shine { display: block; }
+.fx-shine::before { content: ''; position: absolute; top: -30%; bottom: -30%; left: -70%; width: 45%; transform: skewX(-20deg);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255, calc(.32 * var(--amp))), transparent);
+  animation: fx-shine calc(4.2s * var(--spd)) ease-in-out infinite; }
+@keyframes fx-shine { 0%, 50% { left: -70%; } 100% { left: 140%; } }
+
+/* Borde de luz que gira */
+.fx-border { z-index: 1; padding: calc(3px * var(--amp));
+  background: conic-gradient(from var(--fx-a), #fe2c55, #ffc24b, #25f4ee, #b26bff, #fe2c55);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+  animation: fx-spin calc(3.6s * var(--spd)) linear infinite; }
+.fx-idle-borde .fx-border { display: block; }
+.fx-idle-borde .fx-target { box-shadow: 0 0 calc(22px * var(--amp)) rgba(254,44,85,.35), 0 12px 40px rgba(0,0,0,.45); }
+@keyframes fx-spin { to { --fx-a: 360deg; } }
+
+/* Destellos alrededor (fx.js crea las estrellas) */
+.fx-star { position: fixed; z-index: 50; pointer-events: none; font-size: calc(14px * var(--amp) + 6px); line-height: 1;
+  color: #ffe9a8; text-shadow: 0 0 8px #ffc24b, 0 0 14px rgba(255,255,255,.8);
+  animation: fx-twinkle calc(1.3s * var(--spd)) ease-in-out forwards; }
+@keyframes fx-twinkle { 0% { opacity: 0; transform: scale(.2) rotate(0deg); } 40% { opacity: 1; transform: scale(1) rotate(60deg); } 100% { opacity: 0; transform: scale(.3) rotate(140deg); } }
+
+/* Girar el regalo (regalo más caro) */
+.fx-idle-girar .gimg { animation: fx-spin-y calc(4.5s * var(--spd)) ease-in-out infinite; transform-style: preserve-3d; }
+@keyframes fx-spin-y { 0%, 62% { transform: perspective(400px) rotateY(0); } 100% { transform: perspective(400px) rotateY(360deg); } }
+
+/* Ola: los puestos se iluminan uno tras otro (top taps) */
+.fx-idle-ola [data-id], .fx-idle-ola .it { animation: fx-wave calc(3.6s * var(--spd)) ease-in-out infinite; animation-delay: calc(var(--i, 0) * .16s * var(--spd)); }
+@keyframes fx-wave { 0%, 26%, 100% { filter: brightness(1); } 10% { filter: brightness(calc(1 + .4 * var(--amp))) drop-shadow(0 0 calc(8px * var(--amp)) rgba(255,194,75,.55)); } }
+
+/* ---------- Al cambiar (usa scale/translate/rotate para no chocar con el reacomodo) ---------- */
+body.fx-on .fx-c-pop { animation: fx-pop .65s cubic-bezier(.2,1.6,.4,1); }
+@keyframes fx-pop { 0% { scale: .7; } 45% { scale: calc(1 + .12 * var(--amp)); } 100% { scale: 1; } }
+
+body.fx-on .fx-c-deslizar { animation: fx-slide .6s cubic-bezier(.2,.9,.3,1.1); }
+@keyframes fx-slide { 0% { translate: calc(-60px * var(--amp)) 0; opacity: 0; } 100% { translate: 0 0; opacity: 1; } }
+
+body.fx-on .fx-c-zoom { animation: fx-zoom .6s cubic-bezier(.2,1.3,.4,1); }
+@keyframes fx-zoom { 0% { scale: .2; opacity: 0; } 100% { scale: 1; opacity: 1; } }
+
+body.fx-on .fx-c-voltear { animation: fx-flip .75s cubic-bezier(.3,1.4,.5,1); }
+@keyframes fx-flip { 0% { rotate: x 90deg; opacity: .2; } 100% { rotate: x 0deg; opacity: 1; } }
+
+body.fx-on .fx-c-sacudida { animation: fx-shake .6s ease; }
+@keyframes fx-shake { 0%, 100% { translate: 0 0; rotate: 0deg; } 15% { translate: calc(-8px * var(--amp)) 0; rotate: -2deg; } 30% { translate: calc(8px * var(--amp)) 0; rotate: 2deg; }
+  45% { translate: calc(-6px * var(--amp)) 0; rotate: -1deg; } 60% { translate: calc(6px * var(--amp)) 0; rotate: 1deg; } 80% { translate: calc(-3px * var(--amp)) 0; } }
+
+/* Quien sube de puesto */
+.fx-up { position: relative; }
+.fx-up::after { content: ''; position: absolute; inset: -2px; border-radius: inherit; pointer-events: none;
+  box-shadow: 0 0 0 2px rgba(79,224,182,.9), 0 0 22px rgba(79,224,182,.65); animation: fx-up-glow 2.4s ease-out forwards; }
+@keyframes fx-up-glow { 0% { opacity: 0; } 12% { opacity: 1; } 70% { opacity: 1; } 100% { opacity: 0; } }
+.fx-arrow { position: absolute; right: -10px; top: -10px; z-index: 5; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 12px; font-weight: 900; color: #052b20; background: #4fe0b6; box-shadow: 0 4px 12px rgba(0,0,0,.4);
+  animation: fx-arrow 2.6s ease forwards; }
+@keyframes fx-arrow { 0% { opacity: 0; translate: 0 10px; } 15% { opacity: 1; translate: 0 0; } 75% { opacity: 1; } 100% { opacity: 0; translate: 0 -10px; } }

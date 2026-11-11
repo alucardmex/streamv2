@@ -1,8 +1,11 @@
-Primera versión de StreamV2 como app de escritorio.
+Animaciones para los overlays de **Regalo más caro**, **Top taps** y **Top regalos**.
 
-- Instalador para Windows con acceso directo en el escritorio
-- Ventana propia: el bot de voz habla sin hacer clic, aunque la ventana esté minimizada
-- Actualizaciones automáticas: se descargan solas y se instalan al reiniciar
-- Importa tus ajustes de la versión anterior (la de INICIAR.bat)
+- Movimiento todo el tiempo: Brillo, Borde de luz, Flotar, Respirar, Balanceo, Destellos, Girar regalo y Ola
+- Efecto al cambiar: Pop, Deslizar, Zoom, Voltear o Sacudida (nuevo récord, alguien entra o sube de puesto)
+- Intensidad Suave, Normal o Fuerte
+- Los taps y diamantes cuentan hacia arriba, y los puestos se reacomodan deslizándose
+- Quien sube de puesto se resalta con una flechita ▲
+- Todo se puede apagar por overlay, y hay un botón **▶ Probar animación** en la pestaña Overlays
+- Arreglo: el estilo Cinta ya no vuelve a empezar cada vez que llegan taps
 
-**Para instalar:** descarga `StreamV2-Setup-1.0.0.exe` y ábrelo. Si Windows muestra "Windows protegió tu PC", toca **Más información → Ejecutar de todas formas**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.1.0 lista", toca **Actualizar**.

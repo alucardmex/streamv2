@@ -1,7 +1,7 @@
 {
   "name": "streamv2",
   "productName": "StreamV2",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Alertas de regalos, rankings y bot de voz para TikTok LIVE",
   "author": "alucardmex",
   "type": "module",

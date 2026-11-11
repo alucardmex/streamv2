@@ -47,11 +47,23 @@ En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previ
 - **Regalo más caro:** Tarjeta, Banner (barra horizontal), Trofeo (vertical con corona, ideal para stream vertical), Neón, Minimal (solo texto) y Burbuja (foto de quien lo mandó).
 - **Top taps** y **Top regalos:** Lista, Podio (top 3 en escalones), Líder (solo el #1 en grande), Compacto, Neón y Cinta (barra que se desplaza, ideal abajo de la pantalla).
 
+### Animaciones
+
+Cada overlay tiene su propio bloque **Animaciones** (se puede apagar con el interruptor):
+
+- **Movimiento todo el tiempo:** Quieto, Brillo (un destello cruza la tarjeta), Borde de luz (borde de colores que gira), Flotar, Respirar, Balanceo y Destellos. El regalo más caro además tiene **Girar regalo**, y los rankings tienen **Ola** (los puestos se iluminan uno tras otro).
+- **Al cambiar:** Pop, Deslizar, Zoom, Voltear o Sacudida. En el regalo más caro se ve cuando hay nuevo récord; en los rankings cuando alguien entra o sube de puesto.
+- **Intensidad:** Suave, Normal o Fuerte.
+- **Números que suben:** los taps y diamantes cuentan hacia arriba en lugar de saltar.
+- **Resaltar a quien sube de puesto** (rankings): la fila brilla en verde con una flechita ▲, y las filas se reacomodan deslizándose.
+
+Con **▶ Probar animación** ves en la vista previa cómo se vería un récord nuevo o alguien rebasando al primero.
+
 **Opciones extra en el link** (se combinan con `&`):
 
 - Alertas: `?escala=1.3`, `?posicion=arriba` / `abajo`, `?sonido=0`
-- Top taps / top regalos: `?tipo=regalos`, `?estilo=podio`, `?top=3`, `?titulo=Mis%20fans`, `?fondo=0` (sin caja), `?ancho=1200` (estilo Cinta), `?escala=1.2`
-- Regalo más caro: `?estilo=trofeo`, `?titulo=Rey%20del%20stream`, `?fondo=0`, `?escala=1.2`, `?ocultarVacio=1` (no se muestra hasta el primer regalo)
+- Top taps / top regalos: `?tipo=regalos`, `?estilo=podio`, `?top=3`, `?titulo=Mis%20fans`, `?fondo=0` (sin caja), `?ancho=1200` (estilo Cinta), `?escala=1.2`, `?animacion=0` (sin animaciones)
+- Regalo más caro: `?estilo=trofeo`, `?titulo=Rey%20del%20stream`, `?fondo=0`, `?escala=1.2`, `?ocultarVacio=1` (no se muestra hasta el primer regalo), `?animacion=0`
 - Chat: `?ocultar=30` (segundos; `0` = nunca), `?max=8`, `?regalos=0`, `?escala=1.2`
 
 ## 5. El bot lector de chat

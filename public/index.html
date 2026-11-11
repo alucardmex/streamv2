@@ -362,6 +362,17 @@
   .sty[aria-checked=true] { border-color: var(--gift); background: rgba(255,194,75,.1); box-shadow: inset 0 0 0 1px var(--gift); }
   .sty b { font-size: 14px; }
   .sty small { color: var(--muted); font-size: 11.5px; line-height: 1.3; }
+  .st-anim { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .st-anim-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .st-anim-opts { display: flex; flex-direction: column; gap: 12px; }
+  .st-anim-opts[hidden] { display: none; }
+  .anim-row { display: flex; flex-direction: column; gap: 6px; }
+  .anim-row > span { font-size: 13px; font-weight: 700; color: var(--muted); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1px solid var(--line); background: var(--ink); color: var(--text); border-radius: 999px; padding: 6px 11px; font: 600 13px var(--body); cursor: pointer; }
+  .chip:hover { border-color: var(--muted); }
+  .chip[aria-pressed=true] { border-color: var(--gift); background: rgba(255,194,75,.12); box-shadow: inset 0 0 0 1px var(--gift); }
+  .chip:focus-visible, .st-anim .seg button:focus-visible { outline: 2px solid var(--voice); outline-offset: 2px; }
   .st-preview { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .st-preview iframe { width: 100%; height: 240px; border: 0; border-radius: 14px; display: block; transition: height .2s;
     background: linear-gradient(135deg, #2b3a4a, #142030 60%, #2a1f38); }
@@ -773,6 +784,7 @@
             <label class="field">Título <input type="text" data-key="overlays.topGift.title" placeholder="Regalo más caro del stream"></label>
           </div>
           <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.topGift.bg"><span class="track"></span>Con fondo</label></div>
+          <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del regalo más caro" src="/top-regalo.html?demo=1"></iframe><span class="hint">Vista previa. Si aún no hay regalos se muestra un ejemplo.</span></div>
       </div>
@@ -788,6 +800,7 @@
             <label class="field">Puestos <input type="number" min="1" max="10" data-key="overlays.likes.top"></label>
           </div>
           <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.likes.bg"><span class="track"></span>Con fondo</label></div>
+          <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del top taps" src="/ranking.html?demo=1"></iframe><span class="hint">Vista previa. Si aún no hay taps se muestra un ejemplo.</span></div>
       </div>
@@ -803,6 +816,7 @@
             <label class="field">Puestos <input type="number" min="1" max="10" data-key="overlays.gifts.top"></label>
           </div>
           <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.gifts.bg"><span class="track"></span>Con fondo</label></div>
+          <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del top regalos" src="/ranking.html?tipo=regalos&amp;demo=1"></iframe><span class="hint">Vista previa. Si aún no hay regalos se muestra un ejemplo.</span></div>
       </div>
@@ -1884,10 +1898,61 @@ function renderStudios() {
     st.querySelector('.styles').innerHTML = OV_STYLES[key].map(([id, name, desc]) =>
       `<button type="button" class="sty" role="radio" aria-checked="${cur === id}" data-ovstyle="${key}:${id}"><b>${name}</b><small>${desc}</small></button>`).join('');
     const url = location.origin + st.dataset.path;
+    renderAnim(st, key);
     st.querySelector('.st-link').innerHTML = `<code>${esc(url)}</code><span class="hint">Tamaño sugerido ${OV_SIZE[key][cur] || ''}</span>
       <button class="btn sm" data-copy="${esc(url)}">Copiar link</button><button class="btn sm quiet" data-open-path="${esc(st.dataset.path)}">Abrir</button>`;
   });
 }
+// Animaciones de cada overlay (se pueden apagar).
+const FX_IDLE = {
+  topGift: [['ninguno', 'Quieto'], ['brillo', 'Brillo'], ['borde', 'Borde de luz'], ['flotar', 'Flotar'], ['respirar', 'Respirar'], ['balanceo', 'Balanceo'], ['destellos', 'Destellos'], ['girar', 'Girar regalo']],
+  likes: [['ninguno', 'Quieto'], ['ola', 'Ola'], ['brillo', 'Brillo'], ['borde', 'Borde de luz'], ['flotar', 'Flotar'], ['respirar', 'Respirar'], ['balanceo', 'Balanceo'], ['destellos', 'Destellos']],
+};
+FX_IDLE.gifts = FX_IDLE.likes;
+const FX_CHANGE = [['pop', 'Pop'], ['deslizar', 'Deslizar'], ['zoom', 'Zoom'], ['voltear', 'Voltear'], ['sacudida', 'Sacudida']];
+const FX_INT = [['suave', 'Suave'], ['normal', 'Normal'], ['fuerte', 'Fuerte']];
+
+function renderAnim(st, key) {
+  const a = settings.overlays[key].anim || {};
+  const box = st.querySelector('.st-anim');
+  const chips = (field, list, label) => `<div class="anim-row"><span id="fx-${key}-${field}">${label}</span><div class="chips" role="group" aria-labelledby="fx-${key}-${field}">${list.map(([id, name]) =>
+    `<button type="button" class="chip" aria-pressed="${a[field] === id}" data-fx="${key}:${field}:${id}">${name}</button>`).join('')}</div></div>`;
+  const sw = (field, label) => `<label class="switch"><input type="checkbox" data-fxsw="${key}:${field}" ${a[field] !== false ? 'checked' : ''}><span class="track"></span>${label}</label>`;
+  const isRank = key !== 'topGift';
+  const ae = document.activeElement;
+  const focusSel = box.contains(ae) ? ['fx', 'fxsw', 'fxtest'].map((k) => ae.dataset[k] && `[data-${k}="${ae.dataset[k]}"]`).find(Boolean) : null;
+  box.innerHTML = `
+    <div class="st-anim-head">${sw('on', 'Animaciones')}<button type="button" class="btn sm" data-fxtest="${key}" ${a.on ? '' : 'hidden'}>▶ Probar animación</button></div>
+    <div class="st-anim-opts" ${a.on ? '' : 'hidden'}>
+      ${chips('idle', FX_IDLE[key], 'Movimiento todo el tiempo')}
+      ${chips('change', FX_CHANGE, isRank ? 'Cuando alguien entra o sube de puesto' : 'Cuando hay nuevo récord')}
+      <div class="anim-row"><span id="fx-${key}-int">Intensidad</span><div class="seg" role="group" aria-labelledby="fx-${key}-int">${FX_INT.map(([id, name]) =>
+        `<button type="button" aria-pressed="${(a.intensity || 'normal') === id}" data-fx="${key}:intensity:${id}">${name}</button>`).join('')}</div></div>
+      <div class="switches">${sw('counters', isRank ? 'Números que suben' : 'Diamantes que suben')}${isRank ? sw('rankUp', 'Resaltar a quien sube de puesto') : ''}</div>
+    </div>`;
+  if (focusSel) box.querySelector(focusSel)?.focus();
+}
+function saveAnim(key, field, val) {
+  settings.overlays[key].anim = { ...(settings.overlays[key].anim || {}), [field]: val };
+  clearTimeout(saveTimer);
+  socket.emit('saveSettings', settings);
+  renderAnim($(`.studio[data-ov="${key}"]`), key);
+}
+document.addEventListener('click', (e) => {
+  const c = e.target.closest('[data-fx]');
+  if (c) { c.focus(); const [key, field, val] = c.dataset.fx.split(':'); saveAnim(key, field, val); return; }
+  const t = e.target.closest('[data-fxtest]');
+  if (t) {
+    const f = $(`.studio[data-ov="${t.dataset.fxtest}"] .st-preview iframe`);
+    try { f.contentWindow.fxDemo?.(); } catch {}
+  }
+});
+document.addEventListener('change', (e) => {
+  const i = e.target.closest('[data-fxsw]');
+  if (!i) return;
+  const [key, field] = i.dataset.fxsw.split(':');
+  saveAnim(key, field, i.checked);
+});
 document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-ovstyle]');
   if (!b) return;

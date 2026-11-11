@@ -89,9 +89,11 @@ const DEFAULT_CONFIG = {
     },
     // Estilo de cada overlay. El panel los cambia y OBS se actualiza solo.
     overlays: {
-      likes: { style: 'lista', title: '', top: 5, bg: true },
-      gifts: { style: 'lista', title: '', top: 5, bg: true },
-      topGift: { style: 'tarjeta', title: '', bg: true },
+      // anim: movimiento continuo (idle), efecto al cambiar (change), intensidad,
+      // números que suben (counters) y resaltar a quien sube de puesto (rankUp).
+      likes: { style: 'lista', title: '', top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      gifts: { style: 'lista', title: '', top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      topGift: { style: 'tarjeta', title: '', bg: true, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
     },
   },
 };

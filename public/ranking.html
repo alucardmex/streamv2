@@ -4,9 +4,10 @@
 <meta charset="utf-8">
 <title>Top taps</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Bungee&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fx.css">
 <style>
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?tipo=likes|regalos  ?estilo=lista|podio|lider|compacto|neon|cinta  ?top=5  ?titulo=Mis%20fans  ?fondo=0  ?escala=1.2  ?demo=1 */
+     ?tipo=likes|regalos  ?estilo=lista|podio|lider|compacto|neon|cinta  ?top=5  ?titulo=Mis%20fans  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
   :root { --acc: #fe2c55; --acc2: #25f4ee; --gold: #ffc24b; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
   .stage { display: inline-block; transform-origin: top left; padding: 10px; }
@@ -87,12 +88,19 @@
   .cinta .it .av { width: 30px; height: 30px; font-size: 13px; }
   .cinta .it em { font-style: normal; color: var(--gold); }
   @keyframes run { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-  @media (prefers-reduced-motion: reduce) { .cinta .run { animation: none; } }
+  body.fx-on .cinta .box { position: relative; }
+  .podio .col, .lider .box { position: relative; }
+  body.fx-on .fx-tick { animation: fx-tick .42s ease; }
+  @keyframes fx-tick { 40% { scale: calc(1 + .16 * var(--amp)); } }
+  .fx-on .podio .crown, .fx-on .lider .crown { display: inline-block; animation: crown calc(2.6s * var(--spd)) ease-in-out infinite; }
+  @keyframes crown { 0%, 100% { translate: 0 0; } 50% { translate: 0 calc(-4px * var(--amp)); } }
+  @media (prefers-reduced-motion: reduce) { body:not(.fx-on) .cinta .run { animation: none; } }
 </style>
 </head>
 <body>
 <div class="stage" id="stage"><div id="root"></div></div>
 <script src="/socket.io/socket.io.js"></script>
+<script src="/fx.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
 const tipo = /regal|gift/i.test(P.get('tipo') || '') ? 'gifts' : 'likes';
@@ -100,9 +108,11 @@ const icon = tipo === 'gifts' ? '💎' : '❤️';
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
 const STYLES = ['lista', 'podio', 'lider', 'compacto', 'neon', 'cinta'];
-let cfg = { style: 'lista', title: '', top: 5, bg: true };
+let cfg = { style: 'lista', title: '', top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } };
 let last = null;
-let prev = new Map();
+let prev = new Map();   // usuario -> { value, pos } de la vez anterior
+let lastKey = '';       // qué hay dibujado (si no cambia, solo se actualizan los números)
+let override = null;    // filas de prueba del botón "Probar animación"
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmt = (n) => n >= 1e6 ? (n / 1e6).toFixed(1).replace('.0', '') + 'M' : n >= 1e4 ? (n / 1e3).toFixed(1).replace('.0', '') + 'K' : Number(n).toLocaleString('es-MX');
@@ -124,45 +134,128 @@ function settings() {
   return s;
 }
 
-function render() {
-  const s = settings();
-  let rows = (last?.[tipo] || []).slice(0, s.top);
-  if (!rows.length && P.get('demo') === '1') rows = DEMO.slice(0, s.top);
-  document.body.classList.toggle('nobg', !s.bg);
-  stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
-  root.className = s.style;
-  const changed = new Set(rows.filter((u) => prev.has(u.user) && prev.get(u.user) !== u.value).map((u) => u.user));
-  prev = new Map(rows.map((u) => [u.user, u.value]));
+const ancho = () => Number(P.get('ancho')) || 900;
+const sel = (k) => `[data-k="${CSS.escape(k)}"]`;
+
+// Dibuja todo el overlay. Solo se llama cuando cambia quién aparece o el estilo;
+// si solo suben los números se actualizan en su lugar (así las animaciones no se cortan).
+function build(s, rows) {
   const empty = `<div class="empty">¡Sé el primero en aparecer aquí!</div>`;
-  const val = (u) => `${fmt(u.value)} ${icon}`;
-  const bump = (u) => (changed.has(u.user) ? 'bump' : '');
+  const cnt = (u) => `<span class="cnt" data-k="${esc(u.user)}">${fmt(u.value)}</span> ${icon}`;
+  const plain = (u) => `<span class="cv" data-k="${esc(u.user)}">${fmt(u.value)}</span>`;
 
   if (s.style === 'podio') {
     const [a, b, c] = rows;
-    const col = (u, n) => u ? `<div class="col p${n} ${bump(u)}"><div class="crown">${n === 1 ? '👑' : ''}</div>${av(u)}<div class="nm shadow">${esc(u.name)}</div><div class="v">${val(u)}</div><div class="step">${n}</div></div>` : `<div class="col p${n}"><div class="crown"></div><div class="step" style="opacity:.35">${n}</div></div>`;
-    const rest = rows.slice(3).map((u, i) => `<span>${i + 4}. ${esc(u.name)} · ${fmt(u.value)}</span>`).join('');
-    root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1><div class="stand">${col(b, 2)}${col(a, 1)}${col(c, 3)}</div>${rest ? `<div class="rest">${rest}</div>` : '<div style="height:12px"></div>'}</div>`;
+    const col = (u, n, i) => u
+      ? `<div class="col p${n}" data-id="${esc(u.user)}" style="--i:${i}"><div class="crown">${n === 1 ? '👑' : ''}</div>${av(u)}<div class="nm shadow">${esc(u.name)}</div><div class="v">${cnt(u)}</div><div class="step">${n}</div></div>`
+      : `<div class="col p${n}"><div class="crown"></div><div class="step" style="opacity:.35">${n}</div></div>`;
+    const rest = rows.slice(3).map((u, i) => `<span>${i + 4}. ${esc(u.name)} · ${plain(u)}</span>`).join('');
+    root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1><div class="stand">${col(b, 2, 0)}${col(a, 1, 1)}${col(c, 3, 2)}</div>${rest ? `<div class="rest">${rest}</div>` : '<div style="height:12px"></div>'}</div>`;
   } else if (s.style === 'lider') {
     const a = rows[0];
     root.innerHTML = a
-      ? `<div class="box ${bump(a)}"><div class="who"><span class="crown">👑</span>${av(a)}</div><div><small>${esc(s.title)}</small><b class="shadow">${esc(a.name)}</b><div class="v">${val(a)}</div>${rows[1] ? `<div class="next">Le sigue ${esc(rows[1].name)} con ${fmt(rows[1].value)}</div>` : ''}</div></div>`
+      ? `<div class="box" data-id="${esc(a.user)}"><div class="who"><span class="crown">👑</span>${av(a)}</div><div><small>${esc(s.title)}</small><b class="shadow">${esc(a.name)}</b><div class="v">${cnt(a)}</div>${rows[1] ? `<div class="next">Le sigue ${esc(rows[1].name)} con ${plain(rows[1])}</div>` : ''}</div></div>`
       : `<div class="box"><div><small>${esc(s.title)}</small><b>¿Quién será el primero?</b></div></div>`;
   } else if (s.style === 'cinta') {
-    const items = rows.map((u, i) => `<span class="it">${i === 0 ? '👑' : `${i + 1}.`} ${av(u)} ${esc(u.name)} <em>${val(u)}</em></span>`).join('');
+    const items = rows.map((u, i) => `<span class="it" style="--i:${i}">${i === 0 ? '👑' : `${i + 1}.`} ${av(u)} ${esc(u.name)} <em>${plain(u)} ${icon}</em></span>`).join('');
     const content = items || '<span class="it">¡Sé el primero en aparecer aquí!</span>';
-    root.style.setProperty('--w', (Number(P.get('ancho')) || 900) + 'px');
+    root.style.setProperty('--w', ancho() + 'px');
     root.innerHTML = `<div class="box"><div class="tag">${esc(s.title)}</div><div class="track"><div class="run">${content}${content}</div></div></div>`;
     const run = root.querySelector('.run');
     root.style.setProperty('--dur', Math.max(10, (run.scrollWidth / 2) / 60) + 's');
   } else {
-    const list = rows.map((u, i) => `<li class="${bump(u)}" data-id="${esc(u.user)}"><span class="pos">${i + 1}</span>${s.style === 'compacto' ? '' : av(u)}<span class="nm shadow">${esc(u.name)}</span><span class="v shadow">${val(u)}</span></li>`).join('');
+    const list = rows.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i}"><span class="pos">${i + 1}</span>${s.style === 'compacto' ? '' : av(u)}<span class="nm shadow">${esc(u.name)}</span><span class="v shadow">${cnt(u)}</span></li>`).join('');
     root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
   }
+  FX.decorate(root.querySelector('.box'));
+}
+
+function restart(el, cls) {
+  if (!el) return;
+  el.classList.remove(cls);
+  void el.offsetWidth;
+  el.classList.add(cls);
+}
+
+function render() {
+  const s = settings();
+  let rows = override || last?.[tipo] || [];
+  if (!rows.length && P.get('demo') === '1') rows = DEMO;
+  rows = rows.slice(0, s.top);
+  document.body.classList.toggle('nobg', !s.bg);
+  const scale = Number(P.get('escala')) || 1;
+  stage.style.transform = `scale(${scale})`;
+  root.className = s.style;
+
+  // Qué cambió desde la vez anterior.
+  const hadPrev = prev.size > 0;
+  const changed = new Set(), entered = new Set(), up = new Set();
+  rows.forEach((u, i) => {
+    const p = prev.get(u.user);
+    if (!p) { if (hadPrev) entered.add(u.user); return; }
+    if (p.value !== u.value) changed.add(u.user);
+    if (i < p.pos) up.add(u.user);
+  });
+  const oldLeader = [...prev.entries()].find(([, p]) => p.pos === 0)?.[0];
+  const oldVal = new Map([...prev.entries()].map(([k, p]) => [k, p.value]));
+  prev = new Map(rows.map((u, i) => [u.user, { value: u.value, pos: i }]));
+
+  const key = [s.style, s.title, s.top, ancho(), FX.on, ...rows.map((u) => `${u.user}:${u.name}:${u.avatar || ''}`)].join('|');
+  const el = (u) => root.querySelector(`[data-id="${CSS.escape(u.user)}"]`);
+  if (key !== lastKey) {
+    const before = FX.snapshot(root);
+    build(s, rows);
+    FX.flip(root, before, scale);
+    if (s.style === 'lider') {
+      if (rows[0] && hadPrev && rows[0].user !== oldLeader) { FX.change(el(rows[0]), `lider:${rows[0].user}`); FX.rankUp(el(rows[0])); }
+    } else {
+      rows.forEach((u) => {
+        if (entered.has(u.user) || up.has(u.user)) FX.change(el(u), u.user);
+        if (up.has(u.user)) FX.rankUp(el(u));
+      });
+    }
+    lastKey = key;
+  }
+
+  // Números: suben poco a poco (o de golpe si está apagado).
+  rows.forEach((u) => {
+    root.querySelectorAll(`.cv${sel(u.user)}`).forEach((n) => { n.textContent = fmt(u.value); });
+    const n = root.querySelector(`.cnt${sel(u.user)}`);
+    FX.count(n, `${tipo}:${u.user}`, u.value, fmt, oldVal.get(u.user) ?? 0);
+    if (changed.has(u.user) && !entered.has(u.user)) {
+      if (FX.on) restart(n?.closest('.v'), 'fx-tick');
+      else restart(el(u), 'bump');
+    }
+  });
+  FX.sync(root);
+}
+
+// Botón "Probar animación" del panel: alguien de abajo rebasa al primero y luego todo vuelve a lo real.
+window.fxDemo = () => {
+  const s = settings();
+  let rows = (override || last?.[tipo] || []).slice(0, s.top);
+  if (!rows.length) rows = DEMO.slice(0, s.top);
+  rows = rows.map((u) => ({ ...u }));
+  if (rows.length < 2) rows.push({ user: '~nuevo_fan', name: 'Nuevo_fan', value: 1, avatar: '' });
+  const t = rows[Math.min(rows.length - 1, 2)];
+  t.value = rows[0].value + Math.max(25, Math.round(rows[0].value * 0.15));
+  rows.sort((a, b) => b.value - a.value);
+  override = rows;
+  render();
+  clearTimeout(fxDemo.t);
+  fxDemo.t = setTimeout(() => { override = null; render(); }, 6000);
+};
+
+function applyFx() {
+  const a = { ...cfg.anim };
+  if (P.get('animacion') === '0') a.on = false;
+  FX.apply(a);
 }
 
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.[tipo] || {}) }; render(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.[tipo] || {}) }; applyFx(); render(); });
 socket.on('rankings', (r) => { last = r; render(); });
+applyFx();
 render();
 </script>
 </body>
