@@ -139,6 +139,8 @@ El bot lee con voces de **Fish Audio**, una biblioteca con miles de voces (narra
 - Los regalos se leen antes que los comentarios.
 - Para más voces del navegador en Windows: Configuración → Hora e idioma → Voz → Agregar voces.
 
+**Volumen por tipo y por persona:** en **Voz → Qué se lee**, además del volumen general, cada cosa tiene su volumen: comentarios, regalos, regalos grandes, nuevos seguidores y compartidos. En **Voces por usuario** cada persona con voz especial tiene su propio volumen 🔊. Se multiplican: por ejemplo, general 80% y comentarios 50% suenan al 40%.
+
 **Pausa entre mensajes:** en **Voz → Ritmo** eliges cuántos segundos espera el bot después de leer un mensaje antes del siguiente (de 0 a 15). **Saltar** también corta la pausa.
 
 ## Regalo más caro

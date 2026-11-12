@@ -61,6 +61,8 @@ const DEFAULT_CONFIG = {
       rate: 1.05,
       pitch: 1,
       volume: 1,
+      // Volumen de cada tipo, encima del volumen general (1 = igual que el general).
+      volumes: { chat: 1, gift: 1, bigGift: 1, follow: 1, share: 1 },
       chatFormat: '{nombre} dice: {mensaje}',
       giftFormat: 'Gracias {nombre} por {cantidad} {regalo}',
       followFormat: '{nombre} te empezó a seguir',

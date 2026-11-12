@@ -246,7 +246,11 @@
 
   /* Voces por usuario */
   .uv-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
-  .uv { display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) auto auto; gap: 12px; align-items: center; padding: 8px 10px 8px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
+  .vol-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px 18px; max-width: 760px; }
+  .uv-vol { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--muted); }
+  .uv-vol input { width: 90px; }
+  .uv-vol span { min-width: 36px; }
+  .uv { display: grid; grid-template-columns: minmax(140px, 220px) minmax(0, 1fr) auto auto auto; gap: 12px; align-items: center; padding: 8px 10px 8px 14px; border-radius: 14px; background: var(--surface); border: 1px solid var(--line); }
   .uv .at { font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .uv .at small { display: block; color: var(--muted); font-weight: 400; font-size: 12px; }
   .uv .pick { padding: 5px 10px 5px 5px; }
@@ -740,6 +744,14 @@
           <label class="switch"><input type="checkbox" data-key="tts.readUsername"><span class="track"></span>Decir quién escribió</label>
         </div>
         <label class="field" style="max-width:320px"><span class="field-head">Volumen general <span class="val" id="v-volume"></span></span><input type="range" min="0" max="1" step="0.05" data-key="tts.volume"></label>
+        <div class="vol-grid" aria-label="Volumen por tipo">
+          <p class="hint" style="grid-column:1/-1;margin:0">Volumen de cada cosa, sobre el volumen general. Bájale a lo que suene muy fuerte.</p>
+          <label class="field"><span class="field-head">💬 Comentarios <span class="val" data-volv="chat"></span></span><input type="range" min="0" max="1" step="0.05" data-key="tts.volumes.chat"></label>
+          <label class="field"><span class="field-head">🎁 Regalos <span class="val" data-volv="gift"></span></span><input type="range" min="0" max="1" step="0.05" data-key="tts.volumes.gift"></label>
+          <label class="field"><span class="field-head">🦁 Regalos grandes <span class="val" data-volv="bigGift"></span></span><input type="range" min="0" max="1" step="0.05" data-key="tts.volumes.bigGift"></label>
+          <label class="field"><span class="field-head">💖 Nuevos seguidores <span class="val" data-volv="follow"></span></span><input type="range" min="0" max="1" step="0.05" data-key="tts.volumes.follow"></label>
+          <label class="field"><span class="field-head">📢 Compartidos <span class="val" data-volv="share"></span></span><input type="range" min="0" max="1" step="0.05" data-key="tts.volumes.share"></label>
+        </div>
         <div><button class="btn" id="tts-test">Escuchar la voz general</button></div>
       </div>
     </section>
@@ -1267,6 +1279,7 @@ function updateLabels() {
   $('#v-rate').textContent = '×' + Number(settings.tts.rate).toFixed(2);
   $('#v-pitch').textContent = Number(settings.tts.pitch).toFixed(2);
   $('#v-volume').textContent = Math.round(settings.tts.volume * 100) + '%';
+  $$('[data-volv]').forEach((el) => { el.textContent = Math.round((settings.tts.volumes?.[el.dataset.volv] ?? 1) * 100) + '%'; });
   $('#v-avol').textContent = Math.round(settings.alerts.volume * 100) + '%';
   const dl = Number(settings.tts.delay) || 0;
   $('#v-delay').textContent = dl ? `${String(dl).replace('.', ',')} s` : 'Sin pausa';
@@ -1510,13 +1523,24 @@ function characterFor(kind, who) {
   return charById(settings?.voices?.assign?.[kind]) || FALLBACK;
 }
 
+// Volumen de un mensaje: general × el de su tipo × el de la persona (si tiene voz especial).
+function volumeFor(kind, who) {
+  const t = settings?.tts || {};
+  let v = (t.volume ?? 1) * (t.volumes?.[kind] ?? 1);
+  if (who) {
+    const r = userRule(who.user, who.name);
+    if (r && (kind === 'chat' || (r.gifts && (kind === 'gift' || kind === 'bigGift')))) v *= r.volume ?? 1;
+  }
+  return Math.max(0, Math.min(1, v));
+}
+
 // --- Cola y reproducción ----------------------------------------------------
 function enqueue(text, kind = 'chat', priority = false, character = null, who = null) {
   const t = settings?.tts;
   if (!t?.enabled || !text) return;
   if (t.stripEmojis) text = text.replace(/[\p{Extended_Pictographic}\u{FE0F}\u{200D}]/gu, '').trim();
   if (!text) return;
-  const item = { text, kind, priority, char: character || characterFor(kind, who) };
+  const item = { text, kind, priority, char: character || characterFor(kind, who), vol: volumeFor(kind, who) };
   if (priority) {
     // Los regalos van antes que los comentarios, pero después de otros regalos ya en cola.
     const idx = queue.findIndex((q) => !q.priority);
@@ -1565,14 +1589,14 @@ function withTimeout(promise, ms, msg) {
   return Promise.race([promise, new Promise((_, rej) => setTimeout(() => rej(new Error(msg)), ms))]);
 }
 
-function speakBrowser(text) {
+function speakBrowser(text, volume) {
   return new Promise((resolve) => {
     if (!synth) return resolve();
     const t = settings.tts;
     const u = new SpeechSynthesisUtterance(text);
     const v = voices.find((x) => x.name === t.voice);
     if (v) { u.voice = v; u.lang = v.lang; } else u.lang = 'es-MX';
-    u.rate = t.rate; u.pitch = t.pitch; u.volume = t.volume;
+    u.rate = t.rate; u.pitch = t.pitch; u.volume = volume ?? t.volume;
     let finished = false;
     const done = () => { if (finished) return; finished = true; clearTimeout(dog); resolve(); };
     // Chrome a veces se "atora": si una frase tarda demasiado, la cortamos y seguimos.
@@ -1612,11 +1636,11 @@ async function next() {
   renderDock();
   try {
     if (item.char.browser) {
-      await speakBrowser(item.text);
+      await speakBrowser(item.text, item.vol);
     } else {
       prepare(item);
       const url = await withTimeout(item.audio, 15000, 'Fish Audio tardó demasiado');
-      if (!current.skipped) await playUrl(url); else URL.revokeObjectURL(url);
+      if (!current.skipped) await playUrl(url, item.vol); else URL.revokeObjectURL(url);
     }
   } catch (err) {
     if (!current.skipped) {
@@ -1625,7 +1649,7 @@ async function next() {
       if (settings.voices?.fallback) {
         current.fallback = true;
         renderDock();
-        await speakBrowser(item.text);
+        await speakBrowser(item.text, item.vol);
       }
     }
   }
@@ -1767,6 +1791,7 @@ function renderUserVoices() {
       <span class="at">@${esc(r.user)}<small>${r.gifts ? 'Comentarios y regalos' : 'Sus comentarios'}</small></span>
       <button class="pick" data-pick-user="${i}">${pickLabel(c, 'Toca para cambiar')}</button>
       <label class="switch"><input type="checkbox" data-uv-gifts="${i}" ${r.gifts ? 'checked' : ''}><span class="track"></span>Regalos</label>
+      <label class="uv-vol" title="Volumen de @${esc(r.user)}">🔊<input type="range" min="0" max="1" step="0.05" value="${r.volume ?? 1}" data-uv-vol="${i}" aria-label="Volumen de @${esc(r.user)}"><span>${Math.round((r.volume ?? 1) * 100)}%</span></label>
       <button class="btn sm quiet" data-uv-del="${i}" aria-label="Quitar voz de ${esc(r.user)}">Quitar</button>
     </div>`;
   }).join('') : '<p class="uv-empty">Nadie tiene voz especial todavía.</p>';
@@ -2111,6 +2136,15 @@ document.addEventListener('click', (e) => {
       onRemove: r ? () => { setUserVoice(r.user, ''); toast('Voz especial quitada'); } : null,
     });
   }
+});
+document.addEventListener('input', (e) => {
+  const v = e.target.closest('[data-uv-vol]');
+  if (!v) return;
+  const r = settings.voices.userVoices[v.dataset.uvVol];
+  r.volume = Number(v.value);
+  v.nextElementSibling.textContent = Math.round(r.volume * 100) + '%';
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => socket.emit('saveSettings', settings), 400);
 });
 document.addEventListener('change', (e) => {
   const g = e.target.closest('[data-uv-gifts]');

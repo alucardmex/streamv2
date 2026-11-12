@@ -1,9 +1,7 @@
-**Texto personalizable** en los overlays de **Regalo más caro**, **Top taps** y **Top regalos**.
+**Volumen por separado** en el bot de voz.
 
-- Nuevo bloque **Texto** en cada uno, en la pestaña Overlays
-- Regalo más caro: cambia por separado el **nombre de quien lo mandó**, el **nombre del regalo** y los **diamantes**
-- Top taps y Top regalos: los **nombres** y la **cantidad**
-- **Tipografía** (más de 20), **tamaño** (50% a 250%) y **color** para cada uno
-- Funciona con todos los estilos y se ve al momento en tu stream
+- En **Voz → Qué se lee**, además del volumen general, cada cosa tiene su propio volumen: 💬 comentarios, 🎁 regalos, 🦁 regalos grandes, 💖 nuevos seguidores y 📢 compartidos
+- En **Voces por usuario**, cada persona con voz especial tiene su volumen 🔊
+- Los volúmenes se multiplican: general 80% y comentarios 50% suenan al 40%
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.12.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.13.0 lista", toca **Actualizar**.
