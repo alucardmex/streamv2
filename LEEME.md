@@ -121,6 +121,8 @@ El bot lee con voces de **Fish Audio**, una biblioteca con miles de voces (narra
 - Los regalos se leen antes que los comentarios.
 - Para más voces del navegador en Windows: Configuración → Hora e idioma → Voz → Agregar voces.
 
+**Pausa entre mensajes:** en **Voz → Ritmo** eliges cuántos segundos espera el bot después de leer un mensaje antes del siguiente (de 0 a 15). **Saltar** también corta la pausa.
+
 ## Regalo más caro
 
 La pestaña **Top regalo** muestra el regalo de mayor precio que te han mandado en el stream actual (si dos cuestan lo mismo, gana quien mandó más), quién lo mandó y el top 5. Se reinicia solo cuando empiezas un live nuevo, o a mano con **Reiniciar**. Su overlay anuncia "¡Nuevo récord!" cada vez que alguien lo supera.

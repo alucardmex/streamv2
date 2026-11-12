@@ -71,6 +71,7 @@ const DEFAULT_CONFIG = {
       ignoreLinks: true,
       stripEmojis: true,
       sameUserCooldown: 0,
+      delay: 0, // segundos de pausa entre un mensaje y el siguiente
       blockedWords: '',
       blockedUsers: '',
       onlyUsers: '',

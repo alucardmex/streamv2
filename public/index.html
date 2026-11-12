@@ -766,12 +766,16 @@
     </section>
 
     <section class="group">
-      <div><h2>Ritmo</h2><p>Cuando el chat va rápido, se saltan los comentarios más viejos para no ir atrasado.</p></div>
+      <div><h2>Ritmo</h2><p>Cuando el chat va rápido, se saltan los comentarios más viejos para no ir atrasado. Con la pausa le das aire entre mensaje y mensaje.</p></div>
       <div class="controls">
         <div class="fields">
           <label class="field">Mensajes en espera como máximo <input type="number" min="1" max="50" data-key="tts.maxQueue"></label>
           <label class="field">Segundos antes de volver a leer a la misma persona <input type="number" min="0" max="600" data-key="tts.sameUserCooldown"></label>
         </div>
+        <label class="field"><span class="field-head">Pausa entre mensajes <span class="val" id="v-delay"></span></span>
+          <input type="range" min="0" max="15" step="0.5" data-key="tts.delay" aria-describedby="delay-hint">
+        </label>
+        <p class="hint" id="delay-hint">Cuánto espera el bot después de leer un mensaje antes de leer el siguiente. En 0 lee uno tras otro.</p>
       </div>
     </section>
 
@@ -1156,6 +1160,8 @@ function updateLabels() {
   $('#v-pitch').textContent = Number(settings.tts.pitch).toFixed(2);
   $('#v-volume').textContent = Math.round(settings.tts.volume * 100) + '%';
   $('#v-avol').textContent = Math.round(settings.alerts.volume * 100) + '%';
+  const dl = Number(settings.tts.delay) || 0;
+  $('#v-delay').textContent = dl ? `${String(dl).replace('.', ',')} s` : 'Sin pausa';
   renderDock();
   // El campo del título se apaga si el título está oculto.
   for (const k of ['topGift', 'likes', 'gifts']) {
@@ -1482,8 +1488,16 @@ function playUrl(url, volume) {
   });
 }
 
+// Pausa entre mensajes (Voz → Ritmo). Mientras dura, los mensajes nuevos esperan su turno.
+let pauseUntil = 0, pauseTimer = null;
 async function next() {
   if (current || !queue.length || !unlocked) return;
+  const wait = pauseUntil - Date.now();
+  if (wait > 0) {
+    if (!pauseTimer) pauseTimer = setTimeout(() => { pauseTimer = null; next(); }, wait);
+    renderDock();
+    return;
+  }
   const item = queue.shift();
   current = { item, stop: null, skipped: false };
   prefetch();
@@ -1508,12 +1522,17 @@ async function next() {
     }
   }
   current = null;
+  pauseUntil = Date.now() + Math.max(0, Number(settings.tts.delay) || 0) * 1000;
   renderDock();
   setTimeout(next, 120);
 }
 
 function skip() {
-  if (!current) return;
+  // "Saltar" también corta la pausa y pasa al siguiente.
+  if (!current) {
+    if (pauseUntil > Date.now() && queue.length) { pauseUntil = 0; clearTimeout(pauseTimer); pauseTimer = null; next(); }
+    return;
+  }
   current.skipped = true;
   current.stop?.();
 }
@@ -1541,11 +1560,12 @@ function renderDock() {
     html = esc(current.item.text);
     if (current.fallback && recentError) html = `<span class="warn">${esc(lastError.text)}</span>`;
   } else if (recentError) html = `<span class="warn">${esc(lastError.text)}</span>`;
+  else if (queue.length && pauseUntil > Date.now()) html = `Pausa entre mensajes… sigue en ${Math.ceil((pauseUntil - Date.now()) / 1000)} s`;
   else html = 'En silencio, esperando mensajes';
   $('#now-label').textContent = label;
   $('#tts-now').innerHTML = html;
 }
-setInterval(() => { if (lastError && Date.now() - lastError.ts < 9000) renderDock(); }, 1000);
+setInterval(() => { if ((lastError && Date.now() - lastError.ts < 9000) || (!current && queue.length && pauseUntil > Date.now() - 1000)) renderDock(); }, 500);
 
 $('#tts-skip').onclick = skip;
 $('#tts-clear').onclick = stopAll;
