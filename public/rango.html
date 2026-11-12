@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>StreamV2 · Camino a Conquistador</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fx.css">
+<style>
+  /* Reto de rango de PUBG Mobile. ?estilo=completo|barra  ?escala=1.2  ?animacion=0  ?titulo=0 */
+  :root { --y: #f2a900; --y2: #ffd25a; --dark: #14140f; --olive: #2a2d1f; --w: #f5f2e8; --ok: #5fe08a; --bad: #ff6b5e; }
+  html, body { margin: 0; background: transparent; overflow: hidden; color: var(--w); font-family: 'Teko', 'Impact', sans-serif; }
+  .stage { display: inline-block; padding: 16px; transform-origin: top left; }
+  .box { position: relative; filter: drop-shadow(0 10px 22px rgba(0,0,0,.55)); }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* Insignia con su número (V, IV, III, II, I) */
+  .badge { position: relative; flex: none; }
+  .badge img { width: 100%; height: 100%; object-fit: contain; display: block; }
+  .badge .plate { position: absolute; left: 50%; translate: -50% 0; width: 26%; height: 20%; display: grid; place-items: center; border-radius: 12%;
+    background: linear-gradient(180deg, #2b2b33, #121216); border: 2px solid rgba(255,255,255,.75); color: #fff; font-weight: 700; line-height: 1; padding-top: 4%; box-sizing: border-box; }
+  .badge.diamante .plate { top: 75.5%; }
+  .badge.corona .plate { top: 73%; }
+
+  .t { align-self: flex-start; background: var(--y); color: var(--dark); font-weight: 700; font-size: 24px; line-height: 1; padding: 6px 24px 2px 14px; letter-spacing: 2px; text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); }
+  .panel { background: linear-gradient(180deg, rgba(42,45,31,.96), rgba(18,18,13,.96)); border-top: 3px solid var(--y);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 18px), calc(100% - 18px) 100%, 0 100%); }
+  .nobg .panel { background: none; border-top-color: transparent; }
+  .nobg .t { background: none; color: var(--y); }
+  .lbl { font-size: 18px; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,242,232,.7); line-height: 1; }
+  .rank { font-size: 54px; font-weight: 700; line-height: .9; color: var(--y2); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .bar { height: 14px; background: rgba(255,255,255,.12); clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%); overflow: hidden; }
+  .fill { height: 100%; background: linear-gradient(90deg, #c98700, var(--y2)); transition: width .8s cubic-bezier(.2,.9,.3,1); }
+  .pts { font-size: 34px; line-height: 1; font-weight: 600; }
+  .pts small { font-size: 22px; color: rgba(245,242,232,.6); }
+
+  /* ---------- COMPLETO ---------- */
+  .completo .box { display: inline-flex; flex-direction: column; width: 580px; }
+  .completo .panel { padding: 12px 20px 22px 14px; }
+  .completo .main { display: flex; align-items: center; gap: 14px; }
+  .completo .badge { width: 150px; height: 150px; }
+  .completo .badge .plate { font-size: 30px; }
+  .completo .info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+  .completo .row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .next { font-size: 20px; color: rgba(245,242,232,.7); letter-spacing: 1px; text-transform: uppercase; line-height: 1; white-space: nowrap; }
+  .duo { display: flex; align-items: center; gap: 4px; }
+  .duo .badge { width: 104px; height: 104px; }
+  .duo .badge .plate { font-size: 21px; }
+  .duo .arrow { font-size: 40px; color: var(--y); animation: arrow 1.2s ease-in-out infinite; }
+  @keyframes arrow { 50% { translate: 6px 0; opacity: .6; } }
+  .pips { display: flex; gap: 8px; margin: 4px 0 2px; }
+  .pip { width: 44px; height: 44px; display: grid; place-items: center; font-size: 30px; font-weight: 700; line-height: 1; padding-top: 4px; box-sizing: border-box;
+    background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.3); clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%); }
+  .pip.w { background: rgba(95,224,138,.2); border-color: var(--ok); color: var(--ok); }
+  .pip.l { background: rgba(255,107,94,.2); border-color: var(--bad); color: var(--bad); }
+
+  /* Camino completo: Diamante V … Corona I, As y Conquistador */
+  .path { display: flex; align-items: center; gap: 3px; margin-top: 12px; }
+  .path .seg { flex: 1; height: 8px; background: rgba(255,255,255,.14); position: relative; overflow: hidden; }
+  .path .seg i { position: absolute; inset: 0; width: 0; background: var(--y2); transition: width .8s ease; }
+  .path .seg.d i { background: #a78bff; }
+  .path .seg.promo { flex: 1.4; }
+  .path .seg.promo i { background: var(--ok); }
+  .path .mk { width: 34px; height: 34px; flex: none; opacity: .45; filter: grayscale(.7); transition: opacity .4s, filter .4s; }
+  .path .mk.on { opacity: 1; filter: none; }
+  .path .mk img { width: 100%; height: 100%; object-fit: contain; }
+
+  .clock { display: flex; align-items: center; gap: 12px; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(242,169,0,.3); }
+  .clock .time { font-size: 40px; font-weight: 600; line-height: .9; padding-top: 4px; }
+  .clock .cbar { flex: 1; height: 6px; background: rgba(255,255,255,.12); overflow: hidden; }
+  .clock .cbar i { display: block; height: 100%; background: var(--w); opacity: .7; }
+  .clock.low .time { color: var(--bad); }
+
+  /* ---------- BARRA ---------- */
+  .barra .box { display: inline-flex; flex-direction: column; }
+  .barra .panel { display: flex; align-items: center; gap: 14px; padding: 6px 30px 8px 10px; }
+  .barra .badge { width: 84px; height: 84px; }
+  .barra .badge .plate { font-size: 17px; border-width: 1.5px; }
+  .barra .rank { font-size: 40px; }
+  .barra .mid { min-width: 230px; display: flex; flex-direction: column; gap: 4px; }
+  .barra .pts { font-size: 28px; }
+  .barra .pips { margin: 0; }
+  .barra .pip { width: 36px; height: 36px; font-size: 24px; }
+  .barra .clock { margin: 0; padding: 0 0 0 16px; border-top: 0; border-left: 1px solid rgba(242,169,0,.3); flex-direction: column; align-items: flex-start; gap: 0; }
+  .barra .clock .cbar { display: none; }
+
+  /* Avisos: subió de rango, promoción, As */
+  .pop { position: fixed; left: 0; right: 0; top: 50%; translate: 0 -50%; z-index: 30; pointer-events: none; text-align: center; padding: 10px 10px 4px;
+    background: linear-gradient(90deg, transparent, rgba(16,16,12,.94) 12%, rgba(16,16,12,.94) 88%, transparent); animation: band 4s ease forwards; }
+  .pop .l1 { font-size: 28px; letter-spacing: 3px; line-height: 1; }
+  .pop .l2 { font-size: 56px; letter-spacing: 2px; color: var(--y); line-height: .95; text-shadow: 0 0 18px rgba(242,169,0,.6); text-transform: uppercase; }
+  .pop.bad .l2 { color: var(--bad); text-shadow: none; }
+  @keyframes band { 0% { opacity: 0; scale: 1.4 .2; } 10% { opacity: 1; scale: 1 1; } 82% { opacity: 1; } 100% { opacity: 0; scale: 1 .6; } }
+  @media (prefers-reduced-motion: reduce) { body:not(.fx-on) * { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"><div id="root"></div></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/fx.js"></script>
+<script>
+const P = new URLSearchParams(location.search);
+const STYLES = ['completo', 'barra'];
+const ROMAN = ['V', 'IV', 'III', 'II', 'I'];
+const root = document.getElementById('root');
+const stage = document.getElementById('stage');
+let cfg = { style: 'completo', title: 'Camino a Conquistador', showTitle: true, bg: true, showTimer: true, showPath: true, start: '', end: '', anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal' } };
+let r = { tier: 0, points: 0, stage: 'rank', promo: { w: 0, l: 0 }, attempts: 0 };
+let demo = null;
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = (n) => String(n).padStart(2, '0');
+const tierName = (t) => `${t < 5 ? 'Diamante' : 'Corona'} ${ROMAN[t % 5]}`;
+const badge = (t) => `<div class="badge ${t < 5 ? 'diamante' : 'corona'}"><img src="/rangos/${t < 5 ? 'diamante' : 'corona'}.png" alt=""><span class="plate">${ROMAN[t % 5]}</span></div>`;
+const plain = (name) => `<div class="badge"><img src="/rangos/${name}.png" alt=""></div>`;
+
+function settings() {
+  const s = { ...cfg };
+  if (STYLES.includes(P.get('estilo'))) s.style = P.get('estilo');
+  if (P.get('titulo') !== null) s.title = P.get('titulo') === '0' ? '' : P.get('titulo');
+  if (s.showTitle === false) s.title = '';
+  if (P.get('fondo') === '0') s.bg = false;
+  if (!STYLES.includes(s.style)) s.style = 'completo';
+  return s;
+}
+function fmtTime(ms) {
+  const s = Math.max(0, Math.ceil(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+  return `${pad(h)}:${pad(m)}:${pad(x)}`;
+}
+function clockHtml(s) {
+  const a = Date.parse(s.start), b = Date.parse(s.end);
+  if (!s.showTimer || !Number.isFinite(b)) return '';
+  return `<div class="clock"><div><div class="lbl" data-cl="lbl"></div><div class="time num" data-cl="time"></div></div><div class="cbar"><i data-cl="bar"></i></div></div>`;
+}
+function tickClock() {
+  const s = settings();
+  const a = Date.parse(s.start), b = Date.parse(s.end), now = Date.now();
+  const lbl = root.querySelector('[data-cl=lbl]');
+  if (!lbl || !Number.isFinite(b)) return;
+  const time = root.querySelector('[data-cl=time]'), bar = root.querySelector('[data-cl=bar]'), box = root.querySelector('.clock');
+  if (Number.isFinite(a) && now < a) { lbl.textContent = 'El reto empieza en'; time.textContent = fmtTime(a - now); bar.style.width = '100%'; }
+  else if (now < b) {
+    lbl.textContent = r.stage === 'ace' ? 'Conquistador en' : 'Tiempo restante';
+    time.textContent = fmtTime(b - now);
+    bar.style.width = `${Number.isFinite(a) ? Math.max(0, Math.min(100, ((b - now) / (b - a)) * 100)) : 100}%`;
+    box.classList.toggle('low', b - now < 3600000 && r.stage !== 'ace');
+  } else { lbl.textContent = r.stage === 'ace' ? '¡Reto cumplido!' : 'Se acabó el tiempo'; time.textContent = '00:00:00'; bar.style.width = '0%'; }
+}
+setInterval(tickClock, 250);
+
+function pathHtml(d) {
+  // 10 tramos de 100 puntos + promoción; insignias al inicio de Diamante, Corona, As y Conquistador.
+  const segs = [];
+  for (let t = 0; t < 10; t++) {
+    const pct = d.stage !== 'rank' || t < d.tier ? 100 : t === d.tier ? d.points : 0;
+    if (t === 0) segs.push(`<span class="mk on"><img src="/rangos/diamante.png" alt=""></span>`);
+    if (t === 5) segs.push(`<span class="mk ${d.tier >= 5 || d.stage !== 'rank' ? 'on' : ''}"><img src="/rangos/corona.png" alt=""></span>`);
+    segs.push(`<span class="seg ${t < 5 ? 'd' : ''}"><i style="width:${pct}%"></i></span>`);
+  }
+  const promoPct = d.stage === 'ace' ? 100 : d.stage === 'promo' ? d.promo.w * 50 : 0;
+  segs.push(`<span class="seg promo"><i style="width:${promoPct}%"></i></span><span class="mk ${d.stage === 'ace' ? 'on' : ''}"><img src="/rangos/as.png" alt=""></span>`);
+  segs.push(`<span class="seg promo"><i style="width:${d.stage === 'ace' && Date.now() >= Date.parse(cfg.end) ? 100 : 0}%"></i></span><span class="mk ${d.stage === 'ace' && Date.now() >= Date.parse(cfg.end) ? 'on' : ''}"><img src="/rangos/conquistador.png" alt=""></span>`);
+  return `<div class="path">${segs.join('')}</div>`;
+}
+function pips(d) {
+  const out = [];
+  for (let i = 0; i < d.promo.w; i++) out.push('<span class="pip w">✔</span>');
+  for (let i = 0; i < d.promo.l; i++) out.push('<span class="pip l">✖</span>');
+  while (out.length < 3) out.push('<span class="pip"></span>');
+  return `<div class="pips">${out.join('')}</div>`;
+}
+
+function render() {
+  const s = settings();
+  const d = demo || r;
+  stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
+  document.body.classList.toggle('nobg', !s.bg);
+  root.className = s.style;
+  const title = s.title ? `<div class="t">${esc(s.title)}</div>` : '';
+  const done = Date.now() >= Date.parse(s.end);
+  let left, info;
+  if (d.stage === 'ace') {
+    left = done ? `<div class="duo">${plain('conquistador')}</div>` : `<div class="duo">${plain('as')}<span class="arrow">»</span>${plain('conquistador')}</div>`;
+    info = done
+      ? `<div class="lbl">Reto cumplido</div><div class="rank">Conquistador</div>`
+      : `<div class="lbl">¡Rango conseguido!</div><div class="rank">As</div><div class="next" style="white-space:normal">Conquistador a las ${new Date(Date.parse(s.end) || Date.now()).toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit' })}</div>`;
+  } else if (d.stage === 'promo') {
+    left = `<div class="duo">${badge(9)}<span class="arrow">»</span>${plain('as')}</div>`;
+    info = `<div class="lbl">Promoción a As${d.attempts ? ` · intento ${d.attempts + 1}` : ''}</div>${pips(d)}<div class="next">Gana 2 de 3 partidas</div>`;
+  } else {
+    left = badge(d.tier);
+    const next = d.tier < 9 ? tierName(d.tier + 1) : 'Promoción a As';
+    info = `<div class="lbl">Rango actual</div><div class="rank">${tierName(d.tier)}</div>
+      <div class="row"><span class="pts num"><span data-c="points"></span><small> / 100</small></span><span class="next">Sigue: ${next}</span></div>
+      <div class="bar"><div class="fill" style="width:${d.points}%"></div></div>`;
+  }
+  root.innerHTML = s.style === 'barra'
+    ? `<div class="box">${title}<div class="panel">${left}<div class="mid">${info}</div>${clockHtml(s)}</div></div>`
+    : `<div class="box">${title}<div class="panel"><div class="main">${left}<div class="info">${info}</div></div>${s.showPath ? pathHtml(d) : ''}${clockHtml(s)}</div></div>`;
+  FX.count(root.querySelector('[data-c=points]'), 'puntos', d.points, (n) => String(n), d.points);
+  FX.decorate(root.querySelector('.box'));
+  tickClock();
+  FX.sync(root);
+}
+
+function pop(l1, l2, bad) {
+  document.querySelectorAll('.pop').forEach((x) => x.remove());
+  const el = document.createElement('div');
+  el.className = `pop${bad ? ' bad' : ''}`;
+  el.innerHTML = `<div class="l1">${l1}</div><div class="l2">${l2}</div>`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 4100);
+  FX.change(root.querySelector('.box'), 'rango');
+}
+function announce(ev, d) {
+  if (ev === 'up') pop('¡SUBIÓ DE RANGO!', tierName(d.tier));
+  else if (ev === 'down') pop('BAJÓ DE RANGO', tierName(d.tier), true);
+  else if (ev === 'promo') pop('CORONA I COMPLETA', '¡PROMOCIÓN A AS!');
+  else if (ev === 'ace') pop('PROMOCIÓN SUPERADA', '¡RANGO AS!');
+  else if (ev === 'promoFail') pop('PROMOCIÓN FALLIDA', '¡Otra vez!', true);
+  else if (ev === 'plus' || ev === 'minus') FX.change(root.querySelector('.pts'), 'pts');
+}
+
+// Botón "Probar animación" del panel: sube de rango de mentiras por unos segundos.
+window.fxDemo = () => {
+  const t = Math.min(9, r.tier + 1);
+  demo = { ...r, stage: 'rank', tier: t, points: 12 };
+  render();
+  announce('up', demo);
+  clearTimeout(fxDemo.t);
+  fxDemo.t = setTimeout(() => { demo = null; render(); }, 5000);
+};
+
+function applyFx() {
+  const a = { ...cfg.anim };
+  if (P.get('animacion') === '0') a.on = false;
+  FX.apply(a);
+}
+const socket = io();
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.rank || {}) }; applyFx(); render(); });
+socket.on('rank', (x) => { r = x; render(); announce(x.event, x); });
+// Al llegar la hora final con As conseguido, cambia solo a Conquistador.
+let wasDone = false;
+setInterval(() => { const done = Date.now() >= Date.parse(cfg.end); if (done !== wasDone) { wasDone = done; render(); if (done && r.stage === 'ace') pop('¡LO LOGRÓ!', 'CONQUISTADOR'); } }, 1000);
+applyFx();
+render();
+</script>
+</body>
+</html>

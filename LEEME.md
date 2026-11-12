@@ -51,6 +51,17 @@ En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previ
 
 En **Overlays → Contador de tiempo** pones el tiempo inicial y cuánto suma cada cosa: segundos por cada 💎 diamante, cada cierta cantidad de likes, por seguidor nuevo, por compartido y por mensaje en el chat. Con números negativos **resta** tiempo. Desde ahí lo inicias, lo pausas, le sumas o quitas minutos a mano o lo fijas en un tiempo exacto. Puedes poner un tiempo máximo y elegir si suma aunque esté en pausa. Al sumar se ve en el overlay qué se sumó y quién lo hizo. Si cierras la app con el contador corriendo, sigue donde iba. Estilos: Digital, Barra y Compacto.
 
+### Camino a Conquistador · PUBG Mobile
+
+Overlay para un reto de rango, con las insignias del juego. En **Overlays → Camino a Conquistador**:
+
+- Empiezas en **Diamante V**. Cada rango (V, IV, III, II, I) son **100 puntos**; al llenarlo pasa solo al siguiente, y de Diamante I pasa a Corona V.
+- Sumas o restas los puntos de cada partida con los botones (+5 … +30, −5 … −20) o escribiendo la cantidad. Si restas de más, baja de rango.
+- Al llenar **Corona I** empieza la **promoción a As** al mejor de 3: con 2 ganadas subes a As; con 2 perdidas la serie empieza de nuevo.
+- Con As conseguido, al llegar la hora final cambia a **Conquistador**.
+- Pones cuándo **empieza** y cuándo **termina** el reto y el overlay muestra la cuenta regresiva.
+- **Deshacer**, **Corregir** (poner rango y puntos a mano) y **Reiniciar reto**.
+
 ### Partidas · PUBG Mobile
 
 En **Overlays → Partidas** llevas tus **pollos** (partidas ganadas) y **derrotas** con dos botones grandes: **🍗 Gané** y **💀 Perdí**. Al ganar sale "WINNER WINNER CHICKEN DINNER!" con pollos cayendo. Muestra la racha y el % de victorias, y puedes poner una meta de pollos. **Deshacer** quita la última, **Corregir** pone los números a mano. Estilos: Marcador (barra estilo PUBG), Pollo y Compacto.

@@ -113,6 +113,12 @@ const DEFAULT_CONFIG = {
         winLabel: 'Pollos', lossLabel: 'Derrotas', showStreak: true, showRate: true, goal: 0,
         anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
       },
+      // Camino a Conquistador (PUBG Mobile): rango, puntos, promoción a As y cuenta regresiva.
+      rank: {
+        style: 'completo', title: 'Camino a Conquistador', showTitle: true, bg: true, showTimer: true, showPath: true,
+        start: '', end: '', // fecha y hora de inicio y fin del reto (hora de tu computadora)
+        anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
+      },
       topGift: { style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, text: { name: { font: '', size: 1, color: '' }, gift: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
     },
   },
@@ -204,7 +210,7 @@ function cleanCustom(list) {
 }
 config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
 
-const SCENE_ITEM_TYPES = ['alertas', 'topGift', 'likes', 'gifts', 'chat', 'timer', 'matches'];
+const SCENE_ITEM_TYPES = ['alertas', 'topGift', 'likes', 'gifts', 'chat', 'timer', 'matches', 'rank'];
 const clampN = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
 function cleanScenes(list) {
   if (!Array.isArray(list)) return [];
@@ -497,6 +503,58 @@ setInterval(() => {
   }
 }, 500);
 
+// --- Camino a Conquistador -------------------------------------------------
+// tier: 0 = Diamante V … 4 = Diamante I, 5 = Corona V … 9 = Corona I. Cada rango son 100 puntos.
+// Al llenar Corona I empieza la promoción a As: al mejor de 3 (2 ganadas suben; 2 perdidas la reinician).
+counters.rank ||= { tier: 0, points: 0, stage: 'rank', promo: { w: 0, l: 0 }, attempts: 0, undo: [] };
+const rankPublic = (event) => {
+  const r = counters.rank;
+  return { tier: r.tier, points: r.points, stage: r.stage, promo: r.promo, attempts: r.attempts, event: event || null };
+};
+export function rankAction(action, value) {
+  const r = counters.rank;
+  const snap = JSON.stringify({ tier: r.tier, points: r.points, stage: r.stage, promo: r.promo, attempts: r.attempts });
+  let event = action;
+  if (action === 'add') {
+    if (r.stage !== 'rank') return;
+    const n = Math.round(Number(value) || 0);
+    if (!n) return;
+    const before = r.tier;
+    r.points += n;
+    while (r.points >= 100 && r.tier < 9) { r.tier++; r.points -= 100; }
+    while (r.points < 0 && r.tier > 0) { r.tier--; r.points += 100; }
+    r.points = Math.max(0, r.points);
+    if (r.tier === 9 && r.points >= 100) { r.points = 100; r.stage = 'promo'; r.promo = { w: 0, l: 0 }; event = 'promo'; }
+    else event = r.tier > before ? 'up' : r.tier < before ? 'down' : n > 0 ? 'plus' : 'minus';
+  } else if (action === 'promoWin') {
+    if (r.stage !== 'promo') return;
+    r.promo.w++;
+    if (r.promo.w >= 2) { r.stage = 'ace'; event = 'ace'; }
+  } else if (action === 'promoLoss') {
+    if (r.stage !== 'promo') return;
+    r.promo.l++;
+    if (r.promo.l >= 2) { r.attempts++; r.promo = { w: 0, l: 0 }; event = 'promoFail'; }
+  } else if (action === 'set') {
+    r.tier = Math.max(0, Math.min(9, Math.round(Number(value?.tier) || 0)));
+    r.points = Math.max(0, Math.min(100, Math.round(Number(value?.points) || 0)));
+    r.stage = ['rank', 'promo', 'ace'].includes(value?.stage) ? value.stage : 'rank';
+    if (r.stage !== 'rank') { r.tier = 9; r.points = 100; }
+    r.promo = { w: 0, l: 0 };
+  } else if (action === 'undo') {
+    const last = r.undo.pop();
+    if (!last) return;
+    Object.assign(r, JSON.parse(last));
+    saveCounters();
+    return io.emit('rank', rankPublic('undo'));
+  } else if (action === 'reset') {
+    Object.assign(r, { tier: 0, points: 0, stage: 'rank', promo: { w: 0, l: 0 }, attempts: 0 });
+  } else return;
+  r.undo.push(snap);
+  if (r.undo.length > 40) r.undo.shift();
+  saveCounters();
+  io.emit('rank', rankPublic(event));
+}
+
 function matchesState(event) {
   const m = counters.matches;
   let streak = 0;
@@ -727,6 +785,8 @@ io.on('connection', (socket) => {
   socket.emit('matches', matchesState());
   socket.on('timer', (a = {}) => timerAction(String(a.action || ''), a.value));
   socket.on('matches', (a = {}) => matchesAction(String(a.action || ''), a.value));
+  socket.emit('rank', rankPublic());
+  socket.on('rank', (a = {}) => rankAction(String(a.action || ''), a.value));
 
   socket.on('connectLive', ({ username, signApiKey } = {}) => {
     if (typeof username === 'string') config.username = username.replace(/^@/, '').trim();

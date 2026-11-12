@@ -995,6 +995,46 @@
       </div>
     </section>
 
+    <section class="studio" data-ov="rank" data-path="/rango.html">
+      <div class="st-head"><div><h2>Camino a Conquistador · PUBG Mobile</h2><p>Tu reto de rango: de Diamante V a Corona I (100 puntos cada rango), la promoción a As al mejor de 3 y la cuenta regresiva hasta la hora final.</p></div><div class="st-link"></div></div>
+      <div class="st-body">
+        <div class="st-side">
+          <div class="ctl" aria-label="Control del reto de rango">
+            <div class="ctl-big"><b id="rk-name">—</b><small id="rk-sub"></small></div>
+            <div id="rk-points">
+              <div class="row"><input type="number" id="rk-n" value="20" min="1" max="999" aria-label="Puntos"> puntos <button type="button" class="btn go" data-rk="plus">＋ Sumar</button><button type="button" class="btn" data-rk="minus">− Restar</button></div>
+              <div class="row" style="margin-top:8px">
+                <button type="button" class="btn sm" data-rkadd="5">+5</button><button type="button" class="btn sm" data-rkadd="10">+10</button><button type="button" class="btn sm" data-rkadd="15">+15</button><button type="button" class="btn sm" data-rkadd="20">+20</button><button type="button" class="btn sm" data-rkadd="25">+25</button><button type="button" class="btn sm" data-rkadd="30">+30</button>
+                <button type="button" class="btn sm quiet" data-rkadd="-5">−5</button><button type="button" class="btn sm quiet" data-rkadd="-10">−10</button><button type="button" class="btn sm quiet" data-rkadd="-15">−15</button><button type="button" class="btn sm quiet" data-rkadd="-20">−20</button>
+              </div>
+            </div>
+            <div id="rk-promo" hidden>
+              <div class="mt-btns"><button type="button" class="btn mt-win" data-rk="promoWin">🍗 Gané la partida</button><button type="button" class="btn" data-rk="promoLoss">💀 Perdí la partida</button></div>
+              <p class="hint" style="margin:8px 0 0">Promoción a As: con 2 ganadas subes; con 2 perdidas la serie empieza de nuevo.</p>
+            </div>
+            <div class="row"><button type="button" class="btn sm quiet" data-rk="undo">↶ Deshacer</button><button type="button" class="btn sm quiet" data-rk="reset">Reiniciar reto</button></div>
+            <div class="row"><span class="hint" style="margin:0">Corregir:</span>
+              <select id="rk-set-tier" aria-label="Rango" style="background:var(--surface);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:7px 9px;width:auto"></select>
+              <input type="number" id="rk-set-pts" min="0" max="100" value="0" aria-label="Puntos del rango"> pts <button type="button" class="btn sm" id="rk-set">Fijar</button></div>
+          </div>
+          <div class="styles" role="radiogroup" aria-label="Estilo del reto de rango"></div>
+          <div class="fields">
+            <label class="field">Título <input type="text" data-key="overlays.rank.title" placeholder="Escribe un título" maxlength="60"></label>
+            <label class="field">Empieza <input type="datetime-local" id="rk-start"></label>
+            <label class="field">Termina (hora de Conquistador) <input type="datetime-local" id="rk-end"></label>
+          </div>
+          <div class="switches">
+            <label class="switch"><input type="checkbox" data-key="overlays.rank.showTimer"><span class="track"></span>Mostrar cuenta regresiva</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.rank.showPath"><span class="track"></span>Mostrar el camino completo</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.rank.showTitle"><span class="track"></span>Mostrar título</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.rank.bg"><span class="track"></span>Con fondo</label>
+          </div>
+          <div class="st-anim"></div>
+        </div>
+        <div class="st-preview"><iframe title="Vista previa del reto de rango" src="/rango.html"></iframe><span class="hint">Vista previa con tu avance real.</span></div>
+      </div>
+    </section>
+
     <section class="studio" data-ov="timer" data-path="/contador.html">
       <div class="st-head"><div><h2>Contador de tiempo</h2><p>Cuenta regresiva que sube (o baja) con cada regalo, like, seguidor o compartida. Tú pones el tiempo y cuánto vale cada cosa.</p></div><div class="st-link"></div></div>
       <div class="st-body">
@@ -2218,6 +2258,7 @@ const OV_STYLES = {
   ],
 };
 OV_STYLES.gifts = OV_STYLES.likes;
+OV_STYLES.rank = [['completo', 'Completo', 'Insignia, puntos, camino y reloj'], ['barra', 'Barra', 'Una sola línea']];
 OV_STYLES.timer = [['digital', 'Digital', 'Números grandes'], ['barra', 'Barra', 'Con barra de tiempo'], ['compacto', 'Compacto', 'Pequeño, en una línea']];
 OV_STYLES.matches = [['marcador', 'Marcador', 'Barra estilo PUBG'], ['pollo', 'Pollo', 'Tarjeta con el pollo grande'], ['compacto', 'Compacto', '🍗 y 💀 en una línea']];
 const OV_SIZE = {
@@ -2225,6 +2266,7 @@ const OV_SIZE = {
   likes: { lista: '500 × 600', podio: '480 × 420', lider: '520 × 200', compacto: '340 × 360', neon: '500 × 600', cinta: '940 × 90', bolitas: '250 × 760' },
 };
 OV_SIZE.gifts = OV_SIZE.likes;
+OV_SIZE.rank = { completo: '620 × 340', barra: '820 × 150' };
 OV_SIZE.timer = { digital: '420 × 260', barra: '640 × 220', compacto: '420 × 180' };
 OV_SIZE.matches = { marcador: '720 × 180', pollo: '360 × 360', compacto: '420 × 100' };
 
@@ -2307,6 +2349,51 @@ document.addEventListener('click', (e) => {
 });
 socket.on('config', () => {
   if (txLocal) for (const [k, v] of Object.entries(txLocal)) settings.overlays[k].text = v;
+});
+
+// ---------------------------------------------------------------- camino a Conquistador
+const RK_ROMAN = ['V', 'IV', 'III', 'II', 'I'];
+const rkName = (t) => `${t < 5 ? 'Diamante' : 'Corona'} ${RK_ROMAN[t % 5]}`;
+let rkState = null;
+if ($('#rk-set-tier')) $('#rk-set-tier').innerHTML = Array.from({ length: 10 }, (_, t) => `<option value="${t}">${rkName(t)}</option>`).join('') + '<option value="promo">Promoción a As</option><option value="ace">As</option>';
+socket.on('rank', (r) => {
+  rkState = r;
+  if (!$('#rk-name')) return;
+  $('#rk-name').textContent = r.stage === 'ace' ? 'As 🏆' : r.stage === 'promo' ? 'Promoción a As' : rkName(r.tier);
+  $('#rk-sub').textContent = r.stage === 'ace' ? 'Conquistador al llegar la hora final' : r.stage === 'promo' ? `${r.promo.w} ganadas · ${r.promo.l} perdidas${r.attempts ? ` · intento ${r.attempts + 1}` : ''}` : `${r.points} / 100 puntos`;
+  $('#rk-points').hidden = r.stage !== 'rank';
+  $('#rk-promo').hidden = r.stage !== 'promo';
+});
+const rkLocal = (d) => `${d.getFullYear()}-${tmPad(d.getMonth() + 1)}-${tmPad(d.getDate())}T${tmPad(d.getHours())}:${tmPad(d.getMinutes())}`;
+function fillRankFields() {
+  const k = settings?.overlays?.rank;
+  if (!k || !$('#rk-start')) return;
+  // La primera vez: hoy a las 8 pm y mañana a las 6 pm.
+  if (!k.start && !k.end) {
+    const a = new Date(); a.setHours(20, 0, 0, 0);
+    const b = new Date(a); b.setDate(b.getDate() + 1); b.setHours(18, 0, 0, 0);
+    k.start = rkLocal(a); k.end = rkLocal(b);
+    socket.emit('saveSettings', settings);
+  }
+  if (document.activeElement !== $('#rk-start')) $('#rk-start').value = k.start;
+  if (document.activeElement !== $('#rk-end')) $('#rk-end').value = k.end;
+}
+socket.on('config', () => queueMicrotask(fillRankFields));
+['start', 'end'].forEach((f) => $(`#rk-${f}`)?.addEventListener('change', (e) => { settings.overlays.rank[f] = e.target.value; saveSettingsNow(); }));
+$('#rk-set')?.addEventListener('click', () => {
+  const v = $('#rk-set-tier').value;
+  socket.emit('rank', { action: 'set', value: v === 'promo' || v === 'ace' ? { stage: v } : { tier: Number(v), points: Number($('#rk-set-pts').value) || 0 } });
+});
+document.addEventListener('click', (e) => {
+  const q = e.target.closest('[data-rkadd]');
+  if (q) return socket.emit('rank', { action: 'add', value: Number(q.dataset.rkadd) });
+  const b = e.target.closest('[data-rk]');
+  if (!b) return;
+  const a = b.dataset.rk, n = Math.abs(Number($('#rk-n').value) || 0);
+  if (a === 'plus') socket.emit('rank', { action: 'add', value: n });
+  else if (a === 'minus') socket.emit('rank', { action: 'add', value: -n });
+  else if (a === 'reset') { if (confirm('¿Reiniciar el reto? Vuelve a Diamante V con 0 puntos.')) socket.emit('rank', { action: 'reset' }); }
+  else socket.emit('rank', { action: a });
 });
 
 // ---------------------------------------------------------------- contador de tiempo y partidas
@@ -2402,6 +2489,7 @@ function scDefaultItem(type, sc) {
     chat: vertical ? [30, Math.min(1480, H - t.h - 40)] : [40, H - t.h - 40],
     timer: vertical ? [(W - t.w) / 2, 60] : [(W - t.w) / 2, 30],
     matches: vertical ? [(W - t.w) / 2, Math.min(1720, H - t.h - 30)] : [W - t.w - 40, H - t.h - 40],
+    rank: vertical ? [(W - t.w) / 2, 40] : [40, 40],
   }[type];
   const w = vertical && type === 'alertas' ? 900 : t.w;
   return { id: type, type, on: true, x: Math.round(Math.max(0, pos[0])), y: Math.round(Math.max(0, pos[1])), w: Math.min(w, W), h: Math.min(t.h, H), scale: 1, pos: 'centro' };
@@ -2975,7 +3063,8 @@ const FX_IDLE = {
 FX_IDLE.gifts = FX_IDLE.likes;
 FX_IDLE.timer = FX_IDLE.likes.filter(([k]) => k !== 'ola');
 FX_IDLE.matches = FX_IDLE.timer;
-const FX_CHANGE_LABEL = { topGift: 'Cuando hay nuevo récord', likes: 'Cuando alguien entra o sube de puesto', gifts: 'Cuando alguien entra o sube de puesto', timer: 'Cuando se suma o resta tiempo', matches: 'Cuando sumas una partida' };
+FX_IDLE.rank = FX_IDLE.timer;
+const FX_CHANGE_LABEL = { topGift: 'Cuando hay nuevo récord', likes: 'Cuando alguien entra o sube de puesto', gifts: 'Cuando alguien entra o sube de puesto', timer: 'Cuando se suma o resta tiempo', matches: 'Cuando sumas una partida', rank: 'Cuando cambian los puntos o el rango' };
 const FX_CHANGE = [['pop', 'Pop'], ['deslizar', 'Deslizar'], ['zoom', 'Zoom'], ['voltear', 'Voltear'], ['sacudida', 'Sacudida'], ['giro3d', 'Giro 3D'], ['cubo3d', 'Cubo 3D'], ['fondo3d', 'Desde el fondo 3D']];
 const FX_INT = [['suave', 'Suave'], ['normal', 'Normal'], ['fuerte', 'Fuerte']];
 
@@ -2995,7 +3084,7 @@ function renderAnim(st, key) {
       ${chips('change', FX_CHANGE, FX_CHANGE_LABEL[key] || 'Al cambiar')}
       <div class="anim-row"><span id="fx-${key}-int">Intensidad</span><div class="seg" role="group" aria-labelledby="fx-${key}-int">${FX_INT.map(([id, name]) =>
         `<button type="button" aria-pressed="${(a.intensity || 'normal') === id}" data-fx="${key}:intensity:${id}">${name}</button>`).join('')}</div></div>
-      ${key === 'timer' ? '' : `<div class="switches">${sw('counters', isRank || key === 'matches' ? 'Números que suben' : 'Diamantes que suben')}${isRank ? sw('rankUp', 'Resaltar a quien sube de puesto') : ''}</div>`}
+      ${key === 'timer' ? '' : `<div class="switches">${sw('counters', key === 'topGift' ? 'Diamantes que suben' : 'Números que suben')}${isRank ? sw('rankUp', 'Resaltar a quien sube de puesto') : ''}</div>`}
     </div>`;
   if (focusSel) box.querySelector(focusSel)?.focus();
 }

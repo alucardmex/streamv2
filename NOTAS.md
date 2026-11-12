@@ -1,7 +1,11 @@
-**Volumen por separado** en el bot de voz.
+Nuevo overlay **Camino a Conquistador** para tu reto de rango en PUBG Mobile, con las insignias del juego.
 
-- En **Voz → Qué se lee**, además del volumen general, cada cosa tiene su propio volumen: 💬 comentarios, 🎁 regalos, 🦁 regalos grandes, 💖 nuevos seguidores y 📢 compartidos
-- En **Voces por usuario**, cada persona con voz especial tiene su volumen 🔊
-- Los volúmenes se multiplican: general 80% y comentarios 50% suenan al 40%
+- De **Diamante V** a **Corona I**: cada rango son 100 puntos y sube solo al llenarse
+- Botones para sumar o restar los puntos de cada partida
+- **Promoción a As** al mejor de 3: 2 ganadas suben, 2 perdidas reinician la serie
+- Con As conseguido, a la hora final cambia a **Conquistador**
+- Cuenta regresiva del reto (hora de inicio y de fin) y el camino completo con tu avance
+- Avisos en pantalla al subir de rango, al entrar a promoción y al llegar a As
+- Estilos Completo y Barra; también se puede poner en tu Escena
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.13.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.14.0 lista", toca **Actualizar**.
