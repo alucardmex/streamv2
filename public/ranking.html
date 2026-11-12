@@ -137,6 +137,7 @@
 <div class="stage" id="stage"><div id="root"></div></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/fx.js"></script>
+<script src="/text-style.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
 const tipo = /regal|gift/i.test(P.get('tipo') || '') ? 'gifts' : 'likes';
@@ -178,33 +179,34 @@ const sel = (k) => `[data-k="${CSS.escape(k)}"]`;
 // si solo suben los números se actualizan en su lugar (así las animaciones no se cortan).
 function build(s, rows) {
   const empty = `<div class="empty">¡Sé el primero en aparecer aquí!</div>`;
-  const cnt = (u) => `<span class="cnt" data-k="${esc(u.user)}">${fmt(u.value)}</span> ${icon}`;
-  const plain = (u) => `<span class="cv" data-k="${esc(u.user)}">${fmt(u.value)}</span>`;
+  const cnt = (u) => `<span class="tx-value"><span class="cnt" data-k="${esc(u.user)}">${fmt(u.value)}</span> ${icon}</span>`;
+  const plain = (u) => `<span class="tx-value"><span class="cv" data-k="${esc(u.user)}">${fmt(u.value)}</span></span>`;
+  const nm = (u) => `<span class="tx-name">${esc(u.name)}</span>`;
 
   if (s.style === 'podio') {
     const [a, b, c] = rows;
     const col = (u, n, i) => u
-      ? `<div class="col p${n}" data-id="${esc(u.user)}" style="--i:${i}"><div class="crown">${n === 1 ? '👑' : ''}</div>${av(u)}<div class="nm shadow">${esc(u.name)}</div><div class="v">${cnt(u)}</div><div class="step">${n}</div></div>`
+      ? `<div class="col p${n}" data-id="${esc(u.user)}" style="--i:${i}"><div class="crown">${n === 1 ? '👑' : ''}</div>${av(u)}<div class="nm shadow">${nm(u)}</div><div class="v">${cnt(u)}</div><div class="step">${n}</div></div>`
       : `<div class="col p${n}"><div class="crown"></div><div class="step" style="opacity:.35">${n}</div></div>`;
-    const rest = rows.slice(3).map((u, i) => `<span>${i + 4}. ${esc(u.name)} · ${plain(u)}</span>`).join('');
+    const rest = rows.slice(3).map((u, i) => `<span>${i + 4}. ${nm(u)} · ${plain(u)}</span>`).join('');
     root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1><div class="stand">${col(b, 2, 0)}${col(a, 1, 1)}${col(c, 3, 2)}</div>${rest ? `<div class="rest">${rest}</div>` : '<div style="height:12px"></div>'}</div>`;
   } else if (s.style === 'lider') {
     const a = rows[0];
     root.innerHTML = a
-      ? `<div class="box" data-id="${esc(a.user)}"><div class="who"><span class="crown">👑</span>${av(a)}</div><div><small>${esc(s.title)}</small><b class="shadow">${esc(a.name)}</b><div class="v">${cnt(a)}</div>${rows[1] ? `<div class="next">Le sigue ${esc(rows[1].name)} con ${plain(rows[1])}</div>` : ''}</div></div>`
+      ? `<div class="box" data-id="${esc(a.user)}"><div class="who"><span class="crown">👑</span>${av(a)}</div><div><small>${esc(s.title)}</small><b class="shadow">${nm(a)}</b><div class="v">${cnt(a)}</div>${rows[1] ? `<div class="next">Le sigue ${nm(rows[1])} con ${plain(rows[1])}</div>` : ''}</div></div>`
       : `<div class="box"><div><small>${esc(s.title)}</small><b>¿Quién será el primero?</b></div></div>`;
   } else if (s.style === 'bolitas') {
-    const list = rows.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i}"><div class="orb"><span class="ring"></span><div class="pic">${av(u)}</div><span class="pos">${i + 1}</span>${i === 0 ? '<span class="crown">👑</span>' : ''}</div><div class="lbl"><b class="nm shadow">${esc(u.name)}</b><span class="v shadow">${cnt(u)}</span></div></li>`).join('');
+    const list = rows.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i}"><div class="orb"><span class="ring"></span><div class="pic">${av(u)}</div><span class="pos">${i + 1}</span>${i === 0 ? '<span class="crown">👑</span>' : ''}</div><div class="lbl"><b class="nm shadow">${nm(u)}</b><span class="v shadow">${cnt(u)}</span></div></li>`).join('');
     root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
   } else if (s.style === 'cinta') {
-    const items = rows.map((u, i) => `<span class="it" style="--i:${i}">${i === 0 ? '👑' : `${i + 1}.`} ${av(u)} ${esc(u.name)} <em>${plain(u)} ${icon}</em></span>`).join('');
+    const items = rows.map((u, i) => `<span class="it" style="--i:${i}">${i === 0 ? '👑' : `${i + 1}.`} ${av(u)} ${nm(u)} <em>${plain(u)} ${icon}</em></span>`).join('');
     const content = items || '<span class="it">¡Sé el primero en aparecer aquí!</span>';
     root.style.setProperty('--w', ancho() + 'px');
     root.innerHTML = `<div class="box"><div class="tag">${esc(s.title)}</div><div class="track"><div class="run">${content}${content}</div></div></div>`;
     const run = root.querySelector('.run');
     root.style.setProperty('--dur', Math.max(10, (run.scrollWidth / 2) / 60) + 's');
   } else {
-    const list = rows.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i}"><span class="pos">${i + 1}</span>${s.style === 'compacto' ? '' : av(u)}<span class="nm shadow">${esc(u.name)}</span><span class="v shadow">${cnt(u)}</span></li>`).join('');
+    const list = rows.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i}"><span class="pos">${i + 1}</span>${s.style === 'compacto' ? '' : av(u)}<span class="nm shadow">${nm(u)}</span><span class="v shadow">${cnt(u)}</span></li>`).join('');
     root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
   }
   // Sin título: se quita su renglón para que no deje hueco.
@@ -319,7 +321,7 @@ function applyFx() {
 }
 
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.[tipo] || {}) }; applyFx(); render(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.[tipo] || {}) }; applyFx(); applyTextStyle(cfg.text); render(); });
 socket.on('rankings', (r) => { last = r; render(); });
 applyFx();
 render();

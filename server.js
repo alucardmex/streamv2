@@ -97,8 +97,8 @@ const DEFAULT_CONFIG = {
     overlays: {
       // anim: movimiento continuo (idle), efecto al cambiar (change), intensidad,
       // números que suben (counters) y resaltar a quien sube de puesto (rankUp).
-      likes: { style: 'lista', title: '❤️ Top taps', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
-      gifts: { style: 'lista', title: '💎 Top regalos', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      likes: { style: 'lista', title: '❤️ Top taps', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      gifts: { style: 'lista', title: '💎 Top regalos', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
       // Contador de tiempo (subathon): cada interacción suma (o resta, con número negativo) segundos.
       timer: {
         style: 'digital', title: 'Tiempo restante', showTitle: true, bg: true, showAdds: true,
@@ -111,7 +111,7 @@ const DEFAULT_CONFIG = {
         winLabel: 'Pollos', lossLabel: 'Derrotas', showStreak: true, showRate: true, goal: 0,
         anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
       },
-      topGift: { style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
+      topGift: { style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, text: { name: { font: '', size: 1, color: '' }, gift: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
     },
   },
 };

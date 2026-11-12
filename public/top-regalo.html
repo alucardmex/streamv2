@@ -140,6 +140,7 @@
 <div class="stage" id="stage"><div id="root"></div></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/gifts.js"></script>
+<script src="/text-style.js"></script>
 <script src="/fx.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
@@ -185,8 +186,9 @@ function render(isRecord = false) {
   const av = g?.avatar ? `<img class="av" src="${esc(g.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=av>${letter}</span>'">` : `<span class="av">${letter}</span>`;
   const emo = g ? giftEmoji(g.gift) : '🎁';
   const img = g?.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${emo}'))">` : emo;
-  const gift = g ? `${esc(g.gift)}${g.count > 1 ? ` ×${g.count}` : ''}` : '';
-  const val = g ? `<span class="cnt">${full(g.diamonds)}</span> 💎` : '';
+  const gift = g ? `<span class="tx-gift">${esc(g.gift)}${g.count > 1 ? ` ×${g.count}` : ''}</span>` : '';
+  const val = g ? `<span class="tx-value"><span class="cnt">${full(g.diamonds)}</span> 💎</span>` : '';
+  const nm = g ? `<span class="tx-name">${esc(g.name)}</span>` : '';
   const T = esc(s.title);
   const badge = '<span class="badge">¡Nuevo récord!</span>';
 
@@ -209,13 +211,13 @@ function render(isRecord = false) {
   const key = `${g.ts}-${g.user}-${g.gift}`;
   if (key !== lastKey) { side = 'foto'; swapLoop(); } // regalo nuevo: en el estilo Círculo primero se ve la foto
   const html = {
-    tarjeta: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t sh">${T}</div><div class="n sh">${gift}</div><div class="v sh">${val}</div><div class="f sh">${av}${esc(g.name)}</div></div></div>`,
-    banner: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="line"><span class="n sh">${gift}</span><span class="v sh">${val}</span></div></div><div class="f sh">${av}${esc(g.name)}</div></div>`,
-    trofeo: `<div class="card">${badge}<div class="crown">👑</div><div class="t">${T}</div><div class="gimg float">${img}</div><div class="n sh">${gift}</div><div class="v">${val}</div><div class="f sh">${av}${esc(g.name)}</div></div>`,
-    neon: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t">${T}</div><div class="n">${gift}</div><div class="v">${val}</div><div class="f">${av}${esc(g.name)}</div></div></div>`,
-    minimal: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="n">${gift} <span>${val}</span></div><div class="f">de ${esc(g.name)}</div></div></div>`,
-    circulo: `<div class="t">${T}</div><div class="card ${side === 'regalo' ? 'flipped' : ''}">${badge}<div class="faces"><div class="face front">${face(g)}</div><div class="face back"><div class="gimg float">${img}</div></div></div></div><div class="info"><div class="n sh">${esc(g.name)}</div><div class="v sh">${gift} · <b>${val}</b></div></div>`,
-    burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh">${T}</div><div class="n sh">${esc(g.name)}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
+    tarjeta: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t sh">${T}</div><div class="n sh">${gift}</div><div class="v sh">${val}</div><div class="f sh">${av}${nm}</div></div></div>`,
+    banner: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="line"><span class="n sh">${gift}</span><span class="v sh">${val}</span></div></div><div class="f sh">${av}${nm}</div></div>`,
+    trofeo: `<div class="card">${badge}<div class="crown">👑</div><div class="t">${T}</div><div class="gimg float">${img}</div><div class="n sh">${gift}</div><div class="v">${val}</div><div class="f sh">${av}${nm}</div></div>`,
+    neon: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t">${T}</div><div class="n">${gift}</div><div class="v">${val}</div><div class="f">${av}${nm}</div></div></div>`,
+    minimal: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="n">${gift} <span>${val}</span></div><div class="f">de ${nm}</div></div></div>`,
+    circulo: `<div class="t">${T}</div><div class="card ${side === 'regalo' ? 'flipped' : ''}">${badge}<div class="faces"><div class="face front">${face(g)}</div><div class="face back"><div class="gimg float">${img}</div></div></div></div><div class="info"><div class="n sh">${nm}</div><div class="v sh">${gift} · <b>${val}</b></div></div>`,
+    burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh">${T}</div><div class="n sh">${nm}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
   }[s.style === 'cuadro' ? 'circulo' : s.style];
   root.innerHTML = `<div class="fxw">${noTitle(html)}</div>`;
 
@@ -295,7 +297,7 @@ function applyFx() {
 }
 
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.topGift || {}) }; applyFx(); render(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.topGift || {}) }; applyFx(); applyTextStyle(cfg.text); render(); });
 socket.on('topGifts', ({ list, record: isNew }) => { record = (list || [])[0] || null; render(!!isNew); });
 applyFx();
 render();

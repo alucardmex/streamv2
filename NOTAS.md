@@ -1,19 +1,9 @@
-Dos overlays nuevos en **Overlays** (y también en tu **Escena**).
+**Texto personalizable** en los overlays de **Regalo más caro**, **Top taps** y **Top regalos**.
 
-**⏱️ Contador de tiempo (subathon)**
-- Tú pones el tiempo inicial y cuánto suma cada cosa: por cada 💎 diamante, cada cierta cantidad de likes, seguidor nuevo, compartido y mensaje en el chat
-- Con números negativos resta tiempo
-- Iniciar, pausar, reiniciar, sumar o quitar minutos a mano y fijar un tiempo exacto
-- Tiempo máximo opcional y opción de sumar aunque esté en pausa
-- En el overlay se ve lo que se sumó y quién lo hizo
-- Estilos Digital, Barra y Compacto
+- Nuevo bloque **Texto** en cada uno, en la pestaña Overlays
+- Regalo más caro: cambia por separado el **nombre de quien lo mandó**, el **nombre del regalo** y los **diamantes**
+- Top taps y Top regalos: los **nombres** y la **cantidad**
+- **Tipografía** (más de 20), **tamaño** (50% a 250%) y **color** para cada uno
+- Funciona con todos los estilos y se ve al momento en tu stream
 
-**🍗 Partidas · PUBG Mobile**
-- Botones grandes **Gané** y **Perdí**, deshacer y corregir a mano
-- "WINNER WINNER CHICKEN DINNER!" con pollos cayendo cuando ganas
-- Racha, % de victorias y meta de pollos
-- Estilos Marcador (barra estilo PUBG), Pollo y Compacto
-
-**Atajos** que funcionan aunque estés en el juego: Ctrl+Alt+G gané · Ctrl+Alt+P perdí · Ctrl+Alt+Z deshacer · Ctrl+Alt+T iniciar/pausar el contador.
-
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.11.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.12.0 lista", toca **Actualizar**.

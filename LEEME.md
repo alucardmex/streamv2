@@ -67,6 +67,14 @@ Para no llenar TikTok LIVE Studio de fuentes de navegador, en la pestaña **Esce
 
 Los cambios se ven al momento en tu stream, sin volver a copiar el link. El estilo y las animaciones de cada overlay se siguen eligiendo en **Overlays**. Puedes tener varias escenas (por ejemplo una horizontal y una vertical).
 
+### Texto: tamaño, tipografía y color
+
+En cada overlay de **Regalo más caro**, **Top taps** y **Top regalos** hay un bloque **Texto**. Ahí cambias, por separado, el nombre de quien mandó el regalo, el nombre del regalo y los diamantes (en los tops: los nombres y la cantidad):
+
+- **Tipografía:** más de 20 para elegir (Bebas Neue, Anton, Bungee, Black Ops One, Bangers, Pacifico, Press Start 2P…), o "La del estilo".
+- **Tamaño:** de 50% a 250%.
+- **Color:** el que quieras, o vuelve al del estilo con **Color del estilo**.
+
 ### Animaciones
 
 Cada overlay tiene su propio bloque **Animaciones** (se puede apagar con el interruptor):

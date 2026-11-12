@@ -374,6 +374,16 @@
   .chip:hover { border-color: var(--muted); }
   .chip[aria-pressed=true] { border-color: var(--gift); background: rgba(255,194,75,.12); box-shadow: inset 0 0 0 1px var(--gift); }
   .chip:focus-visible, .st-anim .seg button:focus-visible { outline: 2px solid var(--voice); outline-offset: 2px; }
+  .st-text { border-top: 1px solid var(--line); padding-top: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .st-text h3 { margin: 0; font: 700 15px var(--display); }
+  .tx-part { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--ink); }
+  .tx-part > b { font-size: 13.5px; }
+  .tx-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .tx-row select { background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 7px 9px; font-size: 15px; min-width: 170px; width: auto; }
+  .tx-row input[type=range] { width: 130px; }
+  .tx-row .pct { font-size: 12.5px; color: var(--muted); min-width: 42px; }
+  .tx-row input[type=color] { width: 38px; height: 32px; padding: 0; border: 1px solid var(--line); border-radius: 8px; background: none; cursor: pointer; }
+  .tx-row .auto { font-size: 12.5px; color: var(--muted); }
   .ctl { border: 1px solid var(--line); border-radius: 14px; background: var(--ink); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
   .ctl-big { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
   .ctl-big b { font: 800 40px/1 var(--display); font-variant-numeric: tabular-nums; letter-spacing: .5px; }
@@ -966,6 +976,7 @@
             <label class="field" data-only="circulo cuadro">Cambiar foto ↔ regalo cada (segundos) <input type="number" min="2" max="30" data-key="overlays.topGift.swap"></label>
           </div>
           <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.topGift.showTitle"><span class="track"></span>Mostrar título</label><label class="switch"><input type="checkbox" data-key="overlays.topGift.bg"><span class="track"></span>Con fondo</label></div>
+          <div class="st-text"></div>
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del regalo más caro" src="/top-regalo.html?demo=1"></iframe><span class="hint">Vista previa. Si aún no hay regalos se muestra un ejemplo.</span></div>
@@ -1060,6 +1071,7 @@
             <label class="field">Puestos <input type="number" min="1" max="10" data-key="overlays.likes.top"></label>
           </div>
           <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.likes.showTitle"><span class="track"></span>Mostrar título</label><label class="switch"><input type="checkbox" data-key="overlays.likes.bg"><span class="track"></span>Con fondo</label></div>
+          <div class="st-text"></div>
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del top taps" src="/ranking.html?demo=1"></iframe><span class="hint">Vista previa. Si aún no hay taps se muestra un ejemplo.</span></div>
@@ -1076,6 +1088,7 @@
             <label class="field">Puestos <input type="number" min="1" max="10" data-key="overlays.gifts.top"></label>
           </div>
           <div class="switches"><label class="switch"><input type="checkbox" data-key="overlays.gifts.showTitle"><span class="track"></span>Mostrar título</label><label class="switch"><input type="checkbox" data-key="overlays.gifts.bg"><span class="track"></span>Con fondo</label></div>
+          <div class="st-text"></div>
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del top regalos" src="/ranking.html?tipo=regalos&amp;demo=1"></iframe><span class="hint">Vista previa. Si aún no hay regalos se muestra un ejemplo.</span></div>
@@ -1201,6 +1214,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/gifts.js"></script>
 <script src="/scene-types.js"></script>
+<script src="/text-style.js"></script>
 <script>
 const socket = io();
 const $ = (s) => document.querySelector(s);
@@ -2189,11 +2203,78 @@ function renderStudios() {
       `<button type="button" class="sty" role="radio" aria-checked="${cur === id}" data-ovstyle="${key}:${id}"><b>${name}</b><small>${desc}</small></button>`).join('');
     const url = location.origin + st.dataset.path;
     renderAnim(st, key);
+    renderTextCtl(st, key);
     st.querySelectorAll('[data-only]').forEach((el) => { el.hidden = !el.dataset.only.split(' ').includes(cur); });
     st.querySelector('.st-link').innerHTML = `<code>${esc(url)}</code><span class="hint">Tamaño sugerido ${OV_SIZE[key][cur] || ''}</span>
       <button class="btn sm" data-copy="${esc(url)}">Copiar link</button><button class="btn sm quiet" data-open-path="${esc(st.dataset.path)}">Abrir</button>`;
   });
 }
+// ---------------------------------------------------------------- texto de los overlays (tamaño, tipografía, color)
+const TX_PARTS = {
+  topGift: [['name', 'Nombre de quien lo mandó'], ['gift', 'Nombre del regalo'], ['value', 'Diamantes']],
+  likes: [['name', 'Nombres'], ['value', 'Cantidad de taps']],
+  gifts: [['name', 'Nombres'], ['value', 'Cantidad de diamantes']],
+};
+let txFontsLoaded = false;
+let txLocal = null, txLocalTimer = null;
+function txSave(now) {
+  clearTimeout(saveTimer);
+  clearTimeout(txLocalTimer);
+  txLocal = Object.fromEntries(Object.keys(TX_PARTS).map((k) => [k, settings.overlays[k].text]));
+  txLocalTimer = setTimeout(() => { txLocal = null; }, now ? 1500 : 2000);
+  if (now) socket.emit('saveSettings', settings);
+  else saveTimer = setTimeout(() => socket.emit('saveSettings', settings), 350);
+}
+function renderTextCtl(st, key) {
+  const box = st.querySelector('.st-text');
+  if (!box || !TX_PARTS[key]) return;
+  // En el panel se cargan las tipografías para verlas en la lista.
+  if (!txFontsLoaded) { txFontsLoaded = true; TEXT_FONTS.forEach(([, fam]) => loadTextFont(fam)); }
+  const text = (settings.overlays[key].text ||= {});
+  if (box.contains(document.activeElement)) return; // no redibujar mientras lo estás moviendo
+  box.innerHTML = `<h3>Texto</h3>` + TX_PARTS[key].map(([part, label]) => {
+    const t = (text[part] ||= { font: '', size: 1, color: '' });
+    const id = `${key}:${part}`;
+    return `<div class="tx-part"><b>${label}</b>
+      <div class="tx-row">
+        <select data-tx="${id}:font" aria-label="Tipografía de ${label}" style="font-family:${t.font ? `'${esc(t.font)}'` : 'inherit'}">
+          <option value="">La del estilo</option>${TEXT_FONTS.map(([n, fam]) => `<option value="${esc(fam)}" style="font-family:'${esc(fam)}'" ${t.font === fam ? 'selected' : ''}>${esc(n)}</option>`).join('')}
+        </select>
+        <input type="range" min="0.5" max="2.5" step="0.05" value="${Number(t.size) || 1}" data-tx="${id}:size" aria-label="Tamaño de ${label}"><span class="pct">${Math.round((Number(t.size) || 1) * 100)}%</span>
+        <input type="color" value="${t.color || '#ffffff'}" data-tx="${id}:color" aria-label="Color de ${label}">
+        ${t.color ? `<button type="button" class="btn sm quiet" data-txreset="${id}">Color del estilo</button>` : '<span class="auto">Color del estilo</span>'}
+      </div></div>`;
+  }).join('');
+}
+function txTarget(el) {
+  const [key, part, prop] = el.dataset.tx.split(':');
+  const t = ((settings.overlays[key].text ||= {})[part] ||= { font: '', size: 1, color: '' });
+  return { key, part, prop, t };
+}
+document.addEventListener('input', (e) => {
+  const el = e.target.closest('[data-tx]');
+  if (!el) return;
+  const { prop, t } = txTarget(el);
+  if (prop === 'size') { t.size = Number(el.value); el.nextElementSibling.textContent = Math.round(t.size * 100) + '%'; }
+  else if (prop === 'color') {
+    t.color = el.value;
+    const auto = el.parentElement.querySelector('.auto');
+    if (auto) auto.outerHTML = `<button type="button" class="btn sm quiet" data-txreset="${el.dataset.tx.split(':').slice(0, 2).join(':')}">Color del estilo</button>`;
+  } else if (prop === 'font') { t.font = el.value; el.style.fontFamily = el.value ? `'${el.value}'` : 'inherit'; }
+  txSave();
+});
+document.addEventListener('click', (e) => {
+  const r = e.target.closest('[data-txreset]');
+  if (!r) return;
+  const [key, part] = r.dataset.txreset.split(':');
+  settings.overlays[key].text[part].color = '';
+  r.outerHTML = '<span class="auto">Color del estilo</span>';
+  txSave(true);
+});
+socket.on('config', () => {
+  if (txLocal) for (const [k, v] of Object.entries(txLocal)) settings.overlays[k].text = v;
+});
+
 // ---------------------------------------------------------------- contador de tiempo y partidas
 let tmState = null;
 const tmPad = (n) => String(n).padStart(2, '0');
