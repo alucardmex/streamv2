@@ -2,7 +2,7 @@
 // Arranca el servidor local (para que OBS siga usando http://127.0.0.1:3939),
 // muestra el panel en su propia ventana y se actualiza sola desde GitHub.
 
-import { app, BrowserWindow, shell, ipcMain, dialog, Menu } from 'electron';
+import { app, BrowserWindow, shell, ipcMain, dialog, Menu, globalShortcut } from 'electron';
 import path from 'node:path';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
@@ -63,7 +63,22 @@ async function start() {
 
   createWindow();
   setupUpdater();
+  setupShortcuts();
 }
+
+// Atajos que funcionan aunque estés en el juego (marcador de partidas y contador de tiempo).
+function setupShortcuts() {
+  const keys = {
+    'CommandOrControl+Alt+G': () => server.matchesAction?.('win'),
+    'CommandOrControl+Alt+P': () => server.matchesAction?.('loss'),
+    'CommandOrControl+Alt+Z': () => server.matchesAction?.('undo'),
+    'CommandOrControl+Alt+T': () => server.timerAction?.('toggle'),
+  };
+  for (const [k, fn] of Object.entries(keys)) {
+    try { if (!globalShortcut.register(k, fn)) console.warn('[atajos] ocupado:', k); } catch (e) { console.warn('[atajos]', k, e.message); }
+  }
+}
+app.on('will-quit', () => { try { globalShortcut.unregisterAll(); } catch {} });
 
 function createWindow() {
   win = new BrowserWindow({

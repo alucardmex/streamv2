@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>StreamV2 · Partidas (PUBG Mobile)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Outfit:wght@700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fx.css">
+<style>
+  /* Marcador de pollos y derrotas. ?estilo=marcador|pollo|compacto  ?escala=1.2  ?animacion=0  ?titulo=0 */
+  :root { --y: #f2a900; --y2: #ffd25a; --dark: #14140f; --olive: #2a2d1f; --red: #e8443a; --w: #f5f2e8; }
+  html, body { margin: 0; background: transparent; overflow: hidden; color: var(--w); font-family: 'Teko', 'Impact', sans-serif; }
+  .stage { display: inline-block; padding: 18px 16px 18px; transform-origin: top left; }
+  .box { position: relative; }
+  .num { font-variant-numeric: tabular-nums; }
+  .sh { text-shadow: 0 2px 6px rgba(0,0,0,.7); }
+
+  /* ---------- MARCADOR (barra militar) ---------- */
+  .marcador .box { display: inline-flex; flex-direction: column; filter: drop-shadow(0 10px 22px rgba(0,0,0,.55)); }
+  .marcador .t { align-self: flex-start; background: var(--y); color: var(--dark); font-weight: 700; font-size: 24px; line-height: 1; padding: 6px 22px 2px 14px; letter-spacing: 2px; text-transform: uppercase;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); }
+  .marcador .row { display: flex; background: linear-gradient(180deg, rgba(42,45,31,.95), rgba(20,20,15,.95)); border-top: 3px solid var(--y);
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%); }
+  .marcador .cell { display: flex; align-items: center; gap: 10px; padding: 8px 22px 6px; border-right: 1px solid rgba(242,169,0,.25); }
+  .marcador .cell:last-child { border-right: 0; padding-right: 30px; }
+  .marcador .ico { font-size: 34px; line-height: 1; padding-bottom: 6px; }
+  .marcador .lbl { font-size: 18px; letter-spacing: 2px; text-transform: uppercase; color: rgba(245,242,232,.7); line-height: 1; }
+  .marcador .val { font-size: 54px; font-weight: 600; line-height: .9; }
+  .marcador .win .val { color: var(--y2); }
+  .marcador .loss .val { color: #ff8a80; }
+  .nobg .marcador .row { background: none; border-top-color: transparent; }
+  .nobg .marcador .t { background: none; color: var(--y); }
+
+  /* ---------- POLLO (tarjeta grande) ---------- */
+  .pollo .box { width: 300px; text-align: center; padding: 16px 18px 14px; background: radial-gradient(circle at 50% 30%, rgba(242,169,0,.28), transparent 60%), linear-gradient(180deg, rgba(42,45,31,.96), rgba(16,16,12,.96));
+    border: 3px solid var(--y); clip-path: polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px); }
+  .pollo .t { font-size: 22px; letter-spacing: 2px; text-transform: uppercase; color: var(--y); line-height: 1; }
+  .pollo .big { display: flex; align-items: center; justify-content: center; gap: 6px; margin: 4px 0 0; }
+  .pollo .chick { font-size: 74px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.5)); }
+  .pollo .big .val { font-size: 110px; font-weight: 700; color: var(--y2); line-height: .85; padding-top: 10px; }
+  .pollo .big .goal { font-size: 46px; color: rgba(255,210,90,.6); align-self: flex-end; padding-bottom: 12px; }
+  .pollo .wwcd { font-size: 18px; letter-spacing: 1px; white-space: nowrap; color: var(--w); opacity: .85; text-transform: uppercase; line-height: 1; margin-top: -2px; }
+  .pollo .meta { display: flex; justify-content: center; gap: 18px; margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(242,169,0,.3); font-size: 26px; line-height: 1; }
+  .pollo .meta span { color: rgba(245,242,232,.7); text-transform: uppercase; letter-spacing: 1px; font-size: 18px; }
+  .pollo .meta b { font-weight: 600; }
+  .nobg .pollo .box { background: none; border-color: transparent; }
+
+  /* ---------- COMPACTO ---------- */
+  .compacto .box { display: inline-flex; align-items: center; gap: 16px; padding: 6px 20px 2px; background: rgba(20,20,15,.88); border: 2px solid var(--y);
+    clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); }
+  .compacto .it { display: flex; align-items: center; gap: 6px; font-size: 40px; line-height: 1; }
+  .compacto .it .e { font-size: 28px; padding-bottom: 6px; }
+  .compacto .win .val { color: var(--y2); }
+  .compacto .t { font-size: 20px; color: var(--y); letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap; }
+  .nobg .compacto .box { background: none; border-color: transparent; }
+
+  /* ¡WINNER WINNER CHICKEN DINNER! */
+  .wwcd-pop { position: fixed; left: 0; right: 0; top: 50%; translate: 0 -50%; z-index: 30; display: grid; place-items: center; pointer-events: none; }
+  .wwcd-pop .band { width: 100%; text-align: center; padding: 10px 10px 4px; background: linear-gradient(90deg, transparent, rgba(16,16,12,.92) 12%, rgba(16,16,12,.92) 88%, transparent);
+    animation: band 3.6s ease forwards; }
+  .wwcd-pop .l1 { font-size: 30px; letter-spacing: 3px; color: var(--w); line-height: 1; }
+  .wwcd-pop .l2 { font-size: 52px; letter-spacing: 2px; color: var(--y); line-height: .95; text-shadow: 0 0 18px rgba(242,169,0,.6); }
+  @keyframes band { 0% { opacity: 0; scale: 1.4 .2; } 10% { opacity: 1; scale: 1 1; } 80% { opacity: 1; } 100% { opacity: 0; scale: 1 .6; } }
+  .drop { position: fixed; top: -40px; z-index: 29; font-size: 30px; pointer-events: none; animation: drop linear forwards; }
+  @keyframes drop { to { transform: translateY(var(--fall)) rotate(var(--rot)); opacity: .2; } }
+  .loss-pop { position: fixed; inset: 0; z-index: 30; display: grid; place-items: center; pointer-events: none; font-size: 64px; animation: lossPop 1.6s ease forwards; }
+  @keyframes lossPop { 0% { opacity: 0; scale: .4; } 20% { opacity: 1; scale: 1.1; } 40% { scale: 1; } 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { body:not(.fx-on) * { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"><div id="root"></div></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/fx.js"></script>
+<script>
+const P = new URLSearchParams(location.search);
+const STYLES = ['marcador', 'pollo', 'compacto'];
+const root = document.getElementById('root');
+const stage = document.getElementById('stage');
+let cfg = { style: 'marcador', title: 'Partidas de hoy', showTitle: true, bg: true, winLabel: 'Pollos', lossLabel: 'Derrotas', showStreak: true, showRate: true, goal: 0, anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal' } };
+let m = { wins: 0, losses: 0, streak: 0 };
+let demo = null;
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function settings() {
+  const s = { ...cfg };
+  if (STYLES.includes(P.get('estilo'))) s.style = P.get('estilo');
+  if (P.get('titulo') !== null) s.title = P.get('titulo') === '0' ? '' : P.get('titulo');
+  if (s.showTitle === false) s.title = '';
+  if (P.get('fondo') === '0') s.bg = false;
+  if (!STYLES.includes(s.style)) s.style = 'marcador';
+  s.title = String(s.title || '').trim();
+  return s;
+}
+function data() {
+  if (demo) return demo;
+  if (P.get('demo') === '1' && !m.wins && !m.losses) return { wins: 5, losses: 3, streak: 2 };
+  return m;
+}
+function render() {
+  const s = settings();
+  const d = data();
+  stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
+  document.body.classList.toggle('nobg', !s.bg);
+  root.className = s.style;
+  const played = d.wins + d.losses;
+  const rate = played ? Math.round((d.wins / played) * 100) : 0;
+  const goal = Number(s.goal) > 0 ? Number(s.goal) : 0;
+  const W = esc(s.winLabel || 'Pollos'), L = esc(s.lossLabel || 'Derrotas');
+  const v = (k) => `<span class="val num" data-c="${k}"></span>`;
+  if (s.style === 'pollo') {
+    root.innerHTML = `<div class="box">${s.title ? `<div class="t">${esc(s.title)}</div>` : ''}
+      <div class="big"><span class="chick">🍗</span>${v('wins')}${goal ? `<span class="goal">/${goal}</span>` : ''}</div>
+      <div class="wwcd">Winner winner chicken dinner</div>
+      <div class="meta"><div><span>${L}</span> <b class="num" data-c="losses"></b></div>${s.showStreak ? `<div><span>Racha</span> <b class="num" data-c="streak"></b></div>` : ''}${s.showRate ? `<div><span>Win</span> <b class="num">${rate}%</b></div>` : ''}</div></div>`;
+  } else if (s.style === 'compacto') {
+    root.innerHTML = `<div class="box">${s.title ? `<span class="t">${esc(s.title)}</span>` : ''}<span class="it win"><span class="e">🍗</span>${v('wins')}${goal ? `<span style="opacity:.6">/${goal}</span>` : ''}</span><span class="it loss"><span class="e">💀</span>${v('losses')}</span>${s.showStreak && d.streak > 1 ? `<span class="it"><span class="e">🔥</span>${v('streak')}</span>` : ''}</div>`;
+  } else {
+    const cell = (cls, ico, lbl, inner) => `<div class="cell ${cls}"><span class="ico">${ico}</span><div><div class="lbl">${lbl}</div>${inner}</div></div>`;
+    root.innerHTML = `<div class="box">${s.title ? `<div class="t">${esc(s.title)}</div>` : ''}<div class="row">
+      ${cell('win', '🍗', W, `${v('wins')}${goal ? `<span class="val" style="font-size:30px;opacity:.6">/${goal}</span>` : ''}`)}
+      ${cell('loss', '💀', L, v('losses'))}
+      ${s.showStreak ? cell('streak', '🔥', 'Racha', v('streak')) : ''}
+      ${s.showRate ? cell('rate', '🎯', 'Win', `<span class="val num">${rate}%</span>`) : ''}</div></div>`;
+  }
+  root.querySelectorAll('[data-c]').forEach((el) => FX.count(el, el.dataset.c, d[el.dataset.c] || 0, (n) => String(n)));
+  FX.decorate(root.querySelector('.box'));
+  FX.sync(root);
+}
+
+function celebrate(kind) {
+  if (kind === 'win') {
+    const pop = document.createElement('div');
+    pop.className = 'wwcd-pop';
+    pop.innerHTML = '<div class="band"><div class="l1">WINNER WINNER</div><div class="l2">CHICKEN DINNER!</div></div>';
+    document.body.appendChild(pop);
+    setTimeout(() => pop.remove(), 3700);
+    for (let i = 0; i < 18; i++) {
+      const c = document.createElement('span');
+      c.className = 'drop';
+      c.textContent = Math.random() < 0.7 ? '🍗' : '🐔';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.setProperty('--fall', innerHeight + 80 + 'px');
+      c.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+      c.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+      c.style.animationDelay = (Math.random() * 0.8) + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }
+  } else if (kind === 'loss') {
+    const pop = document.createElement('div');
+    pop.className = 'loss-pop';
+    pop.textContent = '💀';
+    document.body.appendChild(pop);
+    setTimeout(() => pop.remove(), 1700);
+  }
+  FX.change(root.querySelector('.box'), 'partida');
+}
+
+// Botón "Probar animación" del panel: un pollo de prueba que no cuenta.
+window.fxDemo = () => {
+  const d = data();
+  demo = { wins: d.wins + 1, losses: d.losses, streak: d.streak + 1 };
+  render();
+  celebrate('win');
+  clearTimeout(fxDemo.t);
+  fxDemo.t = setTimeout(() => { demo = null; render(); }, 5000);
+};
+
+function applyFx() {
+  const a = { ...cfg.anim };
+  if (P.get('animacion') === '0') a.on = false;
+  FX.apply(a);
+}
+const socket = io();
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.matches || {}) }; applyFx(); render(); });
+socket.on('matches', (x) => {
+  m = x;
+  render();
+  if (x.event === 'win' || x.event === 'loss') celebrate(x.event);
+});
+applyFx();
+render();
+</script>
+</body>
+</html>

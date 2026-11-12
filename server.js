@@ -99,6 +99,18 @@ const DEFAULT_CONFIG = {
       // números que suben (counters) y resaltar a quien sube de puesto (rankUp).
       likes: { style: 'lista', title: '❤️ Top taps', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
       gifts: { style: 'lista', title: '💎 Top regalos', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      // Contador de tiempo (subathon): cada interacción suma (o resta, con número negativo) segundos.
+      timer: {
+        style: 'digital', title: 'Tiempo restante', showTitle: true, bg: true, showAdds: true,
+        start: 3600, perDiamond: 10, likesEvery: 100, likesSecs: 10, follow: 30, share: 15, chat: 0, max: 0, whilePaused: false,
+        anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
+      },
+      // Marcador de partidas de PUBG Mobile (pollos y derrotas), lo llevas tú desde el panel.
+      matches: {
+        style: 'marcador', title: 'Partidas de hoy', showTitle: true, bg: true,
+        winLabel: 'Pollos', lossLabel: 'Derrotas', showStreak: true, showRate: true, goal: 0,
+        anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
+      },
       topGift: { style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
     },
   },
@@ -190,7 +202,7 @@ function cleanCustom(list) {
 }
 config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
 
-const SCENE_ITEM_TYPES = ['alertas', 'topGift', 'likes', 'gifts', 'chat'];
+const SCENE_ITEM_TYPES = ['alertas', 'topGift', 'likes', 'gifts', 'chat', 'timer', 'matches'];
 const clampN = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
 function cleanScenes(list) {
   if (!Array.isArray(list)) return [];
@@ -368,6 +380,7 @@ function handleGift(d, isTest = false) {
   }
 
   payload.total = diamonds * count;
+  if (!isTest) timerAdd(payload.total * (Number(config.settings.overlays.timer.perDiamond) || 0), payload, 'gift');
   stats.diamonds += payload.total;
   addToMap(giftsByUser, who, payload.total);
   io.emit('gift', payload);
@@ -379,6 +392,7 @@ function handleLike(d) {
   const who = normUser(d.user);
   const count = Number(d.count ?? d.likeCount ?? 1);
   addToMap(likesByUser, who, count);
+  timerLikes(count, who);
   const total = Number(d.total ?? d.totalLikeCount ?? 0);
   stats.totalLikes = total > stats.totalLikes ? total : stats.totalLikes + count;
   broadcastRankings();
@@ -392,10 +406,12 @@ function handleChat(d, isTest = false) {
   chatHistory.push(msg);
   if (chatHistory.length > 50) chatHistory.shift();
   io.emit('chat', msg);
+  if (!isTest) timerAdd(Number(config.settings.overlays.timer.chat) || 0, who, 'chat');
 }
 
 function handleFollow(d) {
   stats.follows += 1;
+  timerAdd(Number(config.settings.overlays.timer.follow) || 0, normUser(d.user), 'follow');
   rankingDirty = true;
   io.emit('follow', normUser(d.user));
   broadcastRankings();
@@ -403,6 +419,106 @@ function handleFollow(d) {
 
 function handleShare(d) {
   io.emit('share', normUser(d.user));
+  timerAdd(Number(config.settings.overlays.timer.share) || 0, normUser(d.user), 'share');
+}
+
+// ---------------------------------------------------------------------------
+// Contador de tiempo (subathon) y marcador de partidas
+// ---------------------------------------------------------------------------
+const COUNTERS_FILE = path.join(DATA_DIR, 'contadores.json');
+const counters = loadJson(COUNTERS_FILE, {});
+counters.timer ||= { running: false, remaining: (config.settings.overlays.timer.start || 3600) * 1000, endsAt: 0 };
+counters.matches ||= { wins: 0, losses: 0, history: [] };
+// Si la app se cerró con el contador corriendo, sigue donde iba (el tiempo que estuvo cerrada sí cuenta).
+let likeAcc = 0;
+let countersTimer = null;
+const saveCounters = () => {
+  clearTimeout(countersTimer);
+  countersTimer = setTimeout(() => fs.writeFile(COUNTERS_FILE, JSON.stringify(counters, null, 1), () => {}), 800);
+};
+const tcfg = () => config.settings.overlays.timer;
+function timerRemaining() {
+  const t = counters.timer;
+  return t.running ? Math.max(0, t.endsAt - Date.now()) : Math.max(0, t.remaining);
+}
+function timerState(add) {
+  const t = counters.timer;
+  return { running: t.running, remaining: timerRemaining(), endsAt: t.running ? t.endsAt : 0, start: (tcfg().start || 0) * 1000, max: (tcfg().max || 0) * 1000, add: add || null };
+}
+function setRemaining(ms) {
+  const t = counters.timer;
+  const max = (Number(tcfg().max) || 0) * 1000;
+  ms = Math.max(0, max > 0 ? Math.min(ms, max) : ms);
+  if (t.running) t.endsAt = Date.now() + ms; else t.remaining = ms;
+  if (t.running && ms === 0) { t.running = false; t.remaining = 0; }
+}
+// Suma (o resta) segundos al contador por una interacción.
+function timerAdd(secs, who, kind, extra) {
+  secs = Number(secs) || 0;
+  if (!secs) return;
+  const t = counters.timer;
+  if (!t.running && !tcfg().whilePaused) return;
+  if (!t.running && timerRemaining() === 0 && secs < 0) return;
+  setRemaining(timerRemaining() + secs * 1000);
+  saveCounters();
+  io.emit('timer', timerState({ secs, kind, name: who?.name || '', gift: who?.gift || '', image: who?.image || '', ...extra }));
+}
+function timerLikes(count, who) {
+  const every = Math.max(1, Number(tcfg().likesEvery) || 100);
+  const secs = Number(tcfg().likesSecs) || 0;
+  if (!secs) return;
+  likeAcc += count;
+  if (likeAcc < every) return;
+  const times = Math.floor(likeAcc / every);
+  likeAcc -= times * every;
+  timerAdd(secs * times, who, 'likes', { likes: times * every });
+}
+export function timerAction(action, value) {
+  const t = counters.timer;
+  if (action === 'start') { if (timerRemaining() > 0 && !t.running) { t.endsAt = Date.now() + t.remaining; t.running = true; } }
+  else if (action === 'pause') { if (t.running) { t.remaining = timerRemaining(); t.running = false; } }
+  else if (action === 'toggle') return timerAction(t.running ? 'pause' : 'start');
+  else if (action === 'reset') { t.running = false; t.remaining = (Number(tcfg().start) || 0) * 1000; likeAcc = 0; }
+  else if (action === 'set') setRemaining((Number(value) || 0) * 1000);
+  else if (action === 'add') { setRemaining(timerRemaining() + (Number(value) || 0) * 1000); }
+  else return;
+  saveCounters();
+  io.emit('timer', timerState(action === 'add' ? { secs: Number(value) || 0, kind: 'manual' } : null));
+}
+setInterval(() => {
+  const t = counters.timer;
+  if (t.running && t.endsAt <= Date.now()) {
+    t.running = false;
+    t.remaining = 0;
+    saveCounters();
+    io.emit('timer', { ...timerState(), ended: true });
+  }
+}, 500);
+
+function matchesState(event) {
+  const m = counters.matches;
+  let streak = 0;
+  for (let i = m.history.length - 1; i >= 0 && m.history[i] === 'w'; i--) streak++;
+  return { wins: m.wins, losses: m.losses, streak, event: event || null };
+}
+export function matchesAction(action, value) {
+  const m = counters.matches;
+  if (action === 'win') { m.wins++; m.history.push('w'); }
+  else if (action === 'loss') { m.losses++; m.history.push('l'); }
+  else if (action === 'undo') {
+    const last = m.history.pop();
+    if (last === 'w') m.wins = Math.max(0, m.wins - 1);
+    else if (last === 'l') m.losses = Math.max(0, m.losses - 1);
+    else return;
+  } else if (action === 'reset') { m.wins = 0; m.losses = 0; m.history = []; }
+  else if (action === 'set') {
+    m.wins = Math.max(0, Math.min(9999, Math.round(Number(value?.wins) || 0)));
+    m.losses = Math.max(0, Math.min(9999, Math.round(Number(value?.losses) || 0)));
+    m.history = [];
+  } else return;
+  if (m.history.length > 200) m.history = m.history.slice(-200);
+  saveCounters();
+  io.emit('matches', matchesState(action));
 }
 
 // ---------------------------------------------------------------------------
@@ -605,6 +721,10 @@ io.on('connection', (socket) => {
   socket.emit('rankings', rankings());
   socket.emit('chatHistory', chatHistory.slice(-20));
   socket.emit('topGifts', { list: topGifts, record: null });
+  socket.emit('timer', timerState());
+  socket.emit('matches', matchesState());
+  socket.on('timer', (a = {}) => timerAction(String(a.action || ''), a.value));
+  socket.on('matches', (a = {}) => matchesAction(String(a.action || ''), a.value));
 
   socket.on('connectLive', ({ username, signApiKey } = {}) => {
     if (typeof username === 'string') config.username = username.replace(/^@/, '').trim();
@@ -707,6 +827,7 @@ export const getStatus = () => status;
 
 // Guarda todo de inmediato (al cerrar la app o antes de actualizar).
 export function flush() {
+  try { fs.writeFileSync(COUNTERS_FILE, JSON.stringify(counters, null, 1)); } catch {}
   rankingDirty = true;
   saveRanking(true);
   try { fs.writeFileSync(USAGE_FILE, JSON.stringify(usage, null, 2)); } catch {}

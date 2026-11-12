@@ -374,6 +374,22 @@
   .chip:hover { border-color: var(--muted); }
   .chip[aria-pressed=true] { border-color: var(--gift); background: rgba(255,194,75,.12); box-shadow: inset 0 0 0 1px var(--gift); }
   .chip:focus-visible, .st-anim .seg button:focus-visible { outline: 2px solid var(--voice); outline-offset: 2px; }
+  .ctl { border: 1px solid var(--line); border-radius: 14px; background: var(--ink); padding: 14px; display: flex; flex-direction: column; gap: 12px; }
+  .ctl-big { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .ctl-big b { font: 800 40px/1 var(--display); font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+  .ctl-big small { color: var(--muted); font-size: 13px; }
+  .ctl .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .ctl input[type=number], .ctl input[type=text] { background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 7px 9px; font: inherit; width: 84px; }
+  .rules { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; align-items: center; font-size: 14px; }
+  .rules input { width: 84px; background: var(--ink); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 7px 9px; font: inherit; }
+  .rules .inl { display: inline-flex; align-items: center; gap: 6px; }
+  .mt-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mt-btns .btn { padding: 14px 10px; font-size: 16px; justify-content: center; }
+  .mt-win { background: #f2a900 !important; color: #14140f !important; border-color: #f2a900 !important; }
+  .mt-score { display: flex; gap: 22px; font: 800 30px/1 var(--display); }
+  .mt-score span { font-size: 13px; color: var(--muted); font-weight: 600; display: block; margin-top: 4px; font-family: var(--body); }
+  .keys { font-size: 12.5px; color: var(--muted); line-height: 1.6; }
+  .keys kbd { background: var(--surface); border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; font: 600 12px var(--body); color: var(--text); }
   .sc-scenes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
   .sc-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 18px; align-items: start; }
   .sc-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
@@ -910,7 +926,7 @@
   <!-- ============ OVERLAYS ============ -->
   <main class="view" id="view-scene" role="tabpanel">
     <h1>Escena</h1>
-    <p class="lede">Junta varios overlays en un solo link: alertas, regalo más caro, tops y chat. Así en TikTok LIVE Studio u OBS tienes una sola fuente de navegador en lugar de una por overlay. Arrástralos para acomodarlos y jala la esquina para cambiar su tamaño. El estilo de cada uno se cambia en <a href="#" data-goto="overlays">Overlays</a>.</p>
+    <p class="lede">Junta varios overlays en un solo link: alertas, regalo más caro, tops, chat, contador de tiempo y partidas. Así en TikTok LIVE Studio u OBS tienes una sola fuente de navegador en lugar de una por overlay. Arrástralos para acomodarlos y jala la esquina para cambiar su tamaño. El estilo de cada uno se cambia en <a href="#" data-goto="overlays">Overlays</a>.</p>
     <div class="sc-scenes" id="sc-scenes"></div>
     <div class="sc-wrap" id="sc-wrap" hidden>
       <div class="sc-main">
@@ -953,6 +969,84 @@
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del regalo más caro" src="/top-regalo.html?demo=1"></iframe><span class="hint">Vista previa. Si aún no hay regalos se muestra un ejemplo.</span></div>
+      </div>
+    </section>
+
+    <section class="studio" data-ov="timer" data-path="/contador.html">
+      <div class="st-head"><div><h2>Contador de tiempo</h2><p>Cuenta regresiva que sube (o baja) con cada regalo, like, seguidor o compartida. Tú pones el tiempo y cuánto vale cada cosa.</p></div><div class="st-link"></div></div>
+      <div class="st-body">
+        <div class="st-side">
+          <div class="ctl" aria-label="Control del contador">
+            <div class="ctl-big"><b id="tm-time">--:--</b><small id="tm-state"></small></div>
+            <div class="row">
+              <button type="button" class="btn go" id="tm-toggle">▶ Iniciar</button>
+              <button type="button" class="btn quiet" data-tm="reset">↺ Reiniciar</button>
+            </div>
+            <div class="row">
+              <button type="button" class="btn sm" data-tmadd="60">+1 min</button><button type="button" class="btn sm" data-tmadd="300">+5 min</button><button type="button" class="btn sm" data-tmadd="900">+15 min</button>
+              <button type="button" class="btn sm quiet" data-tmadd="-60">−1 min</button><button type="button" class="btn sm quiet" data-tmadd="-300">−5 min</button>
+            </div>
+            <div class="row"><span class="hint" style="margin:0">Poner en</span><input type="number" min="0" id="tm-set-h" aria-label="Horas"> h <input type="number" min="0" max="59" id="tm-set-m" aria-label="Minutos"> min <button type="button" class="btn sm" id="tm-set">Fijar</button></div>
+          </div>
+          <div class="styles" role="radiogroup" aria-label="Estilo del contador"></div>
+          <div class="fields">
+            <label class="field">Título <input type="text" data-key="overlays.timer.title" placeholder="Escribe un título" maxlength="60"></label>
+            <label class="field">Tiempo inicial (minutos) <input type="number" min="0" id="tm-start" aria-describedby="tm-start-h"></label>
+          </div>
+          <div>
+            <h3 style="margin:4px 0 8px;font:700 15px var(--display)">Cuánto suma cada cosa (segundos)</h3>
+            <div class="rules">
+              <span>💎 Por cada diamante</span><input type="number" step="any" data-key="overlays.timer.perDiamond" aria-label="Segundos por diamante">
+              <span class="inl">❤️ Cada <input type="number" min="1" data-key="overlays.timer.likesEvery" aria-label="Cantidad de likes"> likes</span><input type="number" step="any" data-key="overlays.timer.likesSecs" aria-label="Segundos por bloque de likes">
+              <span>💖 Nuevo seguidor</span><input type="number" step="any" data-key="overlays.timer.follow" aria-label="Segundos por seguidor">
+              <span>📢 Compartido</span><input type="number" step="any" data-key="overlays.timer.share" aria-label="Segundos por compartido">
+              <span>💬 Mensaje en el chat</span><input type="number" step="any" data-key="overlays.timer.chat" aria-label="Segundos por mensaje">
+              <span>⏳ Tiempo máximo (minutos, 0 = sin límite)</span><input type="number" min="0" id="tm-max" aria-label="Tiempo máximo en minutos">
+            </div>
+            <p class="hint" id="tm-start-h">Pon un número negativo (por ejemplo −5) para que <b>reste</b> tiempo. En 0 no cuenta.</p>
+          </div>
+          <div class="switches">
+            <label class="switch"><input type="checkbox" data-key="overlays.timer.showAdds"><span class="track"></span>Mostrar lo que se suma</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.timer.whilePaused"><span class="track"></span>Sumar aunque esté en pausa</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.timer.showTitle"><span class="track"></span>Mostrar título</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.timer.bg"><span class="track"></span>Con fondo</label>
+          </div>
+          <div class="st-anim"></div>
+        </div>
+        <div class="st-preview"><iframe title="Vista previa del contador de tiempo" src="/contador.html"></iframe><span class="hint">Vista previa con tu contador real.</span></div>
+      </div>
+    </section>
+
+    <section class="studio" data-ov="matches" data-path="/partidas.html">
+      <div class="st-head"><div><h2>Partidas · PUBG Mobile</h2><p>Lleva la cuenta de tus pollos (partidas ganadas) y derrotas. Al ganar sale "Winner winner chicken dinner".</p></div><div class="st-link"></div></div>
+      <div class="st-body">
+        <div class="st-side">
+          <div class="ctl" aria-label="Control de partidas">
+            <div class="mt-score"><div id="mt-w">0<span>🍗 Pollos</span></div><div id="mt-l">0<span>💀 Derrotas</span></div><div id="mt-s">0<span>🔥 Racha</span></div></div>
+            <div class="mt-btns">
+              <button type="button" class="btn mt-win" data-mt="win">🍗 Gané (+1)</button>
+              <button type="button" class="btn" data-mt="loss">💀 Perdí (+1)</button>
+            </div>
+            <div class="row"><button type="button" class="btn sm quiet" data-mt="undo">↶ Deshacer la última</button><button type="button" class="btn sm quiet" data-mt="reset">Empezar de cero</button></div>
+            <div class="row"><span class="hint" style="margin:0">Corregir:</span> 🍗 <input type="number" min="0" id="mt-set-w" aria-label="Pollos"> 💀 <input type="number" min="0" id="mt-set-l" aria-label="Derrotas"> <button type="button" class="btn sm" id="mt-set">Fijar</button></div>
+            <p class="keys" id="mt-keys" hidden>Atajos que funcionan aunque estés en el juego: <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>G</kbd> gané · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>P</kbd> perdí · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Z</kbd> deshacer · <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>T</kbd> iniciar o pausar el contador de tiempo</p>
+          </div>
+          <div class="styles" role="radiogroup" aria-label="Estilo del marcador"></div>
+          <div class="fields">
+            <label class="field">Título <input type="text" data-key="overlays.matches.title" placeholder="Escribe un título" maxlength="60"></label>
+            <label class="field">Meta de pollos (0 = sin meta) <input type="number" min="0" max="999" data-key="overlays.matches.goal"></label>
+            <label class="field">Nombre de las ganadas <input type="text" data-key="overlays.matches.winLabel" maxlength="20"></label>
+            <label class="field">Nombre de las perdidas <input type="text" data-key="overlays.matches.lossLabel" maxlength="20"></label>
+          </div>
+          <div class="switches">
+            <label class="switch"><input type="checkbox" data-key="overlays.matches.showStreak"><span class="track"></span>Mostrar racha</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.matches.showRate"><span class="track"></span>Mostrar % de victorias</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.matches.showTitle"><span class="track"></span>Mostrar título</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.matches.bg"><span class="track"></span>Con fondo</label>
+          </div>
+          <div class="st-anim"></div>
+        </div>
+        <div class="st-preview"><iframe title="Vista previa del marcador de partidas" src="/partidas.html?demo=1"></iframe><span class="hint">Vista previa. Si aún no hay partidas se muestra un ejemplo.</span></div>
       </div>
     </section>
 
@@ -2076,11 +2170,15 @@ const OV_STYLES = {
   ],
 };
 OV_STYLES.gifts = OV_STYLES.likes;
+OV_STYLES.timer = [['digital', 'Digital', 'Números grandes'], ['barra', 'Barra', 'Con barra de tiempo'], ['compacto', 'Compacto', 'Pequeño, en una línea']];
+OV_STYLES.matches = [['marcador', 'Marcador', 'Barra estilo PUBG'], ['pollo', 'Pollo', 'Tarjeta con el pollo grande'], ['compacto', 'Compacto', '🍗 y 💀 en una línea']];
 const OV_SIZE = {
   topGift: { tarjeta: '520 × 220', banner: '640 × 120', trofeo: '320 × 480', neon: '520 × 220', minimal: '420 × 120', burbuja: '520 × 180', circulo: '340 × 400', cuadro: '340 × 400' },
   likes: { lista: '500 × 600', podio: '480 × 420', lider: '520 × 200', compacto: '340 × 360', neon: '500 × 600', cinta: '940 × 90', bolitas: '250 × 760' },
 };
 OV_SIZE.gifts = OV_SIZE.likes;
+OV_SIZE.timer = { digital: '420 × 260', barra: '640 × 220', compacto: '420 × 180' };
+OV_SIZE.matches = { marcador: '720 × 180', pollo: '360 × 360', compacto: '420 × 100' };
 
 function renderStudios() {
   if (!settings?.overlays) return;
@@ -2096,6 +2194,70 @@ function renderStudios() {
       <button class="btn sm" data-copy="${esc(url)}">Copiar link</button><button class="btn sm quiet" data-open-path="${esc(st.dataset.path)}">Abrir</button>`;
   });
 }
+// ---------------------------------------------------------------- contador de tiempo y partidas
+let tmState = null;
+const tmPad = (n) => String(n).padStart(2, '0');
+function tmFmt(ms) {
+  const s = Math.ceil(ms / 1000), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+  return `${h}:${tmPad(m)}:${tmPad(x)}`;
+}
+function renderTimerCtl() {
+  if (!tmState || !$('#tm-time')) return;
+  const ms = tmState.running ? Math.max(0, tmState.endsAt - Date.now()) : tmState.remaining;
+  $('#tm-time').textContent = tmFmt(ms);
+  $('#tm-state').textContent = ms <= 0 ? 'Se acabó el tiempo' : tmState.running ? 'Corriendo' : 'En pausa';
+  $('#tm-toggle').textContent = tmState.running ? '⏸ Pausar' : '▶ Iniciar';
+  $('#tm-toggle').classList.toggle('go', !tmState.running);
+}
+setInterval(renderTimerCtl, 250);
+socket.on('timer', (t) => { tmState = t; renderTimerCtl(); });
+socket.on('matches', (m) => {
+  if (!$('#mt-w')) return;
+  $('#mt-w').firstChild.textContent = m.wins;
+  $('#mt-l').firstChild.textContent = m.losses;
+  $('#mt-s').firstChild.textContent = m.streak;
+  if (document.activeElement !== $('#mt-set-w')) $('#mt-set-w').value = m.wins;
+  if (document.activeElement !== $('#mt-set-l')) $('#mt-set-l').value = m.losses;
+});
+function fillTimerFields() {
+  const t = settings?.overlays?.timer;
+  if (!t) return;
+  if (document.activeElement !== $('#tm-start')) $('#tm-start').value = Math.round((t.start || 0) / 60);
+  if (document.activeElement !== $('#tm-max')) $('#tm-max').value = Math.round((t.max || 0) / 60);
+}
+socket.on('config', () => queueMicrotask(fillTimerFields));
+$('#tm-start')?.addEventListener('input', (e) => {
+  settings.overlays.timer.start = Math.max(0, Math.round((Number(e.target.value) || 0) * 60));
+  clearTimeout(saveTimer); saveTimer = setTimeout(() => socket.emit('saveSettings', settings), 400);
+});
+$('#tm-max')?.addEventListener('input', (e) => {
+  settings.overlays.timer.max = Math.max(0, Math.round((Number(e.target.value) || 0) * 60));
+  clearTimeout(saveTimer); saveTimer = setTimeout(() => socket.emit('saveSettings', settings), 400);
+});
+$('#tm-toggle')?.addEventListener('click', () => socket.emit('timer', { action: 'toggle' }));
+$('#tm-set')?.addEventListener('click', () => {
+  const secs = (Number($('#tm-set-h').value) || 0) * 3600 + (Number($('#tm-set-m').value) || 0) * 60;
+  socket.emit('timer', { action: 'set', value: secs });
+  toast(`Contador en ${tmFmt(secs * 1000)}`);
+});
+$('#mt-set')?.addEventListener('click', () => socket.emit('matches', { action: 'set', value: { wins: $('#mt-set-w').value, losses: $('#mt-set-l').value } }));
+document.addEventListener('click', (e) => {
+  const tb = e.target.closest('[data-tm]');
+  if (tb && tb.dataset.tm === 'reset') {
+    const mins = Math.round((settings.overlays.timer.start || 0) / 60);
+    if (confirm(`¿Reiniciar el contador a ${mins} minutos? Se detiene hasta que le des Iniciar.`)) socket.emit('timer', { action: 'reset' });
+    return;
+  }
+  const ad = e.target.closest('[data-tmadd]');
+  if (ad) { socket.emit('timer', { action: 'add', value: Number(ad.dataset.tmadd) }); return; }
+  const mb = e.target.closest('[data-mt]');
+  if (mb) {
+    if (mb.dataset.mt === 'reset' && !confirm('¿Empezar de cero? Se borran los pollos y derrotas.')) return;
+    socket.emit('matches', { action: mb.dataset.mt });
+  }
+});
+if (window.streamv2?.desktop) $('#mt-keys').hidden = false;
+
 // ---------------------------------------------------------------- escena (varios overlays en un link)
 let scId = store.get('sc-id') || '';
 let scSel = null;            // overlay seleccionado
@@ -2123,6 +2285,8 @@ function scDefaultItem(type, sc) {
     likes: vertical ? [W - t.w - 30, 900] : [W - t.w - 40, 40],
     gifts: vertical ? [30, 900] : [W - t.w - 40, Math.min(620, H - t.h - 40)],
     chat: vertical ? [30, Math.min(1480, H - t.h - 40)] : [40, H - t.h - 40],
+    timer: vertical ? [(W - t.w) / 2, 60] : [(W - t.w) / 2, 30],
+    matches: vertical ? [(W - t.w) / 2, Math.min(1720, H - t.h - 30)] : [W - t.w - 40, H - t.h - 40],
   }[type];
   const w = vertical && type === 'alertas' ? 900 : t.w;
   return { id: type, type, on: true, x: Math.round(Math.max(0, pos[0])), y: Math.round(Math.max(0, pos[1])), w: Math.min(w, W), h: Math.min(t.h, H), scale: 1, pos: 'centro' };
@@ -2694,6 +2858,9 @@ const FX_IDLE = {
   likes: [['ninguno', 'Quieto'], ['ola', 'Ola'], ['brillo', 'Brillo'], ['borde', 'Borde de luz'], ['flotar', 'Flotar'], ['respirar', 'Respirar'], ['balanceo', 'Balanceo'], ['destellos', 'Destellos'], ['inclinar3d', 'Inclinar 3D'], ['flotar3d', 'Profundidad 3D'], ['girar3d', 'Girar 3D']],
 };
 FX_IDLE.gifts = FX_IDLE.likes;
+FX_IDLE.timer = FX_IDLE.likes.filter(([k]) => k !== 'ola');
+FX_IDLE.matches = FX_IDLE.timer;
+const FX_CHANGE_LABEL = { topGift: 'Cuando hay nuevo récord', likes: 'Cuando alguien entra o sube de puesto', gifts: 'Cuando alguien entra o sube de puesto', timer: 'Cuando se suma o resta tiempo', matches: 'Cuando sumas una partida' };
 const FX_CHANGE = [['pop', 'Pop'], ['deslizar', 'Deslizar'], ['zoom', 'Zoom'], ['voltear', 'Voltear'], ['sacudida', 'Sacudida'], ['giro3d', 'Giro 3D'], ['cubo3d', 'Cubo 3D'], ['fondo3d', 'Desde el fondo 3D']];
 const FX_INT = [['suave', 'Suave'], ['normal', 'Normal'], ['fuerte', 'Fuerte']];
 
@@ -2703,17 +2870,17 @@ function renderAnim(st, key) {
   const chips = (field, list, label) => `<div class="anim-row"><span id="fx-${key}-${field}">${label}</span><div class="chips" role="group" aria-labelledby="fx-${key}-${field}">${list.map(([id, name]) =>
     `<button type="button" class="chip" aria-pressed="${a[field] === id}" data-fx="${key}:${field}:${id}">${name}</button>`).join('')}</div></div>`;
   const sw = (field, label) => `<label class="switch"><input type="checkbox" data-fxsw="${key}:${field}" ${a[field] !== false ? 'checked' : ''}><span class="track"></span>${label}</label>`;
-  const isRank = key !== 'topGift';
+  const isRank = key === 'likes' || key === 'gifts';
   const ae = document.activeElement;
   const focusSel = box.contains(ae) ? ['fx', 'fxsw', 'fxtest'].map((k) => ae.dataset[k] && `[data-${k}="${ae.dataset[k]}"]`).find(Boolean) : null;
   box.innerHTML = `
     <div class="st-anim-head">${sw('on', 'Animaciones')}<button type="button" class="btn sm" data-fxtest="${key}" ${a.on ? '' : 'hidden'}>▶ Probar animación</button></div>
     <div class="st-anim-opts" ${a.on ? '' : 'hidden'}>
       ${chips('idle', FX_IDLE[key], 'Movimiento todo el tiempo')}
-      ${chips('change', FX_CHANGE, isRank ? 'Cuando alguien entra o sube de puesto' : 'Cuando hay nuevo récord')}
+      ${chips('change', FX_CHANGE, FX_CHANGE_LABEL[key] || 'Al cambiar')}
       <div class="anim-row"><span id="fx-${key}-int">Intensidad</span><div class="seg" role="group" aria-labelledby="fx-${key}-int">${FX_INT.map(([id, name]) =>
         `<button type="button" aria-pressed="${(a.intensity || 'normal') === id}" data-fx="${key}:intensity:${id}">${name}</button>`).join('')}</div></div>
-      <div class="switches">${sw('counters', isRank ? 'Números que suben' : 'Diamantes que suben')}${isRank ? sw('rankUp', 'Resaltar a quien sube de puesto') : ''}</div>
+      ${key === 'timer' ? '' : `<div class="switches">${sw('counters', isRank || key === 'matches' ? 'Números que suben' : 'Diamantes que suben')}${isRank ? sw('rankUp', 'Resaltar a quien sube de puesto') : ''}</div>`}
     </div>`;
   if (focusSel) box.querySelector(focusSel)?.focus();
 }

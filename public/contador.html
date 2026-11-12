@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>StreamV2 · Contador de tiempo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;800;900&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fx.css">
+<style>
+  /* Opciones por URL: ?estilo=digital|barra|compacto  ?escala=1.2  ?animacion=0  ?titulo=0 (sin título) */
+  :root { --gold: #ffc24b; --ok: #4fe0b6; --bad: #ff4d5e; }
+  html, body { margin: 0; background: transparent; overflow: hidden; font-family: 'Outfit', system-ui, sans-serif; color: #fff; }
+  .stage { display: inline-block; padding: 16px 14px 70px; transform-origin: top left; }
+  .box { position: relative; }
+  .sh { text-shadow: 0 2px 8px rgba(0,0,0,.75); }
+  .time { font-family: 'Teko', 'Impact', sans-serif; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: 1px; line-height: .9; }
+  .state { font-size: 13px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.65); }
+  .low .time { color: var(--bad); animation: low 1s ease-in-out infinite; }
+  @keyframes low { 50% { opacity: .55; } }
+  .ended .time { color: var(--bad); }
+
+  /* ---------- DIGITAL ---------- */
+  .digital .box { padding: 14px 26px 16px; border-radius: 22px; text-align: center; min-width: 300px;
+    background: linear-gradient(160deg, rgba(30,24,44,.92), rgba(12,10,18,.92)); border: 2px solid rgba(255,194,75,.5); box-shadow: 0 0 30px rgba(255,194,75,.25), 0 14px 40px rgba(0,0,0,.5); }
+  .digital .t { font-size: 18px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 4px; }
+  .digital .time { font-size: 96px; text-shadow: 0 0 22px rgba(255,194,75,.45), 0 4px 10px rgba(0,0,0,.6); }
+
+  /* ---------- BARRA ---------- */
+  .barra .box { display: flex; align-items: center; gap: 16px; padding: 10px 20px 10px 14px; border-radius: 16px; min-width: 520px;
+    background: rgba(12,12,18,.82); border: 2px solid rgba(255,255,255,.12); box-shadow: 0 10px 30px rgba(0,0,0,.45); }
+  .barra .ico { font-size: 34px; }
+  .barra .col { flex: 1; min-width: 0; }
+  .barra .t { font-size: 15px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 1.5px; }
+  .barra .bar { height: 10px; border-radius: 99px; background: rgba(255,255,255,.12); overflow: hidden; margin-top: 6px; }
+  .barra .fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, #fe2c55, var(--gold)); transition: width .6s ease; }
+  .barra .time { font-size: 62px; min-width: 190px; text-align: right; }
+
+  /* ---------- COMPACTO ---------- */
+  .compacto .box { display: inline-flex; align-items: center; gap: 10px; padding: 6px 18px 4px 12px; border-radius: 999px; background: rgba(12,12,18,.82); border: 2px solid rgba(255,194,75,.45); }
+  .compacto .t { font-size: 15px; font-weight: 800; color: var(--gold); text-transform: uppercase; letter-spacing: 1px; }
+  .compacto .time { font-size: 44px; padding-top: 4px; }
+  .compacto .state { display: none; }
+
+  .nobg .box { background: none !important; border-color: transparent !important; box-shadow: none !important; }
+
+  /* Lo que se suma o se resta */
+  .adds { position: absolute; left: 50%; top: 100%; width: 0; }
+  .add { position: absolute; left: 0; top: 6px; transform: translateX(-50%); white-space: nowrap; display: flex; align-items: center; gap: 8px;
+    padding: 6px 14px; border-radius: 999px; font-weight: 800; font-size: 18px; background: rgba(12,12,18,.85); border: 2px solid var(--ok);
+    animation: add 2.6s cubic-bezier(.2,.9,.3,1) forwards; }
+  .add b { color: var(--ok); font-size: 22px; }
+  .add.minus { border-color: var(--bad); } .add.minus b { color: var(--bad); }
+  .add img { width: 26px; height: 26px; object-fit: contain; }
+  @keyframes add { 0% { opacity: 0; translate: 0 18px; scale: .7; } 12% { opacity: 1; translate: 0 0; scale: 1.05; } 20% { scale: 1; } 80% { opacity: 1; translate: 0 0; } 100% { opacity: 0; translate: 0 -24px; } }
+  @media (prefers-reduced-motion: reduce) { body:not(.fx-on) * { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"><div id="root"></div></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/fx.js"></script>
+<script src="/gifts.js"></script>
+<script>
+const P = new URLSearchParams(location.search);
+const STYLES = ['digital', 'barra', 'compacto'];
+const root = document.getElementById('root');
+const stage = document.getElementById('stage');
+let cfg = { style: 'digital', title: 'Tiempo restante', showTitle: true, bg: true, showAdds: true, anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal' } };
+let st = { running: false, remaining: 0, endsAt: 0, start: 3600000, max: 0 };
+let built = '';
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = (n) => String(n).padStart(2, '0');
+function fmtTime(ms) {
+  const s = Math.ceil(ms / 1000);
+  const d = Math.floor(s / 86400), h = Math.floor((s % 86400) / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+  if (d) return `${d}d ${pad(h)}:${pad(m)}:${pad(x)}`;
+  return h ? `${h}:${pad(m)}:${pad(x)}` : `${pad(m)}:${pad(x)}`;
+}
+const fmtSecs = (secs) => {
+  const a = Math.abs(secs);
+  if (a >= 3600) return `${+(a / 3600).toFixed(1)} h`;
+  if (a >= 60) return a % 60 ? `${Math.floor(a / 60)} min ${Math.round(a % 60)} s` : `${a / 60} min`;
+  return `${+a.toFixed(1)} s`;
+};
+const remaining = () => (st.running ? Math.max(0, st.endsAt - Date.now()) : st.remaining);
+
+function settings() {
+  const s = { ...cfg };
+  if (STYLES.includes(P.get('estilo'))) s.style = P.get('estilo');
+  if (P.get('titulo') !== null) s.title = P.get('titulo') === '0' ? '' : P.get('titulo');
+  if (s.showTitle === false) s.title = '';
+  if (P.get('fondo') === '0') s.bg = false;
+  if (!STYLES.includes(s.style)) s.style = 'digital';
+  return s;
+}
+function build() {
+  const s = settings();
+  const key = `${s.style}|${s.title}|${s.bg}`;
+  stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
+  document.body.classList.toggle('nobg', !s.bg);
+  if (key === built) return;
+  built = key;
+  root.className = s.style;
+  const t = s.title ? `<div class="t sh">${esc(s.title)}</div>` : '';
+  root.innerHTML = s.style === 'barra'
+    ? `<div class="box"><span class="ico">⏱️</span><div class="col">${t}<div class="state"></div><div class="bar"><div class="fill"></div></div></div><div class="time sh"></div><div class="adds"></div></div>`
+    : s.style === 'compacto'
+      ? `<div class="box"><span>⏱️</span>${t}<div class="time sh"></div><div class="state"></div><div class="adds"></div></div>`
+      : `<div class="box">${t}<div class="time sh"></div><div class="state"></div><div class="adds"></div></div>`;
+  FX.decorate(root.querySelector('.box'));
+  tick();
+  FX.sync(root);
+}
+function tick() {
+  const ms = remaining();
+  const time = root.querySelector('.time');
+  if (!time) return;
+  time.textContent = ms <= 0 ? '¡TIEMPO!' : fmtTime(ms);
+  const state = root.querySelector('.state');
+  if (state) state.textContent = ms <= 0 ? 'Se acabó el tiempo' : st.running ? '' : 'En pausa';
+  root.classList.toggle('low', st.running && ms > 0 && ms <= 60000);
+  root.classList.toggle('ended', ms <= 0);
+  const fill = root.querySelector('.fill');
+  if (fill) fill.style.width = `${Math.min(100, (ms / Math.max(st.max || 0, st.start || 1, ms)) * 100)}%`;
+}
+setInterval(tick, 200);
+
+function showAdd(a) {
+  if (!a || !settings().showAdds) return;
+  const box = root.querySelector('.adds');
+  if (!box) return;
+  const minus = a.secs < 0;
+  const what = {
+    gift: a.name ? `${esc(a.name)}${a.gift ? ` · ${esc(a.gift)}` : ''}` : '',
+    likes: a.likes ? `${a.likes.toLocaleString('es-MX')} likes` : 'likes',
+    follow: `${esc(a.name)} te siguió`,
+    share: `${esc(a.name)} compartió`,
+    chat: esc(a.name),
+    manual: '',
+  }[a.kind] ?? '';
+  const pic = a.kind === 'gift' ? (a.image ? `<img src="${esc(a.image)}" alt="" referrerpolicy="no-referrer">` : `<span>${giftEmoji(a.gift)}</span>`) : '';
+  const el = document.createElement('div');
+  el.className = `add${minus ? ' minus' : ''}`;
+  el.innerHTML = `<b>${minus ? '−' : '+'}${fmtSecs(a.secs)}</b>${pic}${what ? `<span>${what}</span>` : ''}`;
+  box.querySelectorAll('.add').forEach((x, i, all) => { if (all.length - i > 2) x.remove(); else x.style.top = `${6 + (all.length - i) * 44}px`; });
+  box.appendChild(el);
+  setTimeout(() => el.remove(), 2700);
+  FX.change(root.querySelector('.box'), 'tiempo');
+}
+
+// Botón "Probar animación" del panel.
+window.fxDemo = () => showAdd({ secs: 30, kind: 'gift', name: 'Lupita', gift: 'Rosa', image: '' });
+
+function applyFx() {
+  const a = { ...cfg.anim };
+  if (P.get('animacion') === '0') a.on = false;
+  FX.apply(a);
+}
+const socket = io();
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.timer || {}) }; applyFx(); built = ''; build(); });
+socket.on('timer', (t) => { st = t; tick(); if (t.add) showAdd(t.add); });
+applyFx();
+build();
+</script>
+</body>
+</html>

@@ -47,6 +47,16 @@ En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previ
 - **Regalo más caro:** Tarjeta, Banner (barra horizontal), Trofeo (vertical con corona, ideal para stream vertical), Neón, Minimal (solo texto), Burbuja (foto de quien lo mandó) Círculo y Cuadro (la foto de perfil y el regalo se van volteando como moneda; eliges cada cuántos segundos).
 - **Top taps** y **Top regalos:** Lista, Podio (top 3 en escalones), Líder (solo el #1 en grande), Compacto, Neón, Cinta (barra que se desplaza, ideal abajo de la pantalla) y Bolitas (vertical: la foto de cada fan en un círculo con aro de color, y le salen corazones cuando da taps).
 
+### Contador de tiempo (subathon)
+
+En **Overlays → Contador de tiempo** pones el tiempo inicial y cuánto suma cada cosa: segundos por cada 💎 diamante, cada cierta cantidad de likes, por seguidor nuevo, por compartido y por mensaje en el chat. Con números negativos **resta** tiempo. Desde ahí lo inicias, lo pausas, le sumas o quitas minutos a mano o lo fijas en un tiempo exacto. Puedes poner un tiempo máximo y elegir si suma aunque esté en pausa. Al sumar se ve en el overlay qué se sumó y quién lo hizo. Si cierras la app con el contador corriendo, sigue donde iba. Estilos: Digital, Barra y Compacto.
+
+### Partidas · PUBG Mobile
+
+En **Overlays → Partidas** llevas tus **pollos** (partidas ganadas) y **derrotas** con dos botones grandes: **🍗 Gané** y **💀 Perdí**. Al ganar sale "WINNER WINNER CHICKEN DINNER!" con pollos cayendo. Muestra la racha y el % de victorias, y puedes poner una meta de pollos. **Deshacer** quita la última, **Corregir** pone los números a mano. Estilos: Marcador (barra estilo PUBG), Pollo y Compacto.
+
+Atajos que funcionan aunque estés en el juego (en la app de escritorio): **Ctrl+Alt+G** gané · **Ctrl+Alt+P** perdí · **Ctrl+Alt+Z** deshacer · **Ctrl+Alt+T** iniciar o pausar el contador de tiempo.
+
 ### Escena: todos tus overlays en un solo link
 
 Para no llenar TikTok LIVE Studio de fuentes de navegador, en la pestaña **Escena** juntas varios overlays (alertas, regalo más caro, top taps, top regalos y chat) en **un solo link**:

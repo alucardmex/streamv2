@@ -6,6 +6,8 @@ window.SCENE_TYPES = {
   likes: { name: 'Top taps', icon: '❤️', path: '/ranking.html', w: 420, h: 560 },
   gifts: { name: 'Top regalos', icon: '🏆', path: '/ranking.html?tipo=regalos', w: 420, h: 560 },
   chat: { name: 'Chat', icon: '💬', path: '/chat.html', w: 460, h: 520 },
+  timer: { name: 'Contador de tiempo', icon: '⏱️', path: '/contador.html', w: 460, h: 260 },
+  matches: { name: 'Partidas PUBG', icon: '🍗', path: '/partidas.html', w: 720, h: 170 },
 };
 
 // Link de cada overlay dentro de la escena. preview=true es para el editor del panel:
@@ -18,7 +20,7 @@ window.sceneSrc = (item, preview = false) => {
   if (item.type === 'alertas' && item.pos && item.pos !== 'centro') u.searchParams.set('posicion', item.pos);
   if (preview) {
     if (item.type === 'alertas') { u.searchParams.set('vista', '1'); u.searchParams.set('sonido', '0'); }
-    else u.searchParams.set('demo', '1');
+    else if (item.type !== 'timer') u.searchParams.set('demo', '1');
   }
   return u.pathname + u.search;
 };

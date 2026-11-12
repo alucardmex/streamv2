@@ -7,3 +7,4 @@ dev-app-update.yml
 *.log
 media/
 regalos.json
+contadores.json
