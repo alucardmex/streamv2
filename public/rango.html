@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Teko:wght@500;600;700&family=Outfit:wght@600;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/fx.css">
 <style>
-  /* Reto de rango de PUBG Mobile. ?estilo=completo|barra  ?escala=1.2  ?animacion=0  ?titulo=0 */
+  /* Reto de rango de PUBG Mobile. ?estilo=completo|barra|minimal|linea|anillo|vertical  ?escala=1.2  ?animacion=0  ?titulo=0 */
   :root { --y: #f2a900; --y2: #ffd25a; --dark: #14140f; --olive: #2a2d1f; --w: #f5f2e8; --ok: #5fe08a; --bad: #ff6b5e; }
   html, body { margin: 0; background: transparent; overflow: hidden; color: var(--w); font-family: 'Teko', 'Impact', sans-serif; }
   .stage { display: inline-block; padding: 16px; transform-origin: top left; }
@@ -85,6 +85,96 @@
   .barra .clock { margin: 0; padding: 0 0 0 16px; border-top: 0; border-left: 1px solid rgba(242,169,0,.3); flex-direction: column; align-items: flex-start; gap: 0; }
   .barra .clock .cbar { display: none; }
 
+  /* ---------- MINIMAL (sin panel, solo lo esencial) ---------- */
+  .minimal .box { display: inline-flex; flex-direction: column; gap: 4px; filter: none; text-shadow: 0 2px 8px rgba(0,0,0,.85); }
+  .minimal .main { display: flex; align-items: center; gap: 12px; }
+  .minimal .badge { width: 110px; height: 110px; filter: drop-shadow(0 6px 12px rgba(0,0,0,.6)); }
+  .minimal .badge .plate { font-size: 22px; text-shadow: none; }
+  .minimal .info { min-width: 250px; display: flex; flex-direction: column; gap: 3px; }
+  .minimal .lbl { display: none; }
+  .minimal .rank { font-size: 46px; }
+  .minimal .row { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+  .minimal .bar { height: 8px; clip-path: none; border-radius: 99px; background: rgba(0,0,0,.45); }
+  .minimal .fill { border-radius: 99px; }
+  .minimal .clock { margin: 0; padding: 0; border: 0; gap: 8px; }
+  .minimal .clock .lbl { display: block; font-size: 15px; }
+  .minimal .clock .time { font-size: 30px; }
+  .minimal .clock > div:first-child { display: flex; align-items: baseline; gap: 8px; }
+  .minimal .clock .cbar { display: none; }
+  .minimal .duo .badge { width: 84px; height: 84px; }
+
+  /* ---------- LÍNEA (una pastilla delgada) ---------- */
+  .linea .box { display: inline-flex; align-items: center; gap: 12px; padding: 4px 22px 2px 6px; border-radius: 999px; background: rgba(16,16,12,.88); border: 2px solid rgba(242,169,0,.55); }
+  .nobg .linea .box { background: none; border-color: transparent; }
+  .linea .badge { width: 54px; height: 54px; }
+  .linea .badge .plate { font-size: 11px; border-width: 1px; }
+  .linea .rank { font-size: 32px; padding-top: 4px; }
+  .linea .pts { font-size: 28px; padding-top: 4px; }
+  .linea .pts small { font-size: 18px; }
+  .linea .bar { width: 120px; height: 8px; clip-path: none; border-radius: 99px; }
+  .linea .fill { border-radius: 99px; }
+  .linea .pips { margin: 0; gap: 5px; }
+  .linea .pip { width: 28px; height: 28px; font-size: 19px; }
+  .linea .clock { margin: 0; padding: 0 0 0 12px; border-top: 0; border-left: 1px solid rgba(242,169,0,.35); }
+  .linea .clock .lbl, .linea .clock .cbar { display: none; }
+  .linea .clock .time { font-size: 30px; }
+  .linea .clock .time::before { content: '⏱ '; font-size: 20px; }
+
+  /* ---------- ANILLO (el avance rodea la insignia) ---------- */
+  .anillo .box { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; filter: none; text-align: center; text-shadow: 0 2px 8px rgba(0,0,0,.85); }
+  .anillo .ringwrap { position: relative; width: 190px; height: 190px; display: grid; place-items: center; }
+  .anillo .ringwrap::before { content: ''; position: absolute; inset: 14px; border-radius: 50%; background: radial-gradient(circle, rgba(20,20,15,.9) 55%, rgba(20,20,15,.6)); }
+  .nobg .anillo .ringwrap::before { display: none; }
+  .anillo svg { position: absolute; inset: 0; width: 100%; height: 100%; rotate: -90deg; overflow: visible; }
+  .anillo .trk { fill: none; stroke: rgba(255,255,255,.16); stroke-width: 9; }
+  .anillo .prg { fill: none; stroke: var(--glow, var(--y2)); stroke-width: 9; stroke-linecap: round; transition: stroke-dashoffset .9s cubic-bezier(.2,.9,.3,1); filter: drop-shadow(0 0 6px var(--glow, var(--y2))); }
+  .anillo .badge { width: 128px; height: 128px; }
+  .anillo .badge .plate { font-size: 25px; text-shadow: none; }
+  .anillo .rank { font-size: 44px; }
+  .anillo .pts { font-size: 30px; }
+  .anillo .pips { justify-content: center; }
+  .anillo .clock { margin: 2px 0 0; padding: 0; border: 0; justify-content: center; }
+  .anillo .clock .cbar { display: none; }
+  .anillo .clock > div:first-child { display: flex; align-items: baseline; gap: 8px; }
+  .anillo .clock .lbl { font-size: 15px; }
+  .anillo .clock .time { font-size: 30px; }
+
+  /* ---------- VERTICAL (tarjeta angosta) ---------- */
+  .vertical .box { display: inline-flex; flex-direction: column; width: 230px; }
+  .vertical .t { font-size: 19px; align-self: stretch; text-align: center; clip-path: none; padding: 6px 8px 2px; letter-spacing: 1.5px; }
+  .vertical .panel { padding: 10px 14px 24px; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; }
+  .vertical .badge { width: 150px; height: 150px; }
+  .vertical .badge .plate { font-size: 30px; }
+  .vertical .rank { font-size: 44px; }
+  .vertical .bar { width: 100%; }
+  .vertical .pips { justify-content: center; }
+  .vertical .clock { width: 100%; flex-direction: column; gap: 2px; align-items: center; }
+  .vertical .clock .cbar { width: 100%; flex: none; }
+
+  /* Ajustes para que nada se corte ni se parta en dos renglones */
+  .linea .pts, .linea .rank, .minimal .rank, .anillo .rank, .vertical .rank { white-space: nowrap; }
+  .linea .clock .time { white-space: nowrap; }
+  .vertical .box { width: 250px; }
+  .vertical .rank { font-size: 38px; }
+  .vertical .clock .lbl, .anillo .clock .lbl { white-space: nowrap; font-size: 13px; letter-spacing: 1px; }
+  .anillo .clock > div:first-child { align-items: center; }
+
+  /* ---------- Dinamismo (con Animaciones prendidas) ---------- */
+  .badge { --glow: #ffd25a; }
+  .badge.diamante { --glow: #a78bff; }
+  .badge.conq { --glow: #ff6b5e; }
+  .fx-on .badge::before { content: ''; position: absolute; inset: 6%; border-radius: 50%; background: radial-gradient(circle, var(--glow), transparent 68%); opacity: .55; animation: glow calc(2.4s * var(--spd)) ease-in-out infinite; }
+  @keyframes glow { 50% { opacity: .95; scale: calc(1 + .12 * var(--amp)); } }
+  .fx-on .badge img { position: relative; animation: bob calc(3s * var(--spd)) ease-in-out infinite; }
+  .fx-on .badge .plate { animation: bob calc(3s * var(--spd)) ease-in-out infinite; }
+  @keyframes bob { 50% { translate: 0 calc(-4px * var(--amp)); } }
+  .fill { position: relative; overflow: hidden; }
+  .fx-on .fill::after { content: ''; position: absolute; top: 0; bottom: 0; width: 60px; left: -80px; background: linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent); animation: sweep calc(2.2s * var(--spd)) ease-in-out infinite; }
+  @keyframes sweep { 0%, 30% { left: -80px; } 100% { left: 100%; } }
+  .fx-on .path .seg i { background-size: 200% 100%; }
+  .fx-on .clock .time { animation: beat 1s steps(1) infinite; }
+  @keyframes beat { 50% { opacity: .82; } }
+
   /* Avisos: subió de rango, promoción, As */
   .pop { position: fixed; left: 0; right: 0; top: 50%; translate: 0 -50%; z-index: 30; pointer-events: none; text-align: center; padding: 10px 10px 4px;
     background: linear-gradient(90deg, transparent, rgba(16,16,12,.94) 12%, rgba(16,16,12,.94) 88%, transparent); animation: band 4s ease forwards; }
@@ -101,18 +191,19 @@
 <script src="/fx.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
-const STYLES = ['completo', 'barra'];
+const STYLES = ['completo', 'barra', 'minimal', 'linea', 'anillo', 'vertical'];
 const ROMAN = ['V', 'IV', 'III', 'II', 'I'];
 const root = document.getElementById('root');
 const stage = document.getElementById('stage');
 let cfg = { style: 'completo', title: 'Camino a Conquistador', showTitle: true, bg: true, showTimer: true, showPath: true, start: '', end: '', anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal' } };
 let r = { tier: 0, points: 0, stage: 'rank', promo: { w: 0, l: 0 }, attempts: 0 };
 let demo = null;
+let lastPct = null;
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
 const tierName = (t) => `${t < 5 ? 'Diamante' : 'Corona'} ${ROMAN[t % 5]}`;
 const badge = (t) => `<div class="badge ${t < 5 ? 'diamante' : 'corona'}"><img src="/rangos/${t < 5 ? 'diamante' : 'corona'}.png" alt=""><span class="plate">${ROMAN[t % 5]}</span></div>`;
-const plain = (name) => `<div class="badge"><img src="/rangos/${name}.png" alt=""></div>`;
+const plain = (name) => `<div class="badge${name === 'conquistador' ? ' conq' : ''}"><img src="/rangos/${name}.png" alt=""></div>`;
 
 function settings() {
   const s = { ...cfg };
@@ -194,9 +285,26 @@ function render() {
       <div class="row"><span class="pts num"><span data-c="points"></span><small> / 100</small></span><span class="next">Sigue: ${next}</span></div>
       <div class="bar"><div class="fill" style="width:${d.points}%"></div></div>`;
   }
-  root.innerHTML = s.style === 'barra'
-    ? `<div class="box">${title}<div class="panel">${left}<div class="mid">${info}</div>${clockHtml(s)}</div></div>`
-    : `<div class="box">${title}<div class="panel"><div class="main">${left}<div class="info">${info}</div></div>${s.showPath ? pathHtml(d) : ''}${clockHtml(s)}</div></div>`;
+  // Para los estilos chicos: una sola insignia y el texto corto.
+  const single = d.stage === 'ace' ? plain(done ? 'conquistador' : 'as') : badge(d.stage === 'promo' ? 9 : d.tier);
+  const pct = d.stage === 'ace' ? 100 : d.stage === 'promo' ? d.promo.w * 50 : d.points;
+  const name = d.stage === 'ace' ? (done ? 'Conquistador' : 'As') : d.stage === 'promo' ? 'Promo a As' : tierName(d.tier);
+  const ptsHtml = d.stage === 'rank' ? `<span class="pts num"><span data-c="points"></span><small> / 100</small></span>` : d.stage === 'promo' ? pips(d) : '';
+  const barHtml = d.stage === 'rank' ? `<div class="bar"><div class="fill" style="width:${d.points}%"></div></div>` : '';
+  const C = 2 * Math.PI * 86;
+  const glow = d.stage === 'ace' ? (done ? '#ff6b5e' : '#ffd25a') : d.stage === 'promo' ? '#5fe08a' : d.tier < 5 ? '#a78bff' : '#ffd25a';
+  root.innerHTML = {
+    barra: () => `<div class="box">${title}<div class="panel">${left}<div class="mid">${info}</div>${clockHtml(s)}</div></div>`,
+    minimal: () => `<div class="box"><div class="main">${left}<div class="info">${info}</div></div>${clockHtml(s)}</div>`,
+    linea: () => `<div class="box">${single}<span class="rank">${name}</span>${ptsHtml}${barHtml}${clockHtml(s)}</div>`,
+    anillo: () => `<div class="box"><div class="ringwrap" style="--glow:${glow}"><svg viewBox="0 0 190 190"><circle class="trk" cx="95" cy="95" r="86"/><circle class="prg" cx="95" cy="95" r="86" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct / 100)}"/></svg>${single}</div><div class="rank">${name}</div>${ptsHtml}${clockHtml(s)}</div>`,
+    vertical: () => `<div class="box">${title}<div class="panel">${single}<div class="rank">${name}</div>${ptsHtml}${barHtml}${d.stage === 'ace' && !done ? '<div class="next" style="white-space:normal">Conquistador a la hora final</div>' : ''}${clockHtml(s)}</div></div>`,
+    completo: () => `<div class="box">${title}<div class="panel"><div class="main">${left}<div class="info">${info}</div></div>${s.showPath ? pathHtml(d) : ''}${clockHtml(s)}</div></div>`,
+  }[s.style]();
+  // El anillo se llena desde donde estaba (no de golpe).
+  const prg = root.querySelector('.prg');
+  if (prg && lastPct !== null && lastPct !== pct) { prg.style.transition = 'none'; prg.setAttribute('stroke-dashoffset', C * (1 - lastPct / 100)); void prg.getBoundingClientRect(); prg.style.transition = ''; prg.setAttribute('stroke-dashoffset', C * (1 - pct / 100)); }
+  lastPct = pct;
   FX.count(root.querySelector('[data-c=points]'), 'puntos', d.points, (n) => String(n), d.points);
   FX.decorate(root.querySelector('.box'));
   tickClock();

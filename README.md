@@ -59,6 +59,7 @@ Overlay para un reto de rango, con las insignias del juego. En **Overlays → Ca
 - Sumas o restas los puntos de cada partida con los botones (+5 … +30, −5 … −20) o escribiendo la cantidad. Si restas de más, baja de rango.
 - Al llenar **Corona I** empieza la **promoción a As** al mejor de 3: con 2 ganadas subes a As; con 2 perdidas la serie empieza de nuevo.
 - Con As conseguido, al llegar la hora final cambia a **Conquistador**.
+- **6 estilos:** Completo, Barra, Minimal (sin panel), Línea (pastilla delgada), Anillo (el avance rodea la insignia) y Vertical (tarjeta angosta). Con las animaciones prendidas la insignia brilla y flota, la barra destella y el anillo se llena al sumar puntos.
 - Pones cuándo **empieza** y cuándo **termina** el reto y el overlay muestra la cuenta regresiva.
 - **Deshacer**, **Corregir** (poner rango y puntos a mano) y **Reiniciar reto**.
 
