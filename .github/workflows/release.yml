@@ -35,6 +35,13 @@ jobs:
           IDS=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" -q ".[] | select(.tag_name==\"$TAG\") | .id")
           COMPLETE=$(gh api "repos/$GITHUB_REPOSITORY/releases?per_page=100" -q ".[] | select(.tag_name==\"$TAG\" and .draft==false) | select([.assets[].name] | (index(\"latest.yml\") != null and index(\"StreamV2-Setup-$V.exe\") != null and index(\"StreamV2-Setup-$V.exe.blockmap\") != null)) | .id")
           COUNT=$(echo "$IDS" | grep -c . || true)
+          # Nunca publicar una versión más vieja que la última (por ejemplo, una ejecución que se quedó en cola).
+          LATEST=$(gh api "repos/$GITHUB_REPOSITORY/releases/latest" -q .tag_name 2>/dev/null | sed 's/^v//' || true)
+          if [ -n "$LATEST" ] && [ "$LATEST" != "$V" ] && [ "$(printf '%s\n%s\n' "$V" "$LATEST" | sort -V | tail -n1)" = "$LATEST" ]; then
+            echo "La versión $V es más vieja que la publicada ($LATEST); no se publica."
+            echo "nueva=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           if [ -n "$COMPLETE" ] && [ "$COUNT" = "1" ]; then
             echo "La versión $V ya está publicada; no hay nada que hacer."
             echo "nueva=false" >> "$GITHUB_OUTPUT"
