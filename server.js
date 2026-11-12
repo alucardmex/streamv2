@@ -87,6 +87,8 @@ const DEFAULT_CONFIG = {
       // Lo que no tenga una propia usa la animación de siempre.
       custom: [],
     },
+    // Escenas: varios overlays en un solo link (para tener una sola fuente de navegador).
+    scenes: [],
     ranking: {
       top: 5,
     },
@@ -186,6 +188,27 @@ function cleanCustom(list) {
   }));
 }
 config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
+
+const SCENE_ITEM_TYPES = ['alertas', 'topGift', 'likes', 'gifts', 'chat'];
+const clampN = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
+function cleanScenes(list) {
+  if (!Array.isArray(list)) return [];
+  return list.slice(0, 12).filter((s) => s && typeof s === 'object').map((s, i) => {
+    const w = clampN(s.w, 320, 3840, 1920), h = clampN(s.h, 320, 3840, 1080);
+    const seen = new Set();
+    const items = (Array.isArray(s.items) ? s.items : []).filter((it) => it && SCENE_ITEM_TYPES.includes(it.type) && !seen.has(it.type) && seen.add(it.type)).map((it) => ({
+      id: String(it.id || it.type).slice(0, 24),
+      type: it.type,
+      on: it.on !== false,
+      x: clampN(it.x, -2000, 4000, 0), y: clampN(it.y, -2000, 4000, 0),
+      w: clampN(it.w, 60, 3840, 400), h: clampN(it.h, 40, 3840, 300),
+      scale: Math.max(0.3, Math.min(3, Number(it.scale) || 1)),
+      pos: pick1(it.pos, ['arriba', 'centro', 'abajo'], 'centro'),
+    }));
+    return { id: String(s.id || `escena${i + 1}`).replace(/[^a-z0-9-]/gi, '').slice(0, 24) || `escena${i + 1}`, name: String(s.name || `Escena ${i + 1}`).slice(0, 40), w, h, items };
+  });
+}
+config.settings.scenes = cleanScenes(config.settings.scenes);
 
 // Al abrir, borra los archivos que ya no usa ninguna alerta.
 try {
@@ -608,6 +631,7 @@ io.on('connection', (socket) => {
   socket.on('saveSettings', (settings) => {
     config.settings = deepMerge(DEFAULT_CONFIG.settings, settings);
     config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
+    config.settings.scenes = cleanScenes(config.settings.scenes);
     saveConfig();
     io.emit('config', publicConfig());
   });

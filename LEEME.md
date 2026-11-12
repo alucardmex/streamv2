@@ -47,6 +47,16 @@ En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previ
 - **Regalo más caro:** Tarjeta, Banner (barra horizontal), Trofeo (vertical con corona, ideal para stream vertical), Neón, Minimal (solo texto), Burbuja (foto de quien lo mandó) Círculo y Cuadro (la foto de perfil y el regalo se van volteando como moneda; eliges cada cuántos segundos).
 - **Top taps** y **Top regalos:** Lista, Podio (top 3 en escalones), Líder (solo el #1 en grande), Compacto, Neón, Cinta (barra que se desplaza, ideal abajo de la pantalla) y Bolitas (vertical: la foto de cada fan en un círculo con aro de color, y le salen corazones cuando da taps).
 
+### Escena: todos tus overlays en un solo link
+
+Para no llenar TikTok LIVE Studio de fuentes de navegador, en la pestaña **Escena** juntas varios overlays (alertas, regalo más caro, top taps, top regalos y chat) en **un solo link**:
+
+1. Toca **＋ Crear mi escena** y elige **Horizontal** (1920 × 1080) o **Vertical** (1080 × 1920).
+2. Agrega o quita overlays, arrástralos para acomodarlos y jala la esquina dorada para cambiar el tamaño de su espacio. Con **Tamaño del contenido** lo haces más grande o más chico. Se pegan solos a los bordes y al centro (mantén Alt para moverlos libremente).
+3. Copia el **Link de la escena** y agrégalo como una sola fuente de navegador, del mismo tamaño que la escena.
+
+Los cambios se ven al momento en tu stream, sin volver a copiar el link. El estilo y las animaciones de cada overlay se siguen eligiendo en **Overlays**. Puedes tener varias escenas (por ejemplo una horizontal y una vertical).
+
 ### Animaciones
 
 Cada overlay tiene su propio bloque **Animaciones** (se puede apagar con el interruptor):

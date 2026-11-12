@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>StreamV2 · Escena</title>
+<style>
+  /* Una sola fuente de navegador con varios overlays adentro.
+     Ponla del mismo tamaño que tu escena (por ejemplo 1920 × 1080). ?id=<escena> */
+  html, body { margin: 0; background: transparent; overflow: hidden; }
+  #scene { position: relative; overflow: hidden; }
+  #scene iframe { position: absolute; border: 0; background: transparent; overflow: hidden; }
+  .msg { font: 600 22px system-ui, sans-serif; color: #fff; text-shadow: 0 2px 6px #000; padding: 20px; }
+</style>
+</head>
+<body>
+<div id="scene"></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/scene-types.js"></script>
+<script>
+const id = new URLSearchParams(location.search).get('id');
+const sceneEl = document.getElementById('scene');
+const frames = new Map(); // id del overlay -> iframe (no se recarga si solo se mueve)
+
+function apply(scenes) {
+  const sc = (scenes || []).find((s) => s.id === id) || (!id && scenes?.[0]);
+  if (!sc) {
+    frames.forEach((f) => f.remove());
+    frames.clear();
+    sceneEl.innerHTML = '<div class="msg">Esta escena ya no existe. Copia el link otra vez desde StreamV2 → Escena.</div>';
+    return;
+  }
+  sceneEl.querySelector('.msg')?.remove();
+  sceneEl.style.width = sc.w + 'px';
+  sceneEl.style.height = sc.h + 'px';
+  const keep = new Set();
+  sc.items.forEach((it, i) => {
+    if (it.on === false || !SCENE_TYPES[it.type]) return;
+    keep.add(it.id);
+    let f = frames.get(it.id);
+    if (!f) {
+      f = document.createElement('iframe');
+      f.setAttribute('allow', 'autoplay');
+      f.setAttribute('scrolling', 'no');
+      f.title = SCENE_TYPES[it.type].name;
+      frames.set(it.id, f);
+      sceneEl.appendChild(f);
+    }
+    const src = sceneSrc(it);
+    if (f.dataset.src !== src) { f.dataset.src = src; f.src = src; }
+    Object.assign(f.style, { left: it.x + 'px', top: it.y + 'px', width: it.w + 'px', height: it.h + 'px', zIndex: String(i + 1) });
+  });
+  frames.forEach((f, k) => { if (!keep.has(k)) { f.remove(); frames.delete(k); } });
+}
+
+const socket = io();
+socket.on('config', (c) => apply(c.settings?.scenes));
+</script>
+</body>
+</html>

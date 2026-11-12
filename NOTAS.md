@@ -1,9 +1,11 @@
-Las alertas siempre muestran **el regalo que te mandaron**.
+**Escena:** todos tus overlays en **un solo link**, para no sobrecargar TikTok LIVE Studio con muchas fuentes de navegador.
 
-- Con regalos reales se ve la imagen del regalo de TikTok (rosa, león, universo…)
-- Si la imagen no carga o es una prueba, se ve el dibujo de ese regalo (🌹, 🦁, 🍩…) en lugar de una caja genérica
-- En tus alertas personalizadas (video, foto o GIF) también aparece el regalo junto al nombre
-- La vista previa y las pruebas usan regalos reales que ya te han mandado, con su imagen
-- Una alerta para "Rosa" también sirve si TikTok manda el nombre en inglés ("Rose"), y así con los regalos más comunes
+- Nueva pestaña **Escena**: junta alertas, regalo más caro, top taps, top regalos y chat
+- Arrastra cada overlay para acomodarlo y jala la esquina para cambiar su tamaño; se pegan solos a los bordes y al centro
+- Pantalla **Horizontal** (1920 × 1080) o **Vertical** (1080 × 1920), o el tamaño que quieras
+- Puedes tener varias escenas, cada una con su link
+- Los cambios se ven al momento en tu stream sin volver a copiar el link
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.9.1 lista", toca **Actualizar**.
+También incluye lo de la 1.9.1: las alertas siempre muestran el regalo que te mandaron (su imagen de TikTok o su dibujo).
+
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.10.0 lista", toca **Actualizar**.

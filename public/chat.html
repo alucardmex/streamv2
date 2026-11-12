@@ -56,6 +56,15 @@ socket.on('chatHistory', (list) => {
   if (hideAfter === 0) list.slice(-max).forEach((m) => add(m, esc(m.text)));
 });
 socket.on('chat', (m) => add(m, esc(m.text)));
+
+// ?demo=1: mensajes de ejemplo (para la vista previa del editor de escenas).
+if (p.get('demo') === '1') {
+  const DEMO = [['Lupita', 'que buena jugada 🔥'], ['ElPana_77', 'saludos desde Monterrey'], ['Sofi.gg', 'jajaja esa no te la esperabas'], ['DonCarlos', '¿qué sensibilidad usas?'], ['Valeria', 'vamos por el pollo 🐔']];
+  let i = 0;
+  const tick = () => { const [n, t] = DEMO[i++ % DEMO.length]; add({ name: n, avatar: '' }, esc(t)); };
+  for (let k = 0; k < 3; k++) tick();
+  setInterval(tick, 2600);
+}
 socket.on('gift', (g) => { if (showGifts) add(g, `envió ${g.count}× <b>${esc(g.gift)}</b> 🎁`, 'gift'); });
 </script>
 </body>

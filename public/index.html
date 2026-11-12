@@ -374,6 +374,43 @@
   .chip:hover { border-color: var(--muted); }
   .chip[aria-pressed=true] { border-color: var(--gift); background: rgba(255,194,75,.12); box-shadow: inset 0 0 0 1px var(--gift); }
   .chip:focus-visible, .st-anim .seg button:focus-visible { outline: 2px solid var(--voice); outline-offset: 2px; }
+  .sc-scenes { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+  .sc-wrap { display: grid; grid-template-columns: minmax(0, 1fr) 310px; gap: 18px; align-items: start; }
+  .sc-main { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .sc-canvas { position: relative; width: 100%; overflow: hidden; border-radius: 14px; border: 1px solid var(--line); outline: none;
+    background: radial-gradient(ellipse at 25% 15%, #3b4a5c, transparent 60%), radial-gradient(ellipse at 85% 95%, #3a2a4a, transparent 55%), linear-gradient(160deg, #26323f, #141a24); }
+  .sc-canvas:focus-visible { box-shadow: 0 0 0 2px var(--voice); }
+  .sc-canvas.vertical { width: auto; height: min(72vh, 760px); align-self: center; }
+  .sc-type .row { flex-wrap: nowrap; }
+  #view-scene .lede a { color: var(--voice); }
+  .sc-world { position: absolute; left: 0; top: 0; transform-origin: 0 0;
+    background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 120px 120px; }
+  .sc-item { position: absolute; }
+  .sc-item iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; background: transparent; pointer-events: none; }
+  .sc-grab { position: absolute; inset: 0; cursor: move; border: 2px dashed rgba(255,255,255,.35); border-radius: 6px; touch-action: none; }
+  .sc-item.sel .sc-grab { border: 3px solid var(--gift); background: rgba(255,194,75,.06); }
+  .sc-tag { position: absolute; left: 0; top: 0; transform-origin: 0 0; padding: 4px 10px; border-radius: 0 0 10px 0; background: rgba(0,0,0,.7); color: #fff; font: 700 13px var(--body); white-space: nowrap; }
+  .sc-tag { opacity: .6; transition: opacity .15s; }
+  .sc-item:hover .sc-tag, .sc-item.sel .sc-tag { opacity: 1; }
+  .sc-item.sel .sc-tag { background: var(--gift); color: #1a1222; }
+  .sc-ph { position: absolute; inset: 0; display: grid; place-items: center; color: rgba(255,255,255,.45); font: 700 28px var(--display); pointer-events: none; text-align: center; }
+  .sc-resize { position: absolute; right: -2px; bottom: -2px; width: 22px; height: 22px; cursor: nwse-resize; border-radius: 4px 0 6px 0;
+    background: linear-gradient(135deg, transparent 50%, var(--gift) 50%); }
+  .sc-guide { position: absolute; background: #ff4d5e; pointer-events: none; z-index: 999; }
+  .sc-side { display: flex; flex-direction: column; gap: 12px; }
+  .sc-card { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .sc-card h3 { margin: 0; font: 700 15px var(--display); }
+  .sc-card .hint { margin: 0; }
+  .sc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .sc-row .field input { width: 100%; box-sizing: border-box; }
+  .sc-types { display: flex; flex-direction: column; gap: 6px; }
+  .sc-type { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px; border-radius: 10px; background: var(--ink); font-size: 14px; }
+  .sc-type.in { box-shadow: inset 0 0 0 1px var(--line); }
+  .sc-link { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); font-size: 13.5px; }
+  .sc-link code { background: var(--ink); padding: 6px 10px; border-radius: 8px; font-size: 13px; user-select: all; }
+  .sc-link .hint { flex-basis: 100%; margin: 0; }
+  .sc-empty { padding: 28px; border: 1px dashed var(--line); border-radius: 14px; color: var(--muted); max-width: 640px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+  @media (max-width: 1100px) { .sc-wrap { grid-template-columns: 1fr; } }
   .tester { max-width: 1000px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface); padding: 18px 20px; margin: 4px 0 18px; display: flex; flex-direction: column; gap: 14px; }
   .tester h2 { font: 700 17px var(--display); margin: 0; }
   .tester .sub { color: var(--muted); font-size: 13.5px; margin: 4px 0 0; }
@@ -521,6 +558,10 @@
     <button class="tab" role="tab" data-view="overlays" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M12 3 2.5 8 12 13l9.5-5z"/><path d="m2.5 12.5 9.5 5 9.5-5M2.5 16.5l9.5 5 9.5-5"/></svg>
       Overlays
+    </button>
+    <button class="tab" role="tab" data-view="scene" aria-selected="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="2.5" y="4" width="19" height="14" rx="2"/><rect x="5" y="6.5" width="6" height="4" rx=".8"/><rect x="13.5" y="6.5" width="5.5" height="9" rx=".8"/><path d="M8 21h8"/></svg>
+      Escena
     </button>
     <button class="appinfo" id="appinfo" hidden aria-label="Acerca de StreamV2 y actualizaciones">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>
@@ -863,6 +904,34 @@
   </main>
 
   <!-- ============ OVERLAYS ============ -->
+  <main class="view" id="view-scene" role="tabpanel">
+    <h1>Escena</h1>
+    <p class="lede">Junta varios overlays en un solo link: alertas, regalo más caro, tops y chat. Así en TikTok LIVE Studio u OBS tienes una sola fuente de navegador en lugar de una por overlay. Arrástralos para acomodarlos y jala la esquina para cambiar su tamaño. El estilo de cada uno se cambia en <a href="#" data-goto="overlays">Overlays</a>.</p>
+    <div class="sc-scenes" id="sc-scenes"></div>
+    <div class="sc-wrap" id="sc-wrap" hidden>
+      <div class="sc-main">
+        <div class="sc-canvas" id="sc-canvas" tabindex="0" aria-label="Escena: arrastra los overlays para acomodarlos"><div class="sc-world" id="sc-world"></div></div>
+        <div class="sc-link" id="sc-link"></div>
+      </div>
+      <aside class="sc-side">
+        <div class="sc-card">
+          <h3>Escena</h3>
+          <label class="field">Nombre <input type="text" id="sc-name" maxlength="40"></label>
+          <div class="field">Pantalla
+            <div class="seg" role="group" aria-label="Forma de la pantalla"><button type="button" data-scshape="1920x1080">Horizontal</button><button type="button" data-scshape="1080x1920">Vertical</button></div>
+          </div>
+          <div class="sc-row"><label class="field">Ancho <input type="number" id="sc-w" min="320" max="3840"></label><label class="field">Alto <input type="number" id="sc-h" min="320" max="3840"></label></div>
+        </div>
+        <div class="sc-card">
+          <h3>Overlays en la escena</h3>
+          <div class="sc-types" id="sc-types"></div>
+        </div>
+        <div class="sc-card" id="sc-sel"></div>
+        <button type="button" class="btn quiet sm" id="sc-del">Borrar esta escena</button>
+      </aside>
+    </div>
+  </main>
+
   <main class="view" id="view-overlays" role="tabpanel">
     <h1>Overlays</h1>
     <p class="lede">En OBS o TikTok LIVE Studio agrega una fuente de navegador con cada link. Elige el estilo aquí: tu stream se actualiza solo, sin volver a pegar el link.</p>
@@ -1033,6 +1102,7 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/gifts.js"></script>
+<script src="/scene-types.js"></script>
 <script>
 const socket = io();
 const $ = (s) => document.querySelector(s);
@@ -2006,6 +2076,285 @@ function renderStudios() {
       <button class="btn sm" data-copy="${esc(url)}">Copiar link</button><button class="btn sm quiet" data-open-path="${esc(st.dataset.path)}">Abrir</button>`;
   });
 }
+// ---------------------------------------------------------------- escena (varios overlays en un link)
+let scId = store.get('sc-id') || '';
+let scSel = null;            // overlay seleccionado
+let scLocal = null, scLocalTimer = null;
+const scFrames = new Map();  // overlay -> elemento en el editor (sus iframes no se recargan al moverlos)
+const scenes = () => (settings.scenes ||= []);
+const curScene = () => scenes().find((x) => x.id === scId) || scenes()[0];
+const scSave = (now) => {
+  clearTimeout(saveTimer);
+  clearTimeout(scLocalTimer);
+  scLocal = scenes();
+  scLocalTimer = setTimeout(() => { scLocal = null; }, now ? 1500 : 2000);
+  if (now) socket.emit('saveSettings', settings);
+  else saveTimer = setTimeout(() => socket.emit('saveSettings', settings), 400);
+};
+const scUid = () => Math.random().toString(36).slice(2, 9);
+
+// Acomodo inicial para una escena nueva (o al cambiar de horizontal a vertical).
+function scDefaultItem(type, sc) {
+  const t = SCENE_TYPES[type];
+  const W = sc.w, H = sc.h, vertical = H > W;
+  const pos = {
+    alertas: vertical ? [(W - 900) / 2, 340] : [(W - t.w) / 2, H * 0.3],
+    topGift: [40, 40],
+    likes: vertical ? [W - t.w - 30, 900] : [W - t.w - 40, 40],
+    gifts: vertical ? [30, 900] : [W - t.w - 40, Math.min(620, H - t.h - 40)],
+    chat: vertical ? [30, Math.min(1480, H - t.h - 40)] : [40, H - t.h - 40],
+  }[type];
+  const w = vertical && type === 'alertas' ? 900 : t.w;
+  return { id: type, type, on: true, x: Math.round(Math.max(0, pos[0])), y: Math.round(Math.max(0, pos[1])), w: Math.min(w, W), h: Math.min(t.h, H), scale: 1, pos: 'centro' };
+}
+function scNewScene() {
+  const n = scenes().length + 1;
+  const sc = { id: `escena${Date.now().toString(36).slice(-4)}`, name: n === 1 ? 'Mi escena' : `Escena ${n}`, w: 1920, h: 1080, items: [] };
+  sc.items = ['alertas', 'topGift', 'likes'].map((t) => scDefaultItem(t, sc));
+  scenes().push(sc);
+  scId = sc.id;
+  store.set('sc-id', scId);
+  scSel = null;
+  scSave(true);
+  renderScene(true);
+}
+
+function sceneScale() {
+  const sc = curScene();
+  const c = $('#sc-canvas');
+  return sc && c ? c.clientWidth / sc.w : 1;
+}
+function renderScene(full) {
+  if (!settings || !$('#view-scene')) return;
+  const list = scenes();
+  if (list.length && !list.some((x) => x.id === scId)) scId = list[0].id;
+  $('#sc-scenes').innerHTML = list.length
+    ? list.map((x) => `<button type="button" class="chip" aria-pressed="${x.id === scId}" data-scpick="${esc(x.id)}">${esc(x.name)} <small style="opacity:.6">${x.w}×${x.h}</small></button>`).join('') + '<button type="button" class="chip" id="sc-add">＋ Nueva escena</button>'
+    : `<div class="sc-empty"><b>Todavía no tienes escenas.</b><span>Una escena junta tus overlays en un solo link para no tener muchas fuentes de navegador abiertas.</span><button type="button" class="btn go" id="sc-add">＋ Crear mi escena</button></div>`;
+  const sc = curScene();
+  $('#sc-wrap').hidden = !sc;
+  if (!sc) return;
+  // datos de la escena
+  if (document.activeElement !== $('#sc-name')) $('#sc-name').value = sc.name;
+  if (document.activeElement !== $('#sc-w')) $('#sc-w').value = sc.w;
+  if (document.activeElement !== $('#sc-h')) $('#sc-h').value = sc.h;
+  $$('[data-scshape]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.scshape === `${sc.w}x${sc.h}`)));
+  // lienzo
+  const c = $('#sc-canvas');
+  c.classList.toggle('vertical', sc.h > sc.w);
+  c.style.aspectRatio = `${sc.w} / ${sc.h}`;
+  const world = $('#sc-world');
+  world.style.width = sc.w + 'px';
+  world.style.height = sc.h + 'px';
+  const k = sceneScale();
+  world.style.transform = `scale(${k})`;
+  if (full) { scFrames.forEach((el) => el.remove()); scFrames.clear(); }
+  const keep = new Set();
+  sc.items.forEach((it, i) => {
+    if (it.on === false) return;
+    keep.add(it.id);
+    let el = scFrames.get(it.id);
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'sc-item';
+      el.dataset.scitem = it.id;
+      el.innerHTML = `${it.type === 'alertas' ? '<div class="sc-ph">Aquí salen<br>las alertas</div>' : ''}<iframe tabindex="-1" title="${esc(SCENE_TYPES[it.type].name)}"></iframe><div class="sc-grab"><span class="sc-tag"></span><span class="sc-resize" data-scresize></span></div>`;
+      world.appendChild(el);
+      scFrames.set(it.id, el);
+    }
+    const f = el.querySelector('iframe');
+    const src = sceneSrc(it, true);
+    if (f.dataset.src !== src) { f.dataset.src = src; f.src = src; }
+    Object.assign(el.style, { left: it.x + 'px', top: it.y + 'px', width: it.w + 'px', height: it.h + 'px', zIndex: String(i + 1) });
+    el.classList.toggle('sel', it.id === scSel);
+    const tag = el.querySelector('.sc-tag');
+    tag.textContent = `${SCENE_TYPES[it.type].icon} ${SCENE_TYPES[it.type].name}`;
+    tag.style.transform = `scale(${1 / k})`;
+    el.querySelector('.sc-resize').style.transform = `scale(${1 / k})`;
+    el.querySelector('.sc-resize').style.transformOrigin = '100% 100%';
+  });
+  scFrames.forEach((el, id) => { if (!keep.has(id)) { el.remove(); scFrames.delete(id); } });
+  // lista de overlays
+  $('#sc-types').innerHTML = Object.entries(SCENE_TYPES).map(([type, t]) => {
+    const it = sc.items.find((x) => x.type === type && x.on !== false);
+    return `<div class="sc-type${it ? ' in' : ''}"><span>${t.icon} ${t.name}</span>${it
+      ? `<span class="row" style="gap:6px"><button type="button" class="btn sm quiet" data-scselect="${it.id}">Elegir</button><button type="button" class="btn sm quiet" data-scremove="${it.id}" aria-label="Quitar ${t.name}">Quitar</button></span>`
+      : `<button type="button" class="btn sm" data-scaddtype="${type}">＋ Agregar</button>`}</div>`;
+  }).join('');
+  renderSceneSel();
+  // link
+  const url = `${location.origin}/escena.html?id=${encodeURIComponent(sc.id)}`;
+  $('#sc-link').innerHTML = `<b>Link de la escena</b><code>${esc(url)}</code><button type="button" class="btn sm" data-copy="${esc(url)}">Copiar link</button><button type="button" class="btn sm quiet" data-open-path="/escena.html?id=${encodeURIComponent(sc.id)}">Abrir</button>
+    <p class="hint">En TikTok LIVE Studio u OBS agrega una sola fuente de navegador (enlace) con este link, de <b>${sc.w} × ${sc.h}</b>, encima de tu juego. Ya no necesitas las fuentes de cada overlay por separado.</p>`;
+}
+function renderSceneSel() {
+  const sc = curScene();
+  const box = $('#sc-sel');
+  const it = sc?.items.find((x) => x.id === scSel && x.on !== false);
+  if (!it) { box.innerHTML = '<h3>Overlay elegido</h3><p class="hint">Toca un overlay en la escena para moverlo con precisión o cambiar su tamaño.</p>'; return; }
+  const t = SCENE_TYPES[it.type];
+  const ae = document.activeElement;
+  const keepF = box.contains(ae) ? ae.dataset.scf : null;
+  box.innerHTML = `<h3>${t.icon} ${t.name}</h3>
+    <div class="sc-row"><label class="field">X <input type="number" data-scf="x" value="${it.x}"></label><label class="field">Y <input type="number" data-scf="y" value="${it.y}"></label></div>
+    <div class="sc-row"><label class="field">Ancho <input type="number" data-scf="w" min="60" value="${it.w}"></label><label class="field">Alto <input type="number" data-scf="h" min="40" value="${it.h}"></label></div>
+    <label class="field">Tamaño del contenido · <span id="sc-scale-v">${Math.round(it.scale * 100)}%</span><input type="range" min="0.4" max="2.5" step="0.05" value="${it.scale}" data-scf="scale"></label>
+    ${it.type === 'alertas' ? `<div class="field">Las alertas salen <div class="seg" role="group">${[['arriba', 'Arriba'], ['centro', 'Centro'], ['abajo', 'Abajo']].map(([v, l]) => `<button type="button" aria-pressed="${it.pos === v}" data-scpos="${v}">${l}</button>`).join('')}</div></div>
+      <button type="button" class="btn sm" data-sctest>▶ Probar alerta aquí</button>` : ''}
+    <div class="row" style="gap:6px;flex-wrap:wrap"><button type="button" class="btn sm quiet" data-scalign="center">Centrar</button><button type="button" class="btn sm quiet" data-scalign="front">Al frente</button><button type="button" class="btn sm quiet" data-scremove="${it.id}">Quitar</button></div>
+    <p class="hint">Con el overlay elegido puedes moverlo con las flechas del teclado (con Shift, de 10 en 10).</p>`;
+  if (keepF) box.querySelector(`[data-scf="${keepF}"]`)?.focus();
+}
+
+// Arrastrar y cambiar tamaño (con imán a los bordes y al centro de la pantalla).
+let scDrag = null;
+const SNAP = 14;
+function scGuides(lines) {
+  $$('#sc-world .sc-guide').forEach((g) => g.remove());
+  const sc = curScene(), k = sceneScale();
+  lines.forEach(([axis, v]) => {
+    const g = document.createElement('div');
+    g.className = 'sc-guide';
+    Object.assign(g.style, axis === 'x' ? { left: v + 'px', top: 0, width: 2 / k + 'px', height: sc.h + 'px' } : { top: v + 'px', left: 0, height: 2 / k + 'px', width: sc.w + 'px' });
+    $('#sc-world').appendChild(g);
+  });
+}
+function scSnap(it, sc, mode) {
+  const lines = [];
+  const snapAxis = (pos, size, total, axis) => {
+    const cands = mode === 'move' ? [[0, 0], [total - size, total], [(total - size) / 2, total / 2]] : [[total - pos, total]];
+    for (const [target, line] of cands) {
+      if (mode === 'move' && Math.abs(pos - target) < SNAP) { lines.push([axis, line]); return target; }
+      if (mode === 'size' && Math.abs(size - target) < SNAP) { lines.push([axis, line]); return target; }
+    }
+    return mode === 'move' ? pos : size;
+  };
+  if (mode === 'move') { it.x = Math.round(snapAxis(it.x, it.w, sc.w, 'x')); it.y = Math.round(snapAxis(it.y, it.h, sc.h, 'y')); }
+  else { it.w = Math.round(snapAxis(it.x, it.w, sc.w, 'x')); it.h = Math.round(snapAxis(it.y, it.h, sc.h, 'y')); }
+  scGuides(lines);
+}
+document.addEventListener('pointerdown', (e) => {
+  const item = e.target.closest('.sc-item');
+  if (!item || !e.target.closest('.sc-grab')) return;
+  const sc = curScene();
+  const it = sc.items.find((x) => x.id === item.dataset.scitem);
+  if (!it) return;
+  e.preventDefault();
+  scSel = it.id;
+  $('#sc-canvas').focus({ preventScroll: true });
+  scDrag = { it, mode: e.target.closest('[data-scresize]') ? 'size' : 'move', sx: e.clientX, sy: e.clientY, ox: it.x, oy: it.y, ow: it.w, oh: it.h, k: sceneScale(), moved: false };
+  e.target.setPointerCapture?.(e.pointerId);
+  renderScene();
+});
+document.addEventListener('pointermove', (e) => {
+  if (!scDrag) return;
+  const d = scDrag, sc = curScene();
+  const dx = (e.clientX - d.sx) / d.k, dy = (e.clientY - d.sy) / d.k;
+  if (Math.abs(dx) + Math.abs(dy) > 1) d.moved = true;
+  if (d.mode === 'move') { d.it.x = Math.round(d.ox + dx); d.it.y = Math.round(d.oy + dy); }
+  else { d.it.w = Math.max(60, Math.round(d.ow + dx)); d.it.h = Math.max(40, Math.round(d.oh + dy)); }
+  if (!e.altKey) scSnap(d.it, sc, d.mode); else scGuides([]);
+  renderScene();
+});
+document.addEventListener('pointerup', () => {
+  if (!scDrag) return;
+  const moved = scDrag.moved;
+  scDrag = null;
+  scGuides([]);
+  if (moved) scSave(true);
+});
+$('#sc-canvas')?.addEventListener('pointerdown', (e) => { if (!e.target.closest('.sc-item')) { scSel = null; renderScene(); } });
+$('#sc-canvas')?.addEventListener('keydown', (e) => {
+  const it = curScene()?.items.find((x) => x.id === scSel);
+  const step = e.shiftKey ? 10 : 1;
+  const mv = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
+  if (!it || !mv) return;
+  e.preventDefault();
+  it.x += mv[0];
+  it.y += mv[1];
+  renderScene();
+  scSave();
+});
+if (window.ResizeObserver && $('#sc-canvas')) new ResizeObserver(() => renderScene()).observe($('#sc-canvas'));
+
+document.addEventListener('click', (e) => {
+  const sc = curScene();
+  if (e.target.closest('#sc-add')) return scNewScene();
+  const pick = e.target.closest('[data-scpick]');
+  if (pick) { scId = pick.dataset.scpick; store.set('sc-id', scId); scSel = null; return renderScene(true); }
+  if (!sc) return;
+  const add = e.target.closest('[data-scaddtype]');
+  if (add) {
+    const type = add.dataset.scaddtype;
+    sc.items = sc.items.filter((x) => x.type !== type);
+    sc.items.push(scDefaultItem(type, sc));
+    scSel = type;
+    scSave(true);
+    return renderScene();
+  }
+  const rm = e.target.closest('[data-scremove]');
+  if (rm) { sc.items = sc.items.filter((x) => x.id !== rm.dataset.scremove); if (scSel === rm.dataset.scremove) scSel = null; scSave(true); return renderScene(); }
+  const selb = e.target.closest('[data-scselect]');
+  if (selb) { scSel = selb.dataset.scselect; return renderScene(); }
+  const shape = e.target.closest('[data-scshape]');
+  if (shape) {
+    const [w, h] = shape.dataset.scshape.split('x').map(Number);
+    if (sc.w === w && sc.h === h) return;
+    const flipped = (sc.h > sc.w) !== (h > w);
+    sc.w = w; sc.h = h;
+    // Al voltear la pantalla se reacomoda todo; si no, solo se asegura que quepa.
+    sc.items = sc.items.map((it) => flipped ? { ...scDefaultItem(it.type, sc), scale: it.scale, pos: it.pos } : { ...it, x: Math.min(it.x, w - 60), y: Math.min(it.y, h - 40) });
+    scSave(true);
+    return renderScene(true);
+  }
+  const it = sc.items.find((x) => x.id === scSel);
+  if (!it) return;
+  const pos = e.target.closest('[data-scpos]');
+  if (pos) { it.pos = pos.dataset.scpos; scSave(true); return renderScene(); }
+  const al = e.target.closest('[data-scalign]');
+  if (al) {
+    if (al.dataset.scalign === 'center') { it.x = Math.round((sc.w - it.w) / 2); it.y = Math.round((sc.h - it.h) / 2); }
+    else { sc.items = [...sc.items.filter((x) => x !== it), it]; }
+    scSave(true);
+    return renderScene();
+  }
+  if (e.target.closest('[data-sctest]')) {
+    try { scFrames.get(it.id)?.querySelector('iframe').contentWindow.preview?.('grande'); } catch {}
+  }
+});
+document.addEventListener('input', (e) => {
+  const sc = curScene();
+  if (!sc) return;
+  if (e.target.id === 'sc-name') { sc.name = e.target.value.slice(0, 40) || 'Escena'; scSave(); $$('[data-scpick]').forEach((b) => { if (b.dataset.scpick === sc.id) b.firstChild.textContent = sc.name + ' '; }); return; }
+  if (e.target.id === 'sc-w' || e.target.id === 'sc-h') {
+    const v = Number(e.target.value);
+    if (v >= 320 && v <= 3840) { sc[e.target.id === 'sc-w' ? 'w' : 'h'] = Math.round(v); scSave(); renderScene(); }
+    return;
+  }
+  const f = e.target.closest('[data-scf]');
+  if (!f) return;
+  const it = sc.items.find((x) => x.id === scSel);
+  if (!it) return;
+  const key = f.dataset.scf;
+  if (key === 'scale') { it.scale = Number(f.value); $('#sc-scale-v').textContent = Math.round(it.scale * 100) + '%'; }
+  else if (f.value !== '') it[key] = Math.round(Number(f.value)) || 0;
+  scSave();
+  renderScene();
+});
+$('#sc-del')?.addEventListener('click', () => {
+  const sc = curScene();
+  if (!sc || !confirm(`¿Borrar la escena "${sc.name}"? Su link dejará de funcionar.`)) return;
+  settings.scenes = scenes().filter((x) => x !== sc);
+  scId = scenes()[0]?.id || '';
+  scSel = null;
+  scSave(true);
+  renderScene(true);
+});
+socket.on('config', () => {
+  if (scLocal) settings.scenes = scLocal;
+  if (!scDrag) renderScene();
+});
+
 // ---------------------------------------------------------------- probador de alertas
 const TT_EXAMPLES = [{ name: 'Rosa', diamonds: 1 }, { name: 'Dona', diamonds: 30 }, { name: 'Perfume', diamonds: 20 }, { name: 'León', diamonds: 29999 }, { name: 'Universo', diamonds: 44999 }];
 let ttType = 'gift';
