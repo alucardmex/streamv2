@@ -153,6 +153,8 @@ El bot lee con voces de **Fish Audio**, una biblioteca con miles de voces (narra
 
 **Volumen por tipo y por persona:** en **Voz → Qué se lee**, además del volumen general, cada cosa tiene su volumen: comentarios, regalos, regalos grandes, nuevos seguidores y compartidos. En **Voces por usuario** cada persona con voz especial tiene su propio volumen 🔊. Se multiplican: por ejemplo, general 80% y comentarios 50% suenan al 40%.
 
+**Solo seguidores:** en **Voz → Quién y qué no se lee**, prende **Solo seguidores** y el bot solo lee los comentarios de quien te sigue (tus moderadores también se leen). Los demás comentarios salen en el chat de "En vivo" marcados como *no te sigue*. Los regalos, follows y compartidos se siguen leyendo de todos. Para probarlo usa **Comentario (no te sigue)** en las pruebas.
+
 **Pausa entre mensajes:** en **Voz → Ritmo** eliges cuántos segundos espera el bot después de leer un mensaje antes del siguiente (de 0 a 15). **Saltar** también corta la pausa.
 
 ## Regalo más caro

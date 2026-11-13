@@ -173,6 +173,7 @@
   .gift-chip img { width: 22px; height: 22px; object-fit: contain; }
   .gift-chip small { color: var(--muted); font-weight: 400; }
   .test-tag { color: var(--muted); font-size: 12px; }
+  .test-tag.nofollow { color: #ff8a8a; }
   .empty { margin: auto; text-align: center; max-width: 340px; color: var(--muted); padding: 40px 0; }
   .empty b { display: block; color: var(--text); font: 700 18px/1.3 var(--display); margin-bottom: 6px; }
   .side { display: flex; flex-direction: column; gap: 26px; min-height: 0; overflow-y: auto; }
@@ -653,6 +654,7 @@
           <div class="tests">
             <button class="btn sm" data-test="gift">Regalo</button>
             <button class="btn sm" data-test="chat">Comentario</button>
+            <button class="btn sm" data-test="chat-nofollow" title="Comentario de alguien que no te sigue">Comentario (no te sigue)</button>
             <button class="btn sm" data-test="likes">Likes</button>
             <button class="btn sm" data-test="follow">Seguidor</button>
           </div>
@@ -825,6 +827,10 @@
           <label class="field">Usuarios que no se leen <textarea data-key="tts.blockedUsers"></textarea></label>
           <label class="field">Leer solo a estos usuarios <textarea data-key="tts.onlyUsers" placeholder="Vacío = todos"></textarea></label>
         </div>
+        <div class="switches">
+          <label class="switch"><input type="checkbox" data-key="tts.onlyFollowers"><span class="track"></span>Solo seguidores</label>
+        </div>
+        <p class="hint">Con esto prendido, el bot solo lee los comentarios de quien te sigue. Tus moderadores también se leen. Los regalos, follows y compartidos se siguen leyendo de todos.</p>
       </div>
     </section>
   </main>
@@ -1427,7 +1433,7 @@ document.addEventListener('click', (e) => {
   const o = e.target.closest('[data-open-path]');
   if (o) window.open(location.origin + o.dataset.openPath, '_blank');
   const t = e.target.closest('[data-test]');
-  if (t) socket.emit('test:' + t.dataset.test);
+  if (t) t.dataset.test === 'chat-nofollow' ? socket.emit('test:chat', { follower: false }) : socket.emit('test:' + t.dataset.test);
   const f = e.target.closest('[data-filter]');
   if (f) {
     $$('[data-filter]').forEach((b) => b.setAttribute('aria-pressed', String(b === f)));
@@ -1450,13 +1456,15 @@ function addFeed(html, cls, u) {
   return div;
 }
 const testTag = (x) => (x.test ? ' <span class="test-tag">prueba</span>' : '');
+// Con "Solo seguidores" prendido, marca a quien no te sigue (por eso no se lee).
+const followTag = (m) => (settings?.tts?.onlyFollowers && !m.follower && !m.mod ? ' <span class="test-tag nofollow">no te sigue</span>' : '');
 
 // Nombre clicable en el feed: abre el selector para darle una voz especial.
 const whoBtn = (u) => `<button type="button" class="who" data-uvoice="${esc(u.user)}" data-uname="${esc(u.name)}" title="Darle una voz especial a ${esc(u.name)}">${esc(u.name)}</button>`;
 const voiceTag = (u) => { const r = userRule(u.user, u.name); const c = r && charById(r.characterId); return c ? `<span class="vtag">${esc(c.name)}</span>` : ''; };
 
 socket.on('chat', (m) => {
-  const div = addFeed(`${whoBtn(m)}${esc(m.text)}${voiceTag(m)}${testTag(m)}`, 'chat', m);
+  const div = addFeed(`${whoBtn(m)}${esc(m.text)}${voiceTag(m)}${followTag(m)}${testTag(m)}`, 'chat', m);
   if (sayChat(m)) div.classList.add('spoken');
 });
 socket.on('gift', (g) => {
@@ -1531,6 +1539,7 @@ function sayChat(m) {
   const ids = [m.user.toLowerCase(), m.name.toLowerCase()];
   const only = listOf(t.onlyUsers);
   if (only.length && !ids.some((x) => only.includes(x))) return false;
+  if (t.onlyFollowers && !m.follower && !m.mod) return false;
   if (listOf(t.blockedUsers).some((x) => ids.includes(x))) return false;
   const lower = raw.toLowerCase();
   if (listOf(t.blockedWords).some((w) => lower.includes(w))) return false;

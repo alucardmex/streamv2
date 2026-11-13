@@ -77,6 +77,7 @@ const DEFAULT_CONFIG = {
       blockedWords: '',
       blockedUsers: '',
       onlyUsers: '',
+      onlyFollowers: false, // el bot solo lee comentarios de quien te sigue (tus moderadores también pasan)
       readUsername: true,
     },
     alerts: {
@@ -406,11 +407,26 @@ function handleLike(d) {
   broadcastRankings();
 }
 
+// Quién te sigue: TikTok lo manda en cada comentario. Además se recuerda a quien te sigue durante el live
+// (por si su siguiente comentario todavía llega con el dato viejo).
+const followedNow = new Set();
+function followInfoOf(d) {
+  const id = d.userIdentity || d.user?.userIdentity || {};
+  const status = Number(d.user?.followInfo?.followStatus ?? d.followInfo?.followStatus ?? 0);
+  const who = normUser(d.user);
+  return {
+    follower: Boolean(id.isFollowerOfAnchor || id.isMutualFollowingWithAnchor || status >= 1 || followedNow.has(who.user)),
+    mod: Boolean(id.isModeratorOfAnchor || id.isAnchor || d.isModerator),
+  };
+}
+
 function handleChat(d, isTest = false) {
   const who = normUser(d.user);
   const text = String(d.content ?? d.comment ?? '').trim();
   if (!text) return;
-  const msg = { ...who, text, ts: Date.now(), test: isTest };
+  // En las pruebas se puede elegir si el comentario es de un seguidor o no.
+  const f = isTest ? { follower: d.follower !== false, mod: false } : followInfoOf(d);
+  const msg = { ...who, text, ts: Date.now(), test: isTest, ...f };
   chatHistory.push(msg);
   if (chatHistory.length > 50) chatHistory.shift();
   io.emit('chat', msg);
@@ -418,6 +434,7 @@ function handleChat(d, isTest = false) {
 }
 
 function handleFollow(d) {
+  followedNow.add(normUser(d.user).user);
   stats.follows += 1;
   timerAdd(Number(config.settings.overlays.timer.follow) || 0, normUser(d.user), 'follow');
   rankingDirty = true;
@@ -843,7 +860,7 @@ io.on('connection', (socket) => {
       true
     );
   });
-  socket.on('test:chat', () => handleChat({ user: fakeUser(), content: pick(TEST_COMMENTS) }, true));
+  socket.on('test:chat', (o) => handleChat({ user: fakeUser(), content: pick(TEST_COMMENTS), follower: o?.follower }, true));
   socket.on('test:likes', () => {
     for (let i = 0; i < 6; i++) handleLike({ user: fakeUser(), count: 1 + Math.floor(Math.random() * 40) });
   });

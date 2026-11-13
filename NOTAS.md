@@ -1,11 +1,12 @@
-Más estilos para **Camino a Conquistador**, más limpios y con más movimiento.
+Nueva opción en Voz: **Solo seguidores**.
 
-- **Minimal:** sin panel, solo insignia, rango, puntos y reloj
-- **Línea:** una pastilla delgada para poner arriba o abajo de la pantalla
-- **Anillo:** el avance rodea la insignia y se llena al sumar puntos
-- **Vertical:** tarjeta angosta para un costado
-- Más dinamismo en todos los estilos: la insignia brilla y flota, la barra destella y el reloj late (se apaga quitando las animaciones)
+- Prendida, el bot solo lee los comentarios de quien te sigue
+- Tus moderadores también se leen
+- Quien te sigue durante el live se lee desde ese momento
+- Los comentarios que no se leen salen en "En vivo" marcados como *no te sigue*
+- Los regalos, follows y compartidos se siguen leyendo de todos
+- Nuevo botón de prueba: **Comentario (no te sigue)**
 
-Los eliges en **Overlays → Camino a Conquistador → Estilo**.
+Está en **Voz → Quién y qué no se lee**.
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.15.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.16.0 lista", toca **Actualizar**.
