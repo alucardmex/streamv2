@@ -20,6 +20,8 @@ StreamV2 busca versiones nuevas al abrirse y cada 2 horas. Cuando hay una, **la 
 
 Tus datos (ajustes, API key, voces, ranking) viven en `%APPDATA%\StreamV2`, separados de la app, así que **las actualizaciones no los tocan**. Para verlos: botón de versión → **Abrir carpeta de datos**.
 
+**Cada live empieza en cero:** cuando empiezas un live nuevo, StreamV2 borra solo los comentarios, likes, diamantes, rankings y el regalo más caro del live anterior, para que la app vaya ligera. Si solo se corta la conexión y se reconecta al mismo live, no se borra nada. El contador de tiempo, las partidas y Camino a Conquistador no se tocan. Se apaga en **Ranking → Empezar en cero cada live nuevo**.
+
 ## 3. Conectarte a tu live
 
 1. Empieza tu transmisión en TikTok.

@@ -39,6 +39,8 @@ const DEFAULT_CONFIG = {
   // API key de Fish Audio. Nunca se manda al navegador.
   voiceKeys: { fish: '' },
   settings: {
+    // Al empezar un live nuevo (otra sala de TikTok) se borran comentarios, likes, diamantes y rankings del anterior.
+    resetOnNewLive: true,
     voices: {
       // Tus voces de Fish Audio: { id, name, voice (ID de Fish), cover, author, emotion, speed }
       characters: [],
@@ -307,6 +309,24 @@ function resetTopGifts() {
   topGifts = [];
   rankingDirty = true;
   io.emit('topGifts', { list: topGifts, record: null });
+}
+
+// Live nuevo: borra lo del live anterior para que la app empiece ligera.
+// No toca el contador de tiempo, las partidas, el rango ni la lista de regalos conocidos.
+export function newLiveReset() {
+  likesByUser.clear();
+  giftsByUser.clear();
+  stats.totalLikes = 0;
+  stats.diamonds = 0;
+  stats.follows = 0;
+  chatHistory.length = 0;
+  followedNow.clear();
+  resetTopGifts();
+  rankingDirty = true;
+  saveRanking();
+  io.emit('rankings', rankings());
+  io.emit('newLive');
+  console.log('[live] Live nuevo: se reiniciaron comentarios, likes y diamantes');
 }
 
 function saveRanking(sync = false) {
@@ -661,11 +681,12 @@ async function connectLive() {
     const state = await c.connect();
     if (conn !== c) return;
     setStatus('connected', `Conectado al live de @${username}`, { roomId: state?.roomId });
-    // Un live nuevo (otra sala) empieza con el récord de regalos en cero.
+    // Un live nuevo (otra sala) empieza en cero. Si solo se reconectó al mismo live, no se borra nada.
     const roomId = String(state?.roomId || c.roomId || '');
     if (roomId && roomId !== streamRoomId) {
       streamRoomId = roomId;
-      resetTopGifts();
+      if (config.settings.resetOnNewLive) newLiveReset();
+      else resetTopGifts();
     }
   } catch (err) {
     if (conn !== c) return;

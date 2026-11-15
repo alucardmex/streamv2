@@ -940,7 +940,11 @@
   <!-- ============ RANKING ============ -->
   <main class="view" id="view-ranking" role="tabpanel">
     <h1>Ranking</h1>
-    <p class="lede">Se guarda aunque cierres la app. Reinícialo al empezar un live nuevo si quieres que cada transmisión tenga su propio top.</p>
+    <p class="lede">Se guarda aunque cierres la app o se corte la conexión.</p>
+    <div class="switches" style="margin-bottom:6px">
+      <label class="switch"><input type="checkbox" data-key="resetOnNewLive"><span class="track"></span>Empezar en cero cada live nuevo</label>
+    </div>
+    <p class="hint" style="margin:0 0 14px">Al empezar otro live se borran solos los comentarios, likes, diamantes, rankings y el regalo más caro del anterior. Si solo se corta y se reconecta al mismo live, no se borra nada. El contador de tiempo, las partidas y Camino a Conquistador no se tocan.</p>
     <div class="row" style="margin-bottom:10px">
       <label class="field" style="flex-direction:row;align-items:center;gap:10px">Puestos en el overlay <input type="number" min="1" max="10" data-key="overlays.likes.top" style="width:80px"></label>
       <button class="btn quiet" id="btn-reset" style="margin-left:auto">Reiniciar ranking</button>
@@ -1455,6 +1459,12 @@ function addFeed(html, cls, u) {
   if (atBottom) feed.scrollTop = feed.scrollHeight;
   return div;
 }
+// Live nuevo: el servidor ya reinició todo; aquí se limpia el chat de "En vivo".
+socket.on('newLive', () => {
+  feed.innerHTML = '<div class="empty" id="feed-empty"><b>Live nuevo</b>Se reiniciaron los comentarios, likes y diamantes del live anterior.</div>';
+  lastByUser.clear();
+  toast('Live nuevo: se reiniciaron comentarios, likes y diamantes');
+});
 const testTag = (x) => (x.test ? ' <span class="test-tag">prueba</span>' : '');
 // Con "Solo seguidores" prendido, marca a quien no te sigue (por eso no se lee).
 const followTag = (m) => (settings?.tts?.onlyFollowers && !m.follower && !m.mod ? ' <span class="test-tag nofollow">no te sigue</span>' : '');
