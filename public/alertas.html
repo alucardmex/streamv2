@@ -51,7 +51,7 @@
   .alert.tier3 .gift-img { width: 240px; height: 240px; font-size: 170px; }
   .alert.follow { --accent: #25f4ee; }
   /* Kick */
-  .alert.sub { --accent: #53fc18; }
+  .alert.sub, .alert.kick.follow { --accent: #53fc18; }
   .alert.sub .what b, .alert.kicks .what b { color: #53fc18; }
   .kcoin { border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b6ff8f, #53fc18 45%, #2c9e08); color: #0b0b0b; font-family: system-ui, sans-serif; font-weight: 900; box-shadow: inset 0 -8px 0 rgba(0,0,0,.18), 0 0 40px rgba(83,252,24,.45); }
   .gift-img.kcoin { width: 150px; height: 150px; font-size: 100px; }
@@ -97,16 +97,23 @@ let busy = false;
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const fmt = (n) => Number(n).toLocaleString('es-MX');
 
+// Kick tiene sus propios ajustes (pestaña Kick del panel).
+const kickAl = () => settings.kick?.alerts || { showKicks: true, showSubs: true, showFollows: true, minKicks: 1 };
 socket.on('gift', (g) => {
   if (PREVIEW) return;
+  if (g.platform === 'kick') {
+    if (!kickAl().showKicks || g.total < (kickAl().minKicks || 0)) return;
+    queue.push({ type: 'gift', ...g });
+    return run();
+  }
   // Un regalo con alerta propia se muestra aunque cueste menos que el mínimo.
   if (g.total < (settings.alerts.minDiamonds || 0) && !findRule({ type: 'gift', ...g }, true)) return;
   queue.push({ type: 'gift', ...g });
   run();
 });
-socket.on('follow', (u) => { if (!PREVIEW && settings.alerts.showFollows) { queue.push({ type: 'follow', ...u }); run(); } });
+socket.on('follow', (u) => { if (!PREVIEW && (u.platform === 'kick' ? kickAl().showFollows : settings.alerts.showFollows)) { queue.push({ type: 'follow', ...u }); run(); } });
 socket.on('share', (u) => { if (!PREVIEW && settings.alerts.showShares) { queue.push({ type: 'share', ...u }); run(); } });
-socket.on('sub', (x) => { if (!PREVIEW && settings.alerts.showSubs !== false) { queue.push({ type: 'sub', ...x }); run(); } });
+socket.on('sub', (x) => { if (!PREVIEW && kickAl().showSubs) { queue.push({ type: 'sub', ...x }); run(); } });
 
 // Vista previa del panel: alertas de ejemplo que solo se ven aquí (no salen en el stream ni las lee el bot).
 const SAMPLES = {
@@ -117,7 +124,9 @@ const SAMPLES = {
   compartido: { type: 'share', name: 'Valeria' },
   sub: { type: 'sub', kind: 'sub', name: 'Sofi.gg', months: 3, count: 1 },
   subsregalados: { type: 'sub', kind: 'giftsub', name: 'DonCarlos', count: 10 },
-  kicks: { type: 'gift', unit: 'kicks', name: 'ElPana_77', gift: 'Kicks', count: 1, total: 100 },
+  kicks: { type: 'gift', unit: 'kicks', platform: 'kick', name: 'ElPana_77', gift: 'Kicks', count: 1, total: 100 },
+  kicksgrande: { type: 'gift', unit: 'kicks', platform: 'kick', name: 'ReyDelPollo', gift: 'Kicks', count: 1, total: 1000, message: '¡vamos por el pollo!' },
+  seguidorkick: { type: 'follow', platform: 'kick', name: 'NuevoFan' },
 };
 window.preview = (kind) => {
   const a = SAMPLES[kind];
@@ -159,7 +168,7 @@ window.previewRule = (id) => {
 // ¿Este regalo tiene alerta propia? Primero la de ese regalo; si no, la de mayor cantidad que alcance.
 const norm = (t) => String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
 function findRule(a, giftOnly = false) {
-  if (a.type !== 'gift') return null;
+  if (a.type !== 'gift' || a.platform === 'kick') return null;
   const rules = (settings.alerts.custom || []).filter((r) => r.on !== false && r.media);
   const byGift = rules.find((r) => r.kind === 'gift' && ((r.giftId && r.giftId === a.giftId) || (r.gift && giftEmoji.same(r.gift, a.gift))));
   if (byGift || giftOnly) return byGift || null;
@@ -190,7 +199,7 @@ function run() {
   const rule = a.rule || findRule(a);
 
   const el = document.createElement('div');
-  el.className = `alert tier${tier} ${a.type}${a.unit === 'kicks' ? ' kicks' : ''}${rule ? ` custom size-${rule.size}` : ''}`;
+  el.className = `alert tier${tier} ${a.type}${a.platform === 'kick' ? ' kick' : ''}${a.unit === 'kicks' ? ' kicks' : ''}${rule ? ` custom size-${rule.size}` : ''}`;
   el.style.setProperty('--s', rule?.size === 'completo' ? 1 : scale);
   let visual, what, value = '';
   if (a.type === 'gift' && a.unit === 'kicks') {
@@ -217,7 +226,7 @@ function run() {
     what = `envió <span class="count">${a.count}×</span> ${icon}<b>${esc(a.gift)}</b>`;
     if (a.total) value = `${fmt(a.total)} 💎`;
   } else if (a.type === 'follow') {
-    visual = `<div class="gift-img">💖</div>`;
+    visual = `<div class="gift-img">${a.platform === 'kick' ? '💚' : '💖'}</div>`;
     what = `¡te empezó a <b>seguir</b>!`;
   } else {
     visual = `<div class="gift-img">📢</div>`;

@@ -141,10 +141,12 @@
 <script src="/text-style.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
-const tipo = /regal|gift/i.test(P.get('tipo') || '') ? 'gifts' : 'likes';
+// ?tipo=kicks es el top de Kick: usa el estilo del Top regalos pero cuenta Kicks.
+const KICKS = /kick/i.test(P.get('tipo') || '');
+const tipo = KICKS || /regal|gift/i.test(P.get('tipo') || '') ? 'gifts' : 'likes';
 // En Kick el ranking de regalos cuenta Kicks (su moneda).
 const KC = '<span class="kc">K</span>';
-let icon = tipo === 'gifts' ? '💎' : '❤️';
+const icon = KICKS ? KC : tipo === 'gifts' ? '💎' : '❤️';
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
 const STYLES = ['lista', 'podio', 'lider', 'compacto', 'neon', 'cinta', 'bolitas'];
@@ -247,7 +249,7 @@ function tapBurst(li, diff) {
 
 function render() {
   const s = settings();
-  let rows = override || last?.[tipo] || [];
+  let rows = override || (KICKS ? last?.kick?.gifts : last?.[tipo]) || [];
   if (!rows.length && P.get('demo') === '1') rows = DEMO;
   rows = rows.slice(0, s.top);
   document.body.classList.toggle('nobg', !s.bg);
@@ -304,7 +306,7 @@ function render() {
 // Botón "Probar animación" del panel: alguien de abajo rebasa al primero y luego todo vuelve a lo real.
 window.fxDemo = () => {
   const s = settings();
-  let rows = (override || last?.[tipo] || []).slice(0, s.top);
+  let rows = (override || (KICKS ? last?.kick?.gifts : last?.[tipo]) || []).slice(0, s.top);
   if (!rows.length) rows = DEMO.slice(0, s.top);
   rows = rows.map((u) => ({ ...u }));
   if (rows.length < 2) rows.push({ user: '~nuevo_fan', name: 'Nuevo_fan', value: 1, avatar: '' });
@@ -324,8 +326,8 @@ function applyFx() {
 }
 
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.[tipo] || {}) }; applyFx(); applyTextStyle(cfg.text); render(); });
-socket.on('rankings', (r) => { if (tipo === 'gifts') icon = r.stats?.platform === 'kick' ? KC : '💎'; last = r; render(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.[tipo] || {}) }; if (KICKS && cfg.showTitle !== false) cfg.title = 'Top Kicks'; applyFx(); applyTextStyle(cfg.text); render(); });
+socket.on('rankings', (r) => { last = r; render(); });
 applyFx();
 render();
 </script>

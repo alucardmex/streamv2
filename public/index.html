@@ -89,14 +89,28 @@
   .handle span { color: var(--muted); }
   .handle input[type=text] { border: 0; background: none; padding: 9px 10px 9px 3px; width: 170px; outline: none; }
   .handle input:disabled { color: var(--muted); }
-  .plat { display: flex; background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
-  .plat button { border: 0; background: none; color: var(--muted); font: 700 13px var(--display, inherit); padding: 6px 10px; border-radius: 7px; cursor: pointer; }
-  .plat button[aria-pressed="true"] { background: var(--line); color: var(--text, #fff); }
-  .plat button[data-plat="kick"][aria-pressed="true"] { background: #53fc18; color: #0b0b0b; }
-  .plat button:disabled { cursor: default; opacity: .6; }
-  .kick-only { display: none !important; }
-  body.plat-kick .kick-only { display: revert !important; }
-  body.plat-kick .tiktok-only { display: none !important; }
+  /* Plataformas: se prenden por separado (una, otra o las dos) */
+  .plats { display: flex; gap: 6px; flex: none; }
+  .plats button { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); background: var(--ink); color: var(--muted); font: 700 13px inherit; padding: 7px 11px; border-radius: 10px; cursor: pointer; }
+  .plats button::before { content: ''; width: 9px; height: 9px; border-radius: 50%; border: 2px solid currentColor; box-sizing: border-box; }
+  .plats button[aria-pressed="true"] { color: #fff; border-color: rgba(255,255,255,.35); }
+  .plats button[aria-pressed="true"]::before { background: #25f4ee; border-color: #25f4ee; }
+  .plats button[data-pl="kick"][aria-pressed="true"] { border-color: #53fc18; }
+  .plats button[data-pl="kick"][aria-pressed="true"]::before { background: #53fc18; border-color: #53fc18; }
+  body:not(.kick-on) .kick-only { display: none !important; }
+  body.tt-off .tiktok-only { display: none !important; }
+  .kchip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(83,252,24,.45); background: rgba(83,252,24,.08); color: #fff; font: 600 13px inherit; padding: 7px 12px; border-radius: 10px; cursor: pointer; white-space: nowrap; flex: none; }
+  .kchip .lamp { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); }
+  .kchip.connected .lamp { background: #53fc18; box-shadow: 0 0 10px #53fc18; }
+  .kchip.connecting .lamp, .kchip.reconnecting .lamp { background: var(--warn); animation: blink 1.1s infinite; }
+  .kchip.error .lamp { background: var(--live); }
+  .kconn { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .kconn .tally { flex: 1 1 260px; }
+  .kconn .tally-text small { white-space: normal; max-width: none; }
+  .kstats { display: flex; gap: 30px; margin-top: 18px; }
+  .kstats .stat { align-items: flex-start; }
+  .k-ov { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+  .tab .kc { font-size: 20px; }
   .kc { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; border-radius: 50%; background: #53fc18; color: #0b0b0b; font: 900 .68em/1 system-ui, sans-serif; vertical-align: -.12em; }
   .test-tag.kick { color: #53fc18; }
   .handle:focus-within { border-color: var(--voice); }
@@ -580,6 +594,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="2.5"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/></svg>
       En vivo<span class="dot" id="live-dot"></span>
     </button>
+    <button class="tab kick-only" role="tab" data-view="kick" aria-selected="false">
+      <span class="kc" aria-hidden="true">K</span>
+      Kick<span class="dot" id="kick-dot" style="background:#53fc18"></span>
+    </button>
     <button class="tab" role="tab" data-view="voice" aria-selected="false">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"/></svg>
       Voz
@@ -611,21 +629,25 @@
   </nav>
 
   <header class="top">
-    <div class="tally idle" id="tally">
+    <div class="plats" role="group" aria-label="Plataformas prendidas">
+      <button type="button" data-pl="tiktok" aria-pressed="true" title="Prender o apagar TikTok">TikTok</button>
+      <button type="button" data-pl="kick" aria-pressed="false" title="Prender o apagar Kick">Kick</button>
+    </div>
+    <div class="tally idle tiktok-only" id="tally">
       <span class="lamp"></span>
       <div class="tally-text"><b id="tally-title">Desconectado</b><small id="tally-msg">Escribe tu usuario y conéctate cuando estés en vivo</small></div>
     </div>
-    <div class="connect">
-      <div class="plat" role="group" aria-label="Plataforma"><button type="button" data-plat="tiktok" aria-pressed="true">TikTok</button><button type="button" data-plat="kick" aria-pressed="false">Kick</button></div>
-      <label class="handle"><span id="handle-pre">@</span><input id="username" type="text" placeholder="tu_usuario" autocomplete="off" aria-label="Usuario de TikTok"></label>
+    <div class="connect tiktok-only">
+      <label class="handle"><span>@</span><input id="username" type="text" placeholder="tu_usuario" autocomplete="off" aria-label="Usuario de TikTok"></label>
       <button class="btn go" id="btn-connect">Conectar</button>
       <button class="btn quiet" id="btn-disconnect" hidden>Desconectar</button>
     </div>
+    <button type="button" class="kchip idle kick-only" id="kchip" title="Abrir Kick"><span class="lamp"></span>Kick · <b id="kchip-t">Desconectado</b></button>
     <div class="upd" id="upd" role="status"><b id="upd-text">Actualización lista</b><button class="btn" id="upd-btn">Actualizar</button></div>
-    <div class="stats">
+    <div class="stats tiktok-only">
       <div class="stat"><b id="s-viewers">0</b><small>espectadores</small></div>
-      <div class="stat"><b id="s-likes">0</b><small id="s-likes-l">likes</small></div>
-      <div class="stat gift"><b id="s-diamonds">0</b><small id="s-diamonds-l">diamantes</small></div>
+      <div class="stat"><b id="s-likes">0</b><small>likes</small></div>
+      <div class="stat gift"><b id="s-diamonds">0</b><small>diamantes</small></div>
       <div class="stat follow"><b id="s-follows">0</b><small>seguidores nuevos</small></div>
     </div>
   </header>
@@ -669,12 +691,7 @@
             <button class="btn sm" data-test="likes">Likes</button>
             <button class="btn sm" data-test="follow">Seguidor</button>
           </div>
-          <div class="tests" style="margin-top:8px" aria-label="Pruebas de Kick">
-            <span class="hint" style="margin:0;align-self:center">Kick:</span>
-            <button class="btn sm" data-test="kicks">Kicks</button>
-            <button class="btn sm" data-test="sub">Sub</button>
-            <button class="btn sm" data-test="giftsub">Subs regalados</button>
-          </div>
+
         </div>
         <details>
           <summary class="hint" style="cursor:pointer">Opciones de conexión</summary>
@@ -760,7 +777,6 @@
           <label class="switch"><input type="checkbox" data-key="tts.readGifts"><span class="track"></span>Regalos</label>
           <label class="switch"><input type="checkbox" data-key="tts.readFollows"><span class="track"></span>Nuevos seguidores</label>
           <label class="switch"><input type="checkbox" data-key="tts.readShares"><span class="track"></span>Compartidos</label>
-          <label class="switch"><input type="checkbox" data-key="tts.readSubs"><span class="track"></span>Subs de Kick</label>
           <label class="switch"><input type="checkbox" data-key="tts.readUsername"><span class="track"></span>Decir quién escribió</label>
         </div>
         <label class="field" style="max-width:320px"><span class="field-head">Volumen general <span class="val" id="v-volume"></span></span><input type="range" min="0" max="1" step="0.05" data-key="tts.volume"></label>
@@ -799,16 +815,13 @@
     <section class="group">
       <div><h2>Frases</h2><p>Lo que dice el bot en cada caso.</p></div>
       <div class="controls">
-        <div class="chips-vars"><code>{nombre}</code><code>{usuario}</code><code>{mensaje}</code><code>{regalo}</code><code>{cantidad}</code><code>{meses}</code></div>
+        <div class="chips-vars"><code>{nombre}</code><code>{usuario}</code><code>{mensaje}</code><code>{regalo}</code><code>{cantidad}</code></div>
         <div class="fields">
           <label class="field">Comentario <input type="text" data-key="tts.chatFormat"></label>
           <label class="field">Regalo <input type="text" data-key="tts.giftFormat"></label>
           <label class="field">Nuevo seguidor <input type="text" data-key="tts.followFormat"></label>
           <label class="field">Compartido <input type="text" data-key="tts.shareFormat"></label>
-          <label class="field">Sub (Kick) <input type="text" data-key="tts.subFormat"></label>
-          <label class="field">Subs regalados (Kick) <input type="text" data-key="tts.giftSubFormat"></label>
         </div>
-        <p class="hint" style="margin:0">Los Kicks se leen con el formato de Regalo. Los subs usan la voz y el volumen de los regalos.</p>
       </div>
     </section>
 
@@ -851,7 +864,7 @@
         <div class="switches">
           <label class="switch"><input type="checkbox" data-key="tts.onlyFollowers"><span class="track"></span>Solo seguidores</label>
         </div>
-        <p class="hint">Con esto prendido, el bot solo lee los comentarios de quien te sigue. Tus moderadores también se leen. Los regalos, follows y compartidos se siguen leyendo de todos.<br>En <b>Kick</b> no llega si alguien te sigue: usa el modo <b>Solo seguidores</b> del chat en tu canal de Kick y el bot leerá lo que ahí se escriba.</p>
+        <p class="hint">Con esto prendido, el bot solo lee los comentarios de quien te sigue. Tus moderadores también se leen. Los regalos, follows y compartidos se siguen leyendo de todos.</p>
       </div>
     </section>
   </main>
@@ -869,9 +882,6 @@
         <button class="btn" data-alprev="grande">🦁 Regalo de 1,000+ 💎</button>
         <button class="btn" data-alprev="seguidor">💖 Nuevo seguidor</button>
         <button class="btn" data-alprev="compartido">📢 Compartido</button>
-        <button class="btn" data-alprev="kicks">🟢 Kicks (Kick)</button>
-        <button class="btn" data-alprev="sub">⭐ Sub (Kick)</button>
-        <button class="btn" data-alprev="subsregalados">🎁 Subs regalados (Kick)</button>
         <h3>Pantalla</h3>
         <div class="seg" role="group" aria-label="Forma de la pantalla"><button aria-pressed="true" data-alshape="h">Horizontal</button><button aria-pressed="false" data-alshape="v">Vertical</button></div>
         <h3>Posición</h3>
@@ -904,15 +914,13 @@
       <div><h2>Cuándo aparecen</h2><p>El mínimo también decide qué regalos lee el bot.</p></div>
       <div class="controls">
         <div class="fields">
-          <label class="field">Diamantes (o Kicks) mínimos para mostrar un regalo <input type="number" min="0" data-key="alerts.minDiamonds"></label>
+          <label class="field">Diamantes mínimos para mostrar un regalo <input type="number" min="0" data-key="alerts.minDiamonds"></label>
           <label class="field">Segundos en pantalla <input type="number" min="2" max="30" data-key="alerts.duration"></label>
         </div>
         <div class="switches">
           <label class="switch"><input type="checkbox" data-key="alerts.showFollows"><span class="track"></span>Nuevos seguidores</label>
           <label class="switch"><input type="checkbox" data-key="alerts.showShares"><span class="track"></span>Compartidos</label>
-          <label class="switch"><input type="checkbox" data-key="alerts.showSubs"><span class="track"></span>Subs de Kick</label>
         </div>
-        <p class="hint" style="margin:0">En Kick, el mínimo de diamantes se aplica a los Kicks, y las alertas propias "desde cierta cantidad" también cuentan Kicks.</p>
       </div>
     </section>
     <section class="group">
@@ -938,6 +946,105 @@
       <div><h2>En tu stream</h2><p>Pon este link como fuente de navegador en OBS o TikTok LIVE Studio, del tamaño de tu pantalla.</p></div>
       <div class="controls">
         <div class="st-link" id="al-link"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============ KICK ============ -->
+  <main class="view" id="view-kick" role="tabpanel">
+    <h1>Kick</h1>
+    <p class="lede">Todo lo de tu canal de Kick. Funciona solo o al mismo tiempo que TikTok: las alertas, el chat, el bot de voz y el contador de tiempo reciben lo de las dos.</p>
+    <section class="group">
+      <div><h2>Conexión</h2><p>Tu canal es lo que va después de <b>kick.com/</b>. Kick se conecta al chat aunque todavía no estés en vivo.</p></div>
+      <div class="controls">
+        <div class="kconn">
+          <div class="tally idle" id="ktally"><span class="lamp"></span><div class="tally-text"><b id="ktally-title">Desconectado</b><small id="ktally-msg">Escribe tu canal de Kick y conéctate</small></div></div>
+          <label class="handle"><span>kick.com/</span><input id="kick-channel" type="text" placeholder="tu_canal" autocomplete="off" aria-label="Canal de Kick"></label>
+          <button class="btn go" id="kick-connect">Conectar</button>
+          <button class="btn quiet" id="kick-disconnect" hidden>Desconectar</button>
+        </div>
+        <div class="kstats">
+          <div class="stat"><b id="k-viewers">0</b><small>espectadores</small></div>
+          <div class="stat gift"><b id="k-kicks">0</b><small>Kicks</small></div>
+          <div class="stat"><b id="k-subs">0</b><small>subs</small></div>
+          <div class="stat follow"><b id="k-follows">0</b><small>seguidores nuevos</small></div>
+        </div>
+      </div>
+    </section>
+    <section class="group">
+      <div><h2>Alertas de Kick</h2><p>Salen en el mismo overlay de alertas que TikTok, con el mismo sonido y tiempo en pantalla.</p></div>
+      <div class="controls">
+        <div class="switches">
+          <label class="switch"><input type="checkbox" data-key="kick.alerts.showKicks"><span class="track"></span>Kicks</label>
+          <label class="switch"><input type="checkbox" data-key="kick.alerts.showSubs"><span class="track"></span>Subs y subs regalados</label>
+          <label class="switch"><input type="checkbox" data-key="kick.alerts.showFollows"><span class="track"></span>Nuevos seguidores</label>
+        </div>
+        <div class="fields"><label class="field">Kicks mínimos para mostrar la alerta <input type="number" min="0" data-key="kick.alerts.minKicks"></label></div>
+        <div class="al-prev">
+          <div class="al-screen" id="kk-screen"><iframe id="kk-frame" src="/alertas.html?vista=1" title="Vista previa de las alertas de Kick" tabindex="-1" loading="lazy"></iframe><span class="tag">Vista previa · así se verá en tu stream</span></div>
+          <div class="al-side">
+            <h3>Ver alerta de</h3>
+            <button class="btn" data-kkprev="kicks"><span class="kc">K</span> 100 Kicks</button>
+            <button class="btn" data-kkprev="kicksgrande"><span class="kc">K</span> 1,000 Kicks</button>
+            <button class="btn" data-kkprev="sub">⭐ Sub</button>
+            <button class="btn" data-kkprev="subsregalados">🎁 Subs regalados</button>
+            <button class="btn" data-kkprev="seguidorkick">💚 Nuevo seguidor</button>
+            <p>La vista previa no sale en tu stream ni la lee el bot.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="group">
+      <div><h2>Bot de voz en Kick</h2><p>Usa las mismas voces, volúmenes y filtros de la pestaña Voz (palabras y usuarios bloqueados, pausa, etc.).</p></div>
+      <div class="controls">
+        <div class="switches">
+          <label class="switch"><input type="checkbox" data-key="kick.tts.readChat"><span class="track"></span>Leer el chat</label>
+          <label class="switch"><input type="checkbox" data-key="kick.tts.readKicks"><span class="track"></span>Kicks</label>
+          <label class="switch"><input type="checkbox" data-key="kick.tts.readSubs"><span class="track"></span>Subs</label>
+          <label class="switch"><input type="checkbox" data-key="kick.tts.readFollows"><span class="track"></span>Nuevos seguidores</label>
+        </div>
+        <div class="fields">
+          <label class="field">Kicks <input type="text" data-key="kick.tts.kicksFormat"></label>
+          <label class="field">Sub <input type="text" data-key="kick.tts.subFormat"></label>
+          <label class="field">Subs regalados <input type="text" data-key="kick.tts.giftSubFormat"></label>
+          <label class="field">Nuevo seguidor <input type="text" data-key="kick.tts.followFormat"></label>
+        </div>
+        <p class="hint" style="margin:0">Puedes usar <code>{nombre}</code> <code>{usuario}</code> <code>{cantidad}</code> <code>{meses}</code>. Los Kicks y subs usan la voz y el volumen de los regalos.<br>Kick no avisa si alguien te sigue, así que "Solo seguidores" de Voz no aplica aquí: prende el modo <b>Solo seguidores</b> del chat en tu canal de Kick.</p>
+      </div>
+    </section>
+    <section class="group">
+      <div><h2>Contador de tiempo</h2><p>Suma al mismo contador que TikTok. Pon 0 para que no sume.</p></div>
+      <div class="controls">
+        <div class="rules" style="max-width:460px">
+          <span><span class="kc">K</span> Por cada Kick</span><input type="number" step="any" data-key="kick.timer.perKick" aria-label="Segundos por Kick">
+          <span>⭐ Cada sub (también los regalados)</span><input type="number" step="any" data-key="kick.timer.sub" aria-label="Segundos por sub">
+          <span>💚 Nuevo seguidor</span><input type="number" step="any" data-key="kick.timer.follow" aria-label="Segundos por seguidor">
+          <span>💬 Mensaje en el chat</span><input type="number" step="any" data-key="kick.timer.chat" aria-label="Segundos por mensaje">
+        </div>
+        <p class="hint" style="margin:0">Segundos que suma cada cosa.</p>
+      </div>
+    </section>
+    <section class="group">
+      <div><h2>Probar sin estar en vivo</h2><p>Sale en tu stream y el bot lo lee, igual que si fuera de verdad.</p></div>
+      <div class="controls">
+        <div class="tests" aria-label="Pruebas de Kick">
+          <button class="btn sm" data-test="kick:chat">Comentario</button>
+          <button class="btn sm" data-test="kick:kicks">Kicks</button>
+          <button class="btn sm" data-test="kick:sub">Sub</button>
+          <button class="btn sm" data-test="kick:giftsub">Subs regalados</button>
+          <button class="btn sm" data-test="kick:follow">Seguidor</button>
+        </div>
+      </div>
+    </section>
+    <section class="group">
+      <div><h2>Ranking de Kicks</h2><p>Quién te ha dado más Kicks y el Kick más grande de este stream. Se reinicia solo al empezar un live nuevo en Kick.</p></div>
+      <div class="controls">
+        <div id="k-top"></div>
+        <div class="boards" style="grid-template-columns:1fr;max-width:520px"><div class="board gifts"><h2>Más Kicks</h2><ol id="rank-kicks"></ol></div></div>
+        <div class="row"><button class="btn quiet" id="kick-reset">Reiniciar lo de Kick</button></div>
+        <h3 style="margin:10px 0 0">Overlays de Kick</h3>
+        <p class="hint" style="margin:0">Usan el mismo estilo que el Top regalos y el Regalo más caro de la pestaña Overlays. También están en Escena.</p>
+        <div class="k-ov" id="k-ov"></div>
       </div>
     </section>
   </main>
@@ -1099,8 +1206,6 @@
               <span class="inl">❤️ Cada <input type="number" min="1" data-key="overlays.timer.likesEvery" aria-label="Cantidad de likes"> likes</span><input type="number" step="any" data-key="overlays.timer.likesSecs" aria-label="Segundos por bloque de likes">
               <span>💖 Nuevo seguidor</span><input type="number" step="any" data-key="overlays.timer.follow" aria-label="Segundos por seguidor">
               <span>📢 Compartido</span><input type="number" step="any" data-key="overlays.timer.share" aria-label="Segundos por compartido">
-              <span><span class="kc">K</span> Por cada Kick (Kick)</span><input type="number" step="any" data-key="overlays.timer.perKick" aria-label="Segundos por Kick">
-              <span>⭐ Cada sub (Kick, también los regalados)</span><input type="number" step="any" data-key="overlays.timer.kickSub" aria-label="Segundos por sub">
               <span>💬 Mensaje en el chat</span><input type="number" step="any" data-key="overlays.timer.chat" aria-label="Segundos por mensaje">
               <span>⏳ Tiempo máximo (minutos, 0 = sin límite)</span><input type="number" min="0" id="tm-max" aria-label="Tiempo máximo en minutos">
             </div>
@@ -1389,13 +1494,10 @@ socket.on('config', (cfg) => {
   serverCfg = cfg;
   if (first || document.activeElement?.dataset?.key === undefined) fillSettings();
   renderVoicesUI();
-  if (!first && document.activeElement !== $('#username')) {
-    plNames = { tiktok: cfg.username || '', kick: cfg.kickChannel || '' };
-    $('#username').value = plNames[platform] || '';
-  }
+  applyPlatforms(cfg);
+  if (document.activeElement !== $('#kick-channel')) $('#kick-channel').value = cfg.kickChannel || '';
   if (first) {
-    plNames = { tiktok: cfg.username || '', kick: cfg.kickChannel || '' };
-    setPlatform(cfg.platform === 'kick' ? 'kick' : 'tiktok');
+    $('#username').value = cfg.username || '';
     if (cfg.hasSignApiKey) $('#signApiKey').placeholder = 'Key guardada (escribe otra para cambiarla)';
     renderLinks();
     populateVoices();
@@ -1403,56 +1505,94 @@ socket.on('config', (cfg) => {
 });
 
 // ---------------------------------------------------------------- conexión
-// TikTok o Kick (una a la vez). Cada una recuerda su usuario/canal.
-let platform = 'tiktok';
-let plNames = { tiktok: '', kick: '' };
-function setPlatform(p) {
-  if (platform !== p) plNames[platform] = $('#username').value;
-  platform = p;
-  document.body.classList.toggle('plat-kick', p === 'kick');
-  $$('[data-plat]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.plat === p)));
-  const k = p === 'kick';
-  $('#handle-pre').textContent = k ? 'kick.com/' : '@';
-  $('#username').value = plNames[p] || '';
-  $('#username').placeholder = k ? 'tu_canal' : 'tu_usuario';
-  $('#username').setAttribute('aria-label', k ? 'Canal de Kick' : 'Usuario de TikTok');
-  $('#s-likes-l').textContent = k ? 'subs' : 'likes';
-  $('#s-diamonds-l').textContent = k ? 'Kicks' : 'diamantes';
-  $('#rank-gifts').parentElement.querySelector('h2').textContent = k ? 'Más Kicks' : 'Más diamantes';
-  if ($('#tally').classList.contains('idle')) $('#tally-msg').textContent = idleMsg();
+// Plataformas: TikTok, Kick o las dos. Kick tiene su propia pestaña y su propia conexión.
+let kickOn = false;
+function applyPlatforms(cfg) {
+  kickOn = !!cfg.kickOn;
+  const tt = cfg.tiktokOn !== false;
+  document.body.classList.toggle('kick-on', kickOn);
+  document.body.classList.toggle('tt-off', !tt);
+  $('[data-pl="tiktok"]').setAttribute('aria-pressed', String(tt));
+  $('[data-pl="kick"]').setAttribute('aria-pressed', String(kickOn));
+  if (!kickOn && $('#view-kick').classList.contains('active')) showView('live');
 }
-const idleMsg = () => (platform === 'kick' ? 'Escribe tu canal de Kick y conéctate' : 'Escribe tu usuario y conéctate cuando estés en vivo');
-$('#mini-likes').parentElement.classList.add('tiktok-only');
-$('#rank-likes').parentElement.classList.add('tiktok-only');
-$$('[data-plat]').forEach((b) => b.addEventListener('click', () => { if (!b.disabled) setPlatform(b.dataset.plat); }));
+$$('[data-pl]').forEach((b) => b.addEventListener('click', () => {
+  const on = b.getAttribute('aria-pressed') !== 'true';
+  const other = $(`[data-pl="${b.dataset.pl === 'kick' ? 'tiktok' : 'kick'}"]`).getAttribute('aria-pressed') === 'true';
+  if (!on && !other) return toast('Deja prendida al menos una plataforma');
+  const live = b.dataset.pl === 'kick' ? kickState.state !== 'idle' : $('#tally').className.includes('connected');
+  if (!on && live && !confirm(`¿Apagar ${b.dataset.pl === 'kick' ? 'Kick' : 'TikTok'}? Se va a desconectar.`)) return;
+  socket.emit('setPlatforms', { [b.dataset.pl]: on });
+  if (on && b.dataset.pl === 'kick') setTimeout(() => showView('kick'), 150);
+}));
+$('#kchip').addEventListener('click', () => showView('kick'));
 $('#btn-connect').onclick = () => {
   const name = $('#username').value.replace(/^@/, '').trim();
-  if (platform === 'kick') {
-    if (!name) { $('#username').focus(); return toast('Escribe tu canal de Kick'); }
-    plNames.kick = name;
-    return socket.emit('connectLive', { platform: 'kick', kickChannel: name });
-  }
   if (!name) { $('#username').focus(); return toast('Escribe tu usuario de TikTok'); }
-  plNames.tiktok = name;
   const key = $('#signApiKey').value.trim();
-  socket.emit('connectLive', key ? { platform: 'tiktok', username: name, signApiKey: key } : { platform: 'tiktok', username: name });
+  socket.emit('connectLive', key ? { username: name, signApiKey: key } : { username: name });
 };
+
+// ---------------------------------------------------------------- Kick
+let kickState = { state: 'idle' };
+$('#kick-connect').onclick = () => {
+  const channel = $('#kick-channel').value.trim();
+  if (!channel) { $('#kick-channel').focus(); return toast('Escribe tu canal de Kick'); }
+  socket.emit('connectKick', { channel });
+};
+$('#kick-channel').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#kick-connect').click(); });
+$('#kick-disconnect').onclick = () => socket.emit('disconnectKick');
+$('#kick-reset').onclick = () => { if (confirm('¿Reiniciar el ranking de Kicks, los subs y el Kick más grande?')) socket.emit('resetKick'); };
+socket.on('kickStatus', (s) => {
+  kickState = s;
+  const title = TITLES[s.state] || s.state;
+  $('#ktally').className = 'tally ' + s.state;
+  $('#ktally-title').textContent = s.state === 'connected' && !s.live ? 'Conectado al chat' : title;
+  $('#ktally-msg').textContent = s.state === 'idle' ? 'Escribe tu canal de Kick y conéctate' : s.message;
+  $('#kchip').className = 'kchip kick-only ' + s.state;
+  $('#kchip-t').textContent = s.state === 'connected' ? (s.live ? 'En vivo' : 'Chat conectado') : title;
+  $('#kick-dot').style.display = s.state === 'connected' && s.live ? 'block' : 'none';
+  const active = s.state !== 'idle';
+  $('#kick-connect').hidden = active;
+  $('#kick-disconnect').hidden = !active;
+  $('#kick-channel').disabled = active;
+});
+socket.on('kickTopGifts', ({ list }) => {
+  const top = (list || [])[0];
+  $('#k-top').innerHTML = top
+    ? `<div class="mini-top"><span class="gi"><span class="kc">K</span></span><span style="min-width:0"><b>${esc(top.gift)} · ${full(top.diamonds)} Kicks</b><small>de ${esc(top.name)}${top.test ? ' · prueba' : ''}</small></span></div>`
+    : '<span class="hint">Todavía no hay Kicks en este stream.</span>';
+});
+function renderKickOverlays() {
+  const base = location.origin;
+  $('#k-ov').innerHTML = [
+    ['Top Kicks', '/ranking.html?tipo=kicks', 'Quién te ha dado más Kicks.'],
+    ['Kick más grande', '/top-regalo.html?plataforma=kick', 'El Kick más grande del stream.'],
+  ].map(([name, p, note]) => `<div class="ov"><h2>${name}</h2><span class="url">${base}${p}</span><p>${note}</p>
+    <span class="row"><button class="btn sm" data-copy="${base}${p}">Copiar link</button><button class="btn sm quiet" data-open-path="${p}">Abrir</button></span></div>`).join('');
+}
+renderKickOverlays();
+const kkFit = () => { const box = $('#kk-screen'), f = $('#kk-frame'); if (!box?.clientWidth) return; f.style.width = '1280px'; f.style.height = '720px'; f.style.transform = `scale(${box.clientWidth / 1280})`; };
+window.addEventListener('resize', kkFit);
+$$('.tab[data-view=kick]').forEach((t) => t.addEventListener('click', () => setTimeout(kkFit, 30)));
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-kkprev]');
+  if (b) { kkFit(); try { $('#kk-frame').contentWindow.preview?.(b.dataset.kkprev); } catch {} }
+});
 $('#username').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#btn-connect').click(); });
 $('#btn-disconnect').onclick = () => socket.emit('disconnectLive');
 
 const TITLES = { connected: 'En vivo', connecting: 'Conectando', waiting: 'Esperando tu live', reconnecting: 'Reconectando', error: 'No se pudo conectar', idle: 'Desconectado' };
 function renderStatus(s) {
-  $('#tally').className = 'tally ' + s.state;
+  $('#tally').className = 'tally tiktok-only ' + s.state;
   $('#tally-title').textContent = TITLES[s.state] || s.state;
-  $('#tally-msg').textContent = s.state === 'idle' ? idleMsg() : s.message;
+  $('#tally-msg').textContent = s.state === 'idle' ? 'Escribe tu usuario y conéctate cuando estés en vivo' : s.message;
   $('#app').classList.toggle('on-air', s.state === 'connected');
   $('#live-dot').style.display = s.state === 'connected' ? 'block' : 'none';
   const active = s.state !== 'idle';
   $('#btn-connect').hidden = active;
   $('#btn-disconnect').hidden = !active;
   $('#username').disabled = active;
-  $$('[data-plat]').forEach((b) => { b.disabled = active; });
-  if (s.platform && s.platform !== platform && active) setPlatform(s.platform);
 }
 socket.on('status', renderStatus);
 socket.on('disconnect', () => renderStatus({ state: 'error', message: window.streamv2 ? 'Se perdió la conexión con el motor de la app. Ciérrala y vuelve a abrirla.' : 'La ventana negra de la app se cerró. Ábrela otra vez con INICIAR.bat.' }));
@@ -1477,9 +1617,17 @@ socket.on('rankings', (r) => {
   renderBoard($('#rank-likes'), r.likes);
   renderBoard($('#rank-gifts'), r.gifts);
   $('#s-viewers').textContent = fmt(r.stats.viewers);
-  $('#s-likes').textContent = fmt(platform === 'kick' ? r.stats.subs || 0 : r.stats.totalLikes);
+  $('#s-likes').textContent = fmt(r.stats.totalLikes);
   $('#s-diamonds').textContent = fmt(r.stats.diamonds);
   $('#s-follows').textContent = fmt(r.stats.follows);
+  const k = r.kick;
+  if (k) {
+    renderBoard($('#rank-kicks'), k.gifts);
+    $('#k-viewers').textContent = fmt(k.stats.viewers);
+    $('#k-kicks').textContent = fmt(k.stats.kicks);
+    $('#k-subs').textContent = fmt(k.stats.subs);
+    $('#k-follows').textContent = fmt(k.stats.follows);
+  }
 });
 $('#btn-reset').onclick = () => { if (confirm('¿Reiniciar el ranking de likes y diamantes?')) socket.emit('resetRanking'); };
 
@@ -1516,24 +1664,26 @@ function addFeed(html, cls, u) {
   const atBottom = feed.scrollHeight - feed.scrollTop - feed.clientHeight < 80;
   const div = document.createElement('div');
   div.className = 'item ' + cls;
+  if (u?.platform === 'kick') div.dataset.pl = 'kick';
   div.innerHTML = `${avatar(u)}<div class="msg">${html}</div><time>${clock()}</time>`;
   feed.appendChild(div);
   while (feed.children.length > 200) feed.firstChild.remove();
   if (atBottom) feed.scrollTop = feed.scrollHeight;
   return div;
 }
-// Live nuevo: el servidor ya reinició todo; aquí se limpia el chat de "En vivo".
-socket.on('newLive', () => {
-  feed.innerHTML = '<div class="empty" id="feed-empty"><b>Live nuevo</b>Se reiniciaron los comentarios, likes y diamantes del live anterior.</div>';
+// Live nuevo: el servidor ya reinició esa plataforma; aquí se limpia lo suyo del chat de "En vivo".
+socket.on('newLive', ({ platform: pl = 'tiktok' } = {}) => {
+  [...feed.children].forEach((d) => { if ((d.dataset.pl || 'tiktok') === pl) d.remove(); });
+  if (!feed.children.length) feed.innerHTML = '<div class="empty" id="feed-empty"><b>Live nuevo</b>Se reinició lo del live anterior.</div>';
   lastByUser.clear();
-  toast('Live nuevo: se reiniciaron comentarios, likes y diamantes');
+  toast(pl === 'kick' ? 'Live nuevo en Kick: se reiniciaron comentarios, Kicks y subs' : 'Live nuevo: se reiniciaron comentarios, likes y diamantes');
 });
 const testTag = (x) => (x.test ? ' <span class="test-tag">prueba</span>' : '');
 // Con "Solo seguidores" prendido, marca a quien no te sigue (por eso no se lee).
 const followTag = (m) => (settings?.tts?.onlyFollowers && !m.follower && !m.mod ? ' <span class="test-tag nofollow">no te sigue</span>' : '');
 
 // Nombre clicable en el feed: abre el selector para darle una voz especial.
-const whoBtn = (u) => `<button type="button" class="who" data-uvoice="${esc(u.user)}" data-uname="${esc(u.name)}" title="Darle una voz especial a ${esc(u.name)}">${esc(u.name)}</button>`;
+const whoBtn = (u) => `${u.platform === 'kick' ? '<span class="kc" title="Kick">K</span> ' : ''}<button type="button" class="who" data-uvoice="${esc(u.user)}" data-uname="${esc(u.name)}" title="Darle una voz especial a ${esc(u.name)}">${esc(u.name)}</button>`;
 const voiceTag = (u) => { const r = userRule(u.user, u.name); const c = r && charById(r.characterId); return c ? `<span class="vtag">${esc(c.name)}</span>` : ''; };
 
 socket.on('chat', (m) => {
@@ -1546,23 +1696,26 @@ socket.on('gift', (g) => {
   const what = g.unit === 'kicks' ? `<span class="gift-chip"><span class="kc">K</span> ${esc(g.gift)} <small>${fmt(g.total)} ${unit}</small></span>${g.message ? ` ${esc(g.message)}` : ''}` : `<span class="gift-chip">${img}${g.count} × ${esc(g.gift)} <small>${fmt(g.total)} ${unit}</small></span>`;
   addFeed(`${whoBtn(g)}${what}${testTag(g)}`, 'gift', g);
   const t = settings?.tts;
-  if (t?.readGifts && g.total >= (settings.alerts.minDiamonds || 0)) {
-    const kind = g.total >= (settings.voices.bigGiftMin || 100) ? 'bigGift' : 'gift';
+  if (g.platform === 'kick') {
     // Kicks: "Gracias Fulano por 100 Kicks".
-    const vars = g.unit === 'kicks' ? { regalo: 'Kicks', cantidad: g.total } : { regalo: g.gift, cantidad: g.count };
-    enqueue(fill(t.giftFormat, { nombre: g.name, usuario: g.user, ...vars }), kind, true, null, g);
+    const k = settings?.kick;
+    if (k?.tts.readKicks && g.total >= (k.alerts.minKicks || 0)) enqueue(fill(k.tts.kicksFormat, { nombre: g.name, usuario: g.user, cantidad: g.total, regalo: g.gift }), g.total >= (settings.voices.bigGiftMin || 100) ? 'bigGift' : 'gift', true, null, g);
+  } else if (t?.readGifts && g.total >= (settings.alerts.minDiamonds || 0)) {
+    const kind = g.total >= (settings.voices.bigGiftMin || 100) ? 'bigGift' : 'gift';
+    enqueue(fill(t.giftFormat, { nombre: g.name, usuario: g.user, regalo: g.gift, cantidad: g.count }), kind, true, null, g);
   }
 });
 socket.on('follow', (u) => {
-  addFeed(`${whoBtn(u)}te empezó a seguir`, 'follow', u);
-  if (settings?.tts.readFollows) enqueue(fill(settings.tts.followFormat, { nombre: u.name, usuario: u.user }), 'follow');
+  addFeed(`${whoBtn(u)}te empezó a seguir${testTag(u)}`, 'follow', u);
+  if (u.platform === 'kick') { if (settings?.kick?.tts.readFollows) enqueue(fill(settings.kick.tts.followFormat, { nombre: u.name, usuario: u.user }), 'follow'); }
+  else if (settings?.tts.readFollows) enqueue(fill(settings.tts.followFormat, { nombre: u.name, usuario: u.user }), 'follow');
 });
 // Kick: subs y subs regalados (usan la voz y el volumen de los regalos).
 socket.on('sub', (x) => {
   const gifted = x.kind === 'giftsub';
   const what = gifted ? `regaló <b>${x.count} ${x.count === 1 ? 'sub' : 'subs'}</b> ⭐` : `se suscribió ⭐${x.months > 1 ? ` <small>(${x.months} meses)</small>` : ''}`;
   addFeed(`${whoBtn(x)}${what}${testTag(x)}`, 'gift', x);
-  const t = settings?.tts;
+  const t = settings?.kick?.tts;
   if (t?.readSubs) enqueue(fill(gifted ? t.giftSubFormat : t.subFormat, { nombre: x.name, usuario: x.user, cantidad: x.count, meses: x.months }), 'gift', true, null, x);
 });
 socket.on('share', (u) => {
@@ -1618,13 +1771,14 @@ function cleanText(text, t) {
 // Devuelve true si el comentario se mandó a la cola de voz.
 function sayChat(m) {
   const t = settings?.tts;
-  if (!t || !t.enabled || !t.readChat) return false;
+  const kk = m.platform === 'kick';
+  if (!t || !t.enabled || !(kk ? settings.kick?.tts?.readChat : t.readChat)) return false;
   const raw = m.text.trim();
   if (t.ignorePrefix && raw.startsWith(t.ignorePrefix)) return false;
   const ids = [m.user.toLowerCase(), m.name.toLowerCase()];
   const only = listOf(t.onlyUsers);
   if (only.length && !ids.some((x) => only.includes(x))) return false;
-  if (t.onlyFollowers && !m.follower && !m.mod) return false;
+  if (!kk && t.onlyFollowers && !m.follower && !m.mod) return false;
   if (listOf(t.blockedUsers).some((x) => ids.includes(x))) return false;
   const lower = raw.toLowerCase();
   if (listOf(t.blockedWords).some((w) => lower.includes(w))) return false;
@@ -2659,6 +2813,7 @@ function renderScene(full) {
   // lista de overlays
   $('#sc-types').innerHTML = Object.entries(SCENE_TYPES).map(([type, t]) => {
     const it = sc.items.find((x) => x.type === type && x.on !== false);
+    if (type.startsWith('kick') && !kickOn && !it) return ''; // los de Kick solo si Kick está prendido
     return `<div class="sc-type${it ? ' in' : ''}"><span>${t.icon} ${t.name}</span>${it
       ? `<span class="row" style="gap:6px"><button type="button" class="btn sm quiet" data-scselect="${it.id}">Elegir</button><button type="button" class="btn sm quiet" data-scremove="${it.id}" aria-label="Quitar ${t.name}">Quitar</button></span>`
       : `<button type="button" class="btn sm" data-scaddtype="${type}">＋ Agregar</button>`}</div>`;

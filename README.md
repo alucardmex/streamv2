@@ -30,15 +30,16 @@ Tus datos (ajustes, API key, voces, ranking) viven en `%APPDATA%\StreamV2`, sepa
 
 ### Kick
 
-Arriba, junto a tu usuario, elige **TikTok** o **Kick** (una a la vez). En Kick escribe tu canal (lo que va después de `kick.com/`) y presiona **Conectar**. Los mismos overlays y el mismo bot funcionan con Kick:
+Arriba a la izquierda están **TikTok** y **Kick**: prende una, la otra o las dos al mismo tiempo (al menos una queda prendida). Al prender Kick aparece la pestaña **Kick** con todo lo suyo:
 
-- **Chat:** el bot lee el chat de Kick. Kick no avisa si alguien te sigue; para leer solo a seguidores usa el modo *Solo seguidores* del chat en tu canal de Kick.
-- **Kicks** (la moneda para regalar de Kick): salen como regalo en las alertas, el ranking de regalos y el regalo más caro, con el valor en Kicks. El mínimo de las alertas y las alertas propias "desde cierta cantidad" cuentan Kicks.
-- **Subs y subs regalados:** alerta propia, el bot los lee (Voz → **Subs de Kick**, con su formato en Formato) y se apagan en Alertas → **Subs de Kick**.
-- **Follows:** alerta de nuevo seguidor, igual que en TikTok.
-- **Contador de tiempo:** en Overlays → Contador eliges cuánto suma cada Kick y cada sub (también los regalados).
-- Kick no tiene likes ni compartidos, así que en Kick el top de taps queda vacío; arriba se ven los subs en lugar de los likes.
-- En **En vivo → Probar sin estar en vivo** están las pruebas de Kick (Kicks, Sub, Subs regalados), y en Alertas la vista previa también.
+- **Conexión:** escribe tu canal (lo que va después de `kick.com/`) y presiona **Conectar**. Kick se conecta al chat aunque todavía no estés en vivo, y se reconecta solo al abrir la app. Arriba, junto a TikTok, ves si Kick está en vivo.
+- **Alertas de Kick:** Kicks, subs y subs regalados, y nuevos seguidores, con su mínimo de Kicks y su vista previa. Salen en el mismo overlay de alertas que TikTok.
+- **Bot de voz en Kick:** qué se lee (chat, Kicks, subs, seguidores) y sus textos. Usa las mismas voces, volúmenes y filtros de la pestaña Voz. Kick no avisa si alguien te sigue: para leer solo a seguidores usa el modo *Solo seguidores* del chat en tu canal de Kick.
+- **Contador de tiempo:** cuánto suma cada Kick, cada sub, cada seguidor y cada mensaje, al mismo contador que TikTok.
+- **Pruebas:** comentario, Kicks, sub, subs regalados y seguidor.
+- **Ranking de Kicks:** quién te ha dado más Kicks y el Kick más grande del stream, aparte de los diamantes de TikTok. Tienen sus propios overlays (**Top Kicks** y **Kick más grande**, con el estilo que elegiste en Overlays) y también están en Escena.
+- En "En vivo" y en el chat en pantalla, lo de Kick sale con una **K** verde.
+- Cada plataforma empieza en cero en su propio live nuevo: un live nuevo de Kick no borra lo de TikTok, y al revés.
 - Kick no manda la foto de quien escribe; en su lugar sale su inicial.
 
 ## 4. Poner los overlays en OBS / TikTok LIVE Studio

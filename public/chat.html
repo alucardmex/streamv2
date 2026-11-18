@@ -5,6 +5,7 @@
 <title>Chat</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
+  .kc { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; border-radius: 50%; background: #53fc18; color: #0b0b0b; font: 900 .68em/1 system-ui, sans-serif; vertical-align: -.1em; margin-right: 5px; text-shadow: none; }
   /* Opciones por URL: ?ocultar=30 (segundos, 0 = nunca)  ?max=12  ?escala=1.2  ?regalos=0 */
   html, body { margin: 0; height: 100%; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
   #chat { position: fixed; left: 0; right: 0; bottom: 0; padding: 10px; display: flex; flex-direction: column; gap: 8px; transform-origin: bottom left; }
@@ -42,7 +43,7 @@ function add(u, html, cls = '') {
   const av = u.avatar
     ? `<img class="av" src="${esc(u.avatar)}" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=av>${letter}</span>'">`
     : `<span class="av">${letter}</span>`;
-  el.innerHTML = `${av}<div class="text"><span class="who">${esc(u.name)}</span>${html}</div>`;
+  el.innerHTML = `${av}<div class="text"><span class="who">${u.platform === 'kick' ? '<span class="kc" title="Kick">K</span>' : ''}${esc(u.name)}</span>${html}</div>`;
   chat.appendChild(el);
   while (chat.children.length > max) chat.firstChild.remove();
   if (hideAfter > 0) setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 500); }, hideAfter * 1000);

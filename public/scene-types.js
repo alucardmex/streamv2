@@ -9,6 +9,8 @@ window.SCENE_TYPES = {
   timer: { name: 'Contador de tiempo', icon: '⏱️', path: '/contador.html', w: 460, h: 260 },
   matches: { name: 'Partidas PUBG', icon: '🍗', path: '/partidas.html', w: 720, h: 170 },
   rank: { name: 'Camino a Conquistador', icon: '🏅', path: '/rango.html', w: 620, h: 330 },
+  kickGifts: { name: 'Top Kicks (Kick)', icon: '🟢', path: '/ranking.html?tipo=kicks', w: 420, h: 560 },
+  kickTop: { name: 'Kick más grande', icon: '🟢', path: '/top-regalo.html?plataforma=kick', w: 540, h: 280 },
 };
 
 // Link de cada overlay dentro de la escena. preview=true es para el editor del panel:

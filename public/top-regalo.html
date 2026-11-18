@@ -145,6 +145,8 @@
 <script src="/fx.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
+// ?plataforma=kick muestra el Kick más grande (mismo estilo que el regalo más caro).
+const KICK = /kick/i.test(P.get('plataforma') || '');
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
 const STYLES = ['tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja', 'circulo', 'cuadro'];
@@ -176,7 +178,7 @@ function settings() {
 
 function render(isRecord = false) {
   const s = settings();
-  const g = demoGift || record || (P.get('demo') === '1' ? DEMO : null);
+  const g = demoGift || record || (P.get('demo') === '1' ? (KICK ? { ...DEMO, gift: 'Kicks', image: '', unit: 'kicks', diamonds: 1000, count: 1, total: 1000 } : DEMO) : null);
   document.body.classList.toggle('nobg', !s.bg);
   stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
   stage.classList.toggle('hidden', !g && P.get('ocultarVacio') === '1');
@@ -298,8 +300,8 @@ function applyFx() {
 }
 
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.topGift || {}) }; applyFx(); applyTextStyle(cfg.text); render(); });
-socket.on('topGifts', ({ list, record: isNew }) => { record = (list || [])[0] || null; render(!!isNew); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.topGift || {}) }; if (KICK && cfg.showTitle !== false) cfg.title = 'Kick más grande del stream'; applyFx(); applyTextStyle(cfg.text); render(); });
+socket.on(KICK ? 'kickTopGifts' : 'topGifts', ({ list, record: isNew }) => { record = (list || [])[0] || null; render(!!isNew); });
 applyFx();
 render();
 </script>
