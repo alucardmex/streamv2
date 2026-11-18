@@ -6,6 +6,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Bungee&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/fx.css">
 <style>
+  .kc { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; border-radius: 50%; background: #53fc18; color: #0b0b0b; font: 900 .68em/1 system-ui, sans-serif; vertical-align: -.12em; text-shadow: none; }
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
      ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja|circulo|cuadro  ?cambio=4 (segundos, estilos Círculo y Cuadro)  ?titulo=Rey%20del%20stream (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
   .fxw { display: block; }
@@ -185,9 +186,9 @@ function render(isRecord = false) {
   const letter = esc(((g?.name || '?')[0] || '?').toUpperCase());
   const av = g?.avatar ? `<img class="av" src="${esc(g.avatar)}" alt="" referrerpolicy="no-referrer" onerror="this.outerHTML='<span class=av>${letter}</span>'">` : `<span class="av">${letter}</span>`;
   const emo = g ? giftEmoji(g.gift) : '🎁';
-  const img = g?.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${emo}'))">` : emo;
+  const img = g?.unit === 'kicks' ? '<span class="kc">K</span>' : g?.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${emo}'))">` : emo;
   const gift = g ? `<span class="tx-gift">${esc(g.gift)}${g.count > 1 ? ` ×${g.count}` : ''}</span>` : '';
-  const val = g ? `<span class="tx-value"><span class="cnt">${full(g.diamonds)}</span> 💎</span>` : '';
+  const val = g ? `<span class="tx-value"><span class="cnt">${full(g.diamonds)}</span> ${g.unit === 'kicks' ? '<span class="kc">K</span>' : '💎'}</span>` : '';
   const nm = g ? `<span class="tx-name">${esc(g.name)}</span>` : '';
   const T = esc(s.title);
   const badge = '<span class="badge">¡Nuevo récord!</span>';

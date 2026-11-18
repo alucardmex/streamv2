@@ -1,7 +1,7 @@
 {
   "name": "streamv2",
   "productName": "StreamV2",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "description": "Alertas de regalos, rankings y bot de voz para TikTok LIVE",
   "author": "alucardmex",
   "type": "module",
@@ -19,7 +19,8 @@
     "electron-updater": "6.8.11",
     "express": "^4.21.2",
     "socket.io": "^4.8.1",
-    "tiktok-live-connector": "^2.5.0"
+    "tiktok-live-connector": "^2.5.0",
+    "ws": "^8.21.3"
   },
   "devDependencies": {
     "electron": "45.3.0",
@@ -37,6 +38,7 @@
       "electron/**",
       "public/**",
       "server.js",
+      "kick.js",
       "tts.js",
       "build/icon.png",
       "package.json"

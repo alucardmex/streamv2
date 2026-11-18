@@ -17,6 +17,7 @@ import {
   UserOfflineError,
 } from 'tiktok-live-connector';
 import { synthesize, listVoices, VoiceError, FISH_MODELS } from './tts.js';
+import { KickConnection } from './kick.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = Number(process.env.PORT) || 3939;
@@ -36,6 +37,9 @@ const DEFAULT_CONFIG = {
   username: '',
   signApiKey: '',
   autoConnect: false,
+  // A qué plataforma se conecta la app: 'tiktok' o 'kick' (una a la vez).
+  platform: 'tiktok',
+  kickChannel: '',
   // API key de Fish Audio. Nunca se manda al navegador.
   voiceKeys: { fish: '' },
   settings: {
@@ -69,6 +73,10 @@ const DEFAULT_CONFIG = {
       giftFormat: 'Gracias {nombre} por {cantidad} {regalo}',
       followFormat: '{nombre} te empezó a seguir',
       shareFormat: '{nombre} compartió el live',
+      // Kick
+      readSubs: true,
+      subFormat: 'Gracias {nombre} por suscribirte',
+      giftSubFormat: 'Gracias {nombre} por regalar {cantidad} subs',
       ignorePrefix: '!',
       maxLength: 150,
       maxQueue: 8,
@@ -89,6 +97,7 @@ const DEFAULT_CONFIG = {
       volume: 0.6,
       showFollows: true,
       showShares: false,
+      showSubs: true, // Kick: subs y subs regalados
       // Alertas con tu propio video, foto o GIF para un regalo o desde cierta cantidad de diamantes.
       // Lo que no tenga una propia usa la animación de siempre.
       custom: [],
@@ -108,6 +117,7 @@ const DEFAULT_CONFIG = {
       timer: {
         style: 'digital', title: 'Tiempo restante', showTitle: true, bg: true, showAdds: true,
         start: 3600, perDiamond: 10, likesEvery: 100, likesSecs: 10, follow: 30, share: 15, chat: 0, max: 0, whilePaused: false,
+        perKick: 10, kickSub: 300, // Kick: segundos por cada Kick y por cada sub (también los regalados)
         anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
       },
       // Marcador de partidas de PUBG Mobile (pollos y derrotas), lo llevas tú desde el panel.
@@ -284,6 +294,8 @@ const stats = {
   totalLikes: saved.totalLikes || 0,
   diamonds: saved.diamonds || 0,
   follows: saved.follows || 0,
+  subs: saved.subs || 0,
+  platform: 'tiktok',
 };
 const chatHistory = [];
 let rankingDirty = false;
@@ -295,7 +307,7 @@ const giftRank = (a, b) => (b.diamonds - a.diamonds) || (b.count - a.count) || (
 
 function trackTopGift(p) {
   if (!p.diamonds) return;
-  const entry = { user: p.user, name: p.name, avatar: p.avatar, gift: p.gift, giftId: p.giftId, image: p.image, diamonds: p.diamonds, count: p.count, total: p.total, ts: Date.now(), test: !!p.test };
+  const entry = { user: p.user, name: p.name, avatar: p.avatar, gift: p.gift, giftId: p.giftId, image: p.image, diamonds: p.diamonds, count: p.count, total: p.total, unit: p.unit || 'diamonds', ts: Date.now(), test: !!p.test };
   const prevTop = topGifts[0];
   topGifts.push(entry);
   topGifts.sort(giftRank);
@@ -319,6 +331,7 @@ export function newLiveReset() {
   stats.totalLikes = 0;
   stats.diamonds = 0;
   stats.follows = 0;
+  stats.subs = 0;
   chatHistory.length = 0;
   followedNow.clear();
   resetTopGifts();
@@ -338,6 +351,7 @@ function saveRanking(sync = false) {
     totalLikes: stats.totalLikes,
     diamonds: stats.diamonds,
     follows: stats.follows,
+    subs: stats.subs,
     topGifts,
     streamRoomId,
   });
@@ -398,8 +412,11 @@ function handleGift(d, isTest = false) {
     firstUrl(g.image) || firstUrl(g.icon) || firstUrl(ext.image) || firstUrl(ext.icon) || d.giftPictureUrl || '';
   const type = g.type ?? ext.type ?? d.giftType;
   const count = Number(d.repeatCount || d.comboCount || 1);
-  const payload = { ...who, gift: name, giftId: String(d.giftId || ''), image, diamonds, count, test: isTest };
-  if (!isTest) rememberGift(payload);
+  const kick = d.platform === 'kick';
+  // En Kick el valor son Kicks (su moneda) en vez de diamantes.
+  const payload = { ...who, gift: name, giftId: String(d.giftId || ''), image, diamonds, count, test: isTest, unit: kick ? 'kicks' : 'diamonds', platform: kick ? 'kick' : 'tiktok' };
+  if (kick && d.message) payload.message = String(d.message).slice(0, 200);
+  if (!isTest && !kick) rememberGift(payload);
 
   // Regalos tipo "racha" (type 1): TikTok manda un evento por cada toque.
   // Mostramos el contador en vivo, pero la alerta y el conteo final van al terminar la racha.
@@ -409,7 +426,7 @@ function handleGift(d, isTest = false) {
   }
 
   payload.total = diamonds * count;
-  if (!isTest) timerAdd(payload.total * (Number(config.settings.overlays.timer.perDiamond) || 0), payload, 'gift');
+  if (!isTest) timerAdd(payload.total * (Number(kick ? tcfg().perKick : tcfg().perDiamond) || 0), payload, 'gift');
   stats.diamonds += payload.total;
   addToMap(giftsByUser, who, payload.total);
   io.emit('gift', payload);
@@ -445,7 +462,8 @@ function handleChat(d, isTest = false) {
   const text = String(d.content ?? d.comment ?? '').trim();
   if (!text) return;
   // En las pruebas se puede elegir si el comentario es de un seguidor o no.
-  const f = isTest ? { follower: d.follower !== false, mod: false } : followInfoOf(d);
+  // En Kick no llega si te siguen: para eso está el modo "solo seguidores" del chat de Kick.
+  const f = isTest ? { follower: d.follower !== false, mod: false } : d.platform === 'kick' ? { follower: true, mod: !!d.isModerator } : followInfoOf(d);
   const msg = { ...who, text, ts: Date.now(), test: isTest, ...f };
   chatHistory.push(msg);
   if (chatHistory.length > 50) chatHistory.shift();
@@ -459,6 +477,18 @@ function handleFollow(d) {
   timerAdd(Number(config.settings.overlays.timer.follow) || 0, normUser(d.user), 'follow');
   rankingDirty = true;
   io.emit('follow', normUser(d.user));
+  broadcastRankings();
+}
+
+// Kick: sub nueva o renovada (kind 'sub') y subs regalados (kind 'giftsub', count = cuántos).
+function handleSub(d, isTest = false) {
+  const who = normUser(d.user);
+  const count = Math.max(1, Number(d.count) || 1);
+  const payload = { ...who, kind: d.kind === 'giftsub' ? 'giftsub' : 'sub', count, months: Number(d.months) || 0, test: isTest, platform: 'kick' };
+  stats.subs += count;
+  rankingDirty = true;
+  if (!isTest) timerAdd((Number(tcfg().kickSub) || 0) * count, who, payload.kind, { count });
+  io.emit('sub', payload);
   broadcastRankings();
 }
 
@@ -638,7 +668,68 @@ function scheduleRetry(seconds) {
   retryTimer = setTimeout(() => connectLive(), seconds * 1000);
 }
 
+// ---------------------------------------------------------------------------
+// Conexión con Kick
+// ---------------------------------------------------------------------------
+let kick = null;
+function closeKick() {
+  if (kick) { kick.disconnect(); kick = null; }
+}
+function kickNewLive(id) {
+  const key = `kick:${id}`;
+  if (key === streamRoomId) return;
+  streamRoomId = key;
+  if (config.settings.resetOnNewLive) newLiveReset();
+  else resetTopGifts();
+}
+async function connectKick() {
+  clearTimeout(retryTimer);
+  const slug = String(config.kickChannel || '').replace(/^@/, '').trim().toLowerCase();
+  if (!slug) return setStatus('error', 'Escribe tu canal de Kick');
+  closeKick();
+  if (conn) { try { conn.removeAllListeners(); await conn.disconnect(); } catch {} conn = null; }
+  const k = new KickConnection(slug);
+  kick = k;
+  const kd = (o) => ({ ...o, platform: 'kick' });
+  k.on('chat', (d) => handleChat(kd(d)));
+  k.on('kicks', (d) => handleGift(kd({ user: d.user, giftName: d.name || 'Kicks', giftId: d.giftId, diamondCount: d.amount, repeatCount: 1, repeatEnd: 1, message: d.message })));
+  k.on('sub', (d) => handleSub({ user: d.user, months: d.months, kind: 'sub' }));
+  k.on('giftsub', (d) => handleSub({ user: d.user, count: d.count, kind: 'giftsub' }));
+  k.on('follow', (d) => handleFollow(d));
+  k.on('viewers', (n) => { stats.viewers = n; broadcastRankings(); });
+  k.on('live', (id) => { kickNewLive(id); setStatus('connected', `Conectado al live de Kick de ${k.info?.username || slug}`, { platform: 'kick' }); });
+  k.on('streamEnd', () => setStatus('connected', `Conectado al chat de Kick de ${k.info?.username || slug} (el live terminó)`, { platform: 'kick' }));
+  k.on('disconnected', () => {
+    if (kick !== k || !wantConnected) return;
+    setStatus('reconnecting', 'Se perdió la conexión con Kick. Reintentando…', { platform: 'kick' });
+    scheduleRetry(10);
+  });
+  k.on('warn', (err) => console.warn('[kick]', err?.message || err));
+  stats.platform = 'kick';
+  setStatus('connecting', `Conectando con Kick (${slug})…`, { platform: 'kick' });
+  try {
+    const info = await k.connect();
+    if (kick !== k) return;
+    if (info.live) { stats.viewers = info.live.viewers; kickNewLive(info.live.id); }
+    setStatus('connected', info.live ? `Conectado al live de Kick de ${info.username}` : `Conectado al chat de Kick de ${info.username} (todavía no estás en vivo)`, { platform: 'kick' });
+    broadcastRankings();
+  } catch (err) {
+    if (kick !== k) return;
+    const msg = err?.message || String(err);
+    if (err?.code === 404) {
+      wantConnected = false;
+      setStatus('error', `No encontré el canal de Kick "${slug}". Revisa que esté bien escrito (es lo que va después de kick.com/).`, { platform: 'kick' });
+    } else {
+      setStatus('error', `No se pudo conectar con Kick: ${msg}. Reintento en 20 s…`, { platform: 'kick' });
+      scheduleRetry(20);
+    }
+  }
+}
+
 async function connectLive() {
+  if (config.platform === 'kick') return connectKick();
+  closeKick();
+  stats.platform = 'tiktok';
   clearTimeout(retryTimer);
   const username = config.username.replace(/^@/, '').trim();
   if (!username) return setStatus('error', 'Escribe tu usuario de TikTok');
@@ -713,6 +804,7 @@ async function connectLive() {
 async function disconnectLive() {
   wantConnected = false;
   clearTimeout(retryTimer);
+  closeKick();
   if (conn) {
     try { conn.removeAllListeners(); await conn.disconnect(); } catch {}
     conn = null;
@@ -826,7 +918,9 @@ io.on('connection', (socket) => {
   socket.emit('rank', rankPublic());
   socket.on('rank', (a = {}) => rankAction(String(a.action || ''), a.value));
 
-  socket.on('connectLive', ({ username, signApiKey } = {}) => {
+  socket.on('connectLive', ({ username, signApiKey, platform, kickChannel } = {}) => {
+    if (platform === 'tiktok' || platform === 'kick') config.platform = platform;
+    if (typeof kickChannel === 'string') config.kickChannel = kickChannel.replace(/^@/, '').replace(/^https?:\/\/(www\.)?kick\.com\//i, '').replace(/[/?#].*$/, '').trim().toLowerCase();
     if (typeof username === 'string') config.username = username.replace(/^@/, '').trim();
     if (typeof signApiKey === 'string') config.signApiKey = signApiKey.trim();
     config.autoConnect = true;
@@ -865,6 +959,7 @@ io.on('connection', (socket) => {
     stats.totalLikes = 0;
     stats.diamonds = 0;
     stats.follows = 0;
+    stats.subs = 0;
     rankingDirty = true;
     saveRanking();
     io.emit('rankings', rankings());
@@ -886,6 +981,13 @@ io.on('connection', (socket) => {
     for (let i = 0; i < 6; i++) handleLike({ user: fakeUser(), count: 1 + Math.floor(Math.random() * 40) });
   });
   socket.on('test:follow', () => handleFollow({ user: fakeUser() }));
+  // Pruebas de Kick
+  socket.on('test:sub', () => handleSub({ user: fakeUser(), months: 1 + Math.floor(Math.random() * 6), kind: 'sub' }, true));
+  socket.on('test:giftsub', () => handleSub({ user: fakeUser(), count: pick([1, 5, 10]), kind: 'giftsub' }, true));
+  socket.on('test:kicks', () => {
+    const amount = pick([1, 10, 50, 100, 500, 1000]);
+    handleGift({ user: fakeUser(), giftName: amount === 1 ? 'Kick' : 'Kicks', diamondCount: amount, repeatCount: 1, repeatEnd: 1, platform: 'kick' }, true);
+  });
 
   // Probador de alertas del panel: sale en OBS y el bot la lee, pero no cuenta para rankings ni récords.
   socket.on('test:alert', (t = {}) => {
@@ -912,6 +1014,8 @@ io.on('connection', (socket) => {
 function publicConfig() {
   return {
     username: config.username,
+    platform: config.platform,
+    kickChannel: config.kickChannel,
     hasSignApiKey: Boolean(config.signApiKey),
     fishKey: config.voiceKeys.fish ? '••••' + config.voiceKeys.fish.slice(-4) : '',
     fishModels: FISH_MODELS,
@@ -940,7 +1044,8 @@ export const ready = new Promise((resolve, reject) => {
     const url = `http://${HOST}:${PORT}`;
     console.log(`StreamV2 listo en ${url} (datos en ${DATA_DIR})`);
     if (!DESKTOP && !process.env.NO_OPEN) openBrowser(url);
-    if (config.autoConnect && config.username) {
+    stats.platform = config.platform;
+    if (config.autoConnect && (config.platform === 'kick' ? config.kickChannel : config.username)) {
       wantConnected = true;
       connectLive();
     }

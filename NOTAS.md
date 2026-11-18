@@ -1,9 +1,12 @@
-**Cada live empieza en cero**, para que la app vaya más ligera.
+**StreamV2 ahora también funciona con Kick.**
 
-- Al empezar un live nuevo se borran solos los comentarios, likes, diamantes, rankings y el regalo más caro del anterior
-- Si solo se corta la conexión y se reconecta al mismo live, no se borra nada
-- El contador de tiempo, las partidas y Camino a Conquistador no se tocan
-- Te avisa en el panel cuando pasa
-- Se apaga en **Ranking → Empezar en cero cada live nuevo**
+- Arriba eliges **TikTok** o **Kick** y escribes tu canal
+- El bot lee el chat de Kick
+- Alertas de **Kicks**, **subs**, **subs regalados** y **follows**
+- Ranking de quién te ha dado más Kicks y regalo más caro en Kicks
+- El contador de tiempo suma por cada Kick y por cada sub
+- Pruebas de Kick en En vivo y en la vista previa de Alertas
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.17.0 lista", toca **Actualizar**.
+Mira cómo se usa en la sección **Kick** de las instrucciones.
+
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.18.0 lista", toca **Actualizar**.

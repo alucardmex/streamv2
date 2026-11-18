@@ -89,6 +89,16 @@
   .handle span { color: var(--muted); }
   .handle input[type=text] { border: 0; background: none; padding: 9px 10px 9px 3px; width: 170px; outline: none; }
   .handle input:disabled { color: var(--muted); }
+  .plat { display: flex; background: var(--ink); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
+  .plat button { border: 0; background: none; color: var(--muted); font: 700 13px var(--display, inherit); padding: 6px 10px; border-radius: 7px; cursor: pointer; }
+  .plat button[aria-pressed="true"] { background: var(--line); color: var(--text, #fff); }
+  .plat button[data-plat="kick"][aria-pressed="true"] { background: #53fc18; color: #0b0b0b; }
+  .plat button:disabled { cursor: default; opacity: .6; }
+  .kick-only { display: none !important; }
+  body.plat-kick .kick-only { display: revert !important; }
+  body.plat-kick .tiktok-only { display: none !important; }
+  .kc { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; border-radius: 50%; background: #53fc18; color: #0b0b0b; font: 900 .68em/1 system-ui, sans-serif; vertical-align: -.12em; }
+  .test-tag.kick { color: #53fc18; }
   .handle:focus-within { border-color: var(--voice); }
   .stats { display: flex; gap: 26px; margin-left: auto; }
   .stat { display: flex; flex-direction: column; align-items: flex-end; }
@@ -606,15 +616,16 @@
       <div class="tally-text"><b id="tally-title">Desconectado</b><small id="tally-msg">Escribe tu usuario y conéctate cuando estés en vivo</small></div>
     </div>
     <div class="connect">
-      <label class="handle"><span>@</span><input id="username" type="text" placeholder="tu_usuario" autocomplete="off" aria-label="Usuario de TikTok"></label>
+      <div class="plat" role="group" aria-label="Plataforma"><button type="button" data-plat="tiktok" aria-pressed="true">TikTok</button><button type="button" data-plat="kick" aria-pressed="false">Kick</button></div>
+      <label class="handle"><span id="handle-pre">@</span><input id="username" type="text" placeholder="tu_usuario" autocomplete="off" aria-label="Usuario de TikTok"></label>
       <button class="btn go" id="btn-connect">Conectar</button>
       <button class="btn quiet" id="btn-disconnect" hidden>Desconectar</button>
     </div>
     <div class="upd" id="upd" role="status"><b id="upd-text">Actualización lista</b><button class="btn" id="upd-btn">Actualizar</button></div>
     <div class="stats">
       <div class="stat"><b id="s-viewers">0</b><small>espectadores</small></div>
-      <div class="stat"><b id="s-likes">0</b><small>likes</small></div>
-      <div class="stat gift"><b id="s-diamonds">0</b><small>diamantes</small></div>
+      <div class="stat"><b id="s-likes">0</b><small id="s-likes-l">likes</small></div>
+      <div class="stat gift"><b id="s-diamonds">0</b><small id="s-diamonds-l">diamantes</small></div>
       <div class="stat follow"><b id="s-follows">0</b><small>seguidores nuevos</small></div>
     </div>
   </header>
@@ -657,6 +668,12 @@
             <button class="btn sm" data-test="chat-nofollow" title="Comentario de alguien que no te sigue">Comentario (no te sigue)</button>
             <button class="btn sm" data-test="likes">Likes</button>
             <button class="btn sm" data-test="follow">Seguidor</button>
+          </div>
+          <div class="tests" style="margin-top:8px" aria-label="Pruebas de Kick">
+            <span class="hint" style="margin:0;align-self:center">Kick:</span>
+            <button class="btn sm" data-test="kicks">Kicks</button>
+            <button class="btn sm" data-test="sub">Sub</button>
+            <button class="btn sm" data-test="giftsub">Subs regalados</button>
           </div>
         </div>
         <details>
@@ -743,6 +760,7 @@
           <label class="switch"><input type="checkbox" data-key="tts.readGifts"><span class="track"></span>Regalos</label>
           <label class="switch"><input type="checkbox" data-key="tts.readFollows"><span class="track"></span>Nuevos seguidores</label>
           <label class="switch"><input type="checkbox" data-key="tts.readShares"><span class="track"></span>Compartidos</label>
+          <label class="switch"><input type="checkbox" data-key="tts.readSubs"><span class="track"></span>Subs de Kick</label>
           <label class="switch"><input type="checkbox" data-key="tts.readUsername"><span class="track"></span>Decir quién escribió</label>
         </div>
         <label class="field" style="max-width:320px"><span class="field-head">Volumen general <span class="val" id="v-volume"></span></span><input type="range" min="0" max="1" step="0.05" data-key="tts.volume"></label>
@@ -781,13 +799,16 @@
     <section class="group">
       <div><h2>Frases</h2><p>Lo que dice el bot en cada caso.</p></div>
       <div class="controls">
-        <div class="chips-vars"><code>{nombre}</code><code>{usuario}</code><code>{mensaje}</code><code>{regalo}</code><code>{cantidad}</code></div>
+        <div class="chips-vars"><code>{nombre}</code><code>{usuario}</code><code>{mensaje}</code><code>{regalo}</code><code>{cantidad}</code><code>{meses}</code></div>
         <div class="fields">
           <label class="field">Comentario <input type="text" data-key="tts.chatFormat"></label>
           <label class="field">Regalo <input type="text" data-key="tts.giftFormat"></label>
           <label class="field">Nuevo seguidor <input type="text" data-key="tts.followFormat"></label>
           <label class="field">Compartido <input type="text" data-key="tts.shareFormat"></label>
+          <label class="field">Sub (Kick) <input type="text" data-key="tts.subFormat"></label>
+          <label class="field">Subs regalados (Kick) <input type="text" data-key="tts.giftSubFormat"></label>
         </div>
+        <p class="hint" style="margin:0">Los Kicks se leen con el formato de Regalo. Los subs usan la voz y el volumen de los regalos.</p>
       </div>
     </section>
 
@@ -830,7 +851,7 @@
         <div class="switches">
           <label class="switch"><input type="checkbox" data-key="tts.onlyFollowers"><span class="track"></span>Solo seguidores</label>
         </div>
-        <p class="hint">Con esto prendido, el bot solo lee los comentarios de quien te sigue. Tus moderadores también se leen. Los regalos, follows y compartidos se siguen leyendo de todos.</p>
+        <p class="hint">Con esto prendido, el bot solo lee los comentarios de quien te sigue. Tus moderadores también se leen. Los regalos, follows y compartidos se siguen leyendo de todos.<br>En <b>Kick</b> no llega si alguien te sigue: usa el modo <b>Solo seguidores</b> del chat en tu canal de Kick y el bot leerá lo que ahí se escriba.</p>
       </div>
     </section>
   </main>
@@ -848,6 +869,9 @@
         <button class="btn" data-alprev="grande">🦁 Regalo de 1,000+ 💎</button>
         <button class="btn" data-alprev="seguidor">💖 Nuevo seguidor</button>
         <button class="btn" data-alprev="compartido">📢 Compartido</button>
+        <button class="btn" data-alprev="kicks">🟢 Kicks (Kick)</button>
+        <button class="btn" data-alprev="sub">⭐ Sub (Kick)</button>
+        <button class="btn" data-alprev="subsregalados">🎁 Subs regalados (Kick)</button>
         <h3>Pantalla</h3>
         <div class="seg" role="group" aria-label="Forma de la pantalla"><button aria-pressed="true" data-alshape="h">Horizontal</button><button aria-pressed="false" data-alshape="v">Vertical</button></div>
         <h3>Posición</h3>
@@ -880,13 +904,15 @@
       <div><h2>Cuándo aparecen</h2><p>El mínimo también decide qué regalos lee el bot.</p></div>
       <div class="controls">
         <div class="fields">
-          <label class="field">Diamantes mínimos para mostrar un regalo <input type="number" min="0" data-key="alerts.minDiamonds"></label>
+          <label class="field">Diamantes (o Kicks) mínimos para mostrar un regalo <input type="number" min="0" data-key="alerts.minDiamonds"></label>
           <label class="field">Segundos en pantalla <input type="number" min="2" max="30" data-key="alerts.duration"></label>
         </div>
         <div class="switches">
           <label class="switch"><input type="checkbox" data-key="alerts.showFollows"><span class="track"></span>Nuevos seguidores</label>
           <label class="switch"><input type="checkbox" data-key="alerts.showShares"><span class="track"></span>Compartidos</label>
+          <label class="switch"><input type="checkbox" data-key="alerts.showSubs"><span class="track"></span>Subs de Kick</label>
         </div>
+        <p class="hint" style="margin:0">En Kick, el mínimo de diamantes se aplica a los Kicks, y las alertas propias "desde cierta cantidad" también cuentan Kicks.</p>
       </div>
     </section>
     <section class="group">
@@ -1073,6 +1099,8 @@
               <span class="inl">❤️ Cada <input type="number" min="1" data-key="overlays.timer.likesEvery" aria-label="Cantidad de likes"> likes</span><input type="number" step="any" data-key="overlays.timer.likesSecs" aria-label="Segundos por bloque de likes">
               <span>💖 Nuevo seguidor</span><input type="number" step="any" data-key="overlays.timer.follow" aria-label="Segundos por seguidor">
               <span>📢 Compartido</span><input type="number" step="any" data-key="overlays.timer.share" aria-label="Segundos por compartido">
+              <span><span class="kc">K</span> Por cada Kick (Kick)</span><input type="number" step="any" data-key="overlays.timer.perKick" aria-label="Segundos por Kick">
+              <span>⭐ Cada sub (Kick, también los regalados)</span><input type="number" step="any" data-key="overlays.timer.kickSub" aria-label="Segundos por sub">
               <span>💬 Mensaje en el chat</span><input type="number" step="any" data-key="overlays.timer.chat" aria-label="Segundos por mensaje">
               <span>⏳ Tiempo máximo (minutos, 0 = sin límite)</span><input type="number" min="0" id="tm-max" aria-label="Tiempo máximo en minutos">
             </div>
@@ -1361,8 +1389,13 @@ socket.on('config', (cfg) => {
   serverCfg = cfg;
   if (first || document.activeElement?.dataset?.key === undefined) fillSettings();
   renderVoicesUI();
+  if (!first && document.activeElement !== $('#username')) {
+    plNames = { tiktok: cfg.username || '', kick: cfg.kickChannel || '' };
+    $('#username').value = plNames[platform] || '';
+  }
   if (first) {
-    $('#username').value = cfg.username || '';
+    plNames = { tiktok: cfg.username || '', kick: cfg.kickChannel || '' };
+    setPlatform(cfg.platform === 'kick' ? 'kick' : 'tiktok');
     if (cfg.hasSignApiKey) $('#signApiKey').placeholder = 'Key guardada (escribe otra para cambiarla)';
     renderLinks();
     populateVoices();
@@ -1370,11 +1403,39 @@ socket.on('config', (cfg) => {
 });
 
 // ---------------------------------------------------------------- conexión
+// TikTok o Kick (una a la vez). Cada una recuerda su usuario/canal.
+let platform = 'tiktok';
+let plNames = { tiktok: '', kick: '' };
+function setPlatform(p) {
+  if (platform !== p) plNames[platform] = $('#username').value;
+  platform = p;
+  document.body.classList.toggle('plat-kick', p === 'kick');
+  $$('[data-plat]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.plat === p)));
+  const k = p === 'kick';
+  $('#handle-pre').textContent = k ? 'kick.com/' : '@';
+  $('#username').value = plNames[p] || '';
+  $('#username').placeholder = k ? 'tu_canal' : 'tu_usuario';
+  $('#username').setAttribute('aria-label', k ? 'Canal de Kick' : 'Usuario de TikTok');
+  $('#s-likes-l').textContent = k ? 'subs' : 'likes';
+  $('#s-diamonds-l').textContent = k ? 'Kicks' : 'diamantes';
+  $('#rank-gifts').parentElement.querySelector('h2').textContent = k ? 'Más Kicks' : 'Más diamantes';
+  if ($('#tally').classList.contains('idle')) $('#tally-msg').textContent = idleMsg();
+}
+const idleMsg = () => (platform === 'kick' ? 'Escribe tu canal de Kick y conéctate' : 'Escribe tu usuario y conéctate cuando estés en vivo');
+$('#mini-likes').parentElement.classList.add('tiktok-only');
+$('#rank-likes').parentElement.classList.add('tiktok-only');
+$$('[data-plat]').forEach((b) => b.addEventListener('click', () => { if (!b.disabled) setPlatform(b.dataset.plat); }));
 $('#btn-connect').onclick = () => {
-  const username = $('#username').value.replace(/^@/, '').trim();
-  if (!username) { $('#username').focus(); return toast('Escribe tu usuario de TikTok'); }
+  const name = $('#username').value.replace(/^@/, '').trim();
+  if (platform === 'kick') {
+    if (!name) { $('#username').focus(); return toast('Escribe tu canal de Kick'); }
+    plNames.kick = name;
+    return socket.emit('connectLive', { platform: 'kick', kickChannel: name });
+  }
+  if (!name) { $('#username').focus(); return toast('Escribe tu usuario de TikTok'); }
+  plNames.tiktok = name;
   const key = $('#signApiKey').value.trim();
-  socket.emit('connectLive', key ? { username, signApiKey: key } : { username });
+  socket.emit('connectLive', key ? { platform: 'tiktok', username: name, signApiKey: key } : { platform: 'tiktok', username: name });
 };
 $('#username').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('#btn-connect').click(); });
 $('#btn-disconnect').onclick = () => socket.emit('disconnectLive');
@@ -1383,13 +1444,15 @@ const TITLES = { connected: 'En vivo', connecting: 'Conectando', waiting: 'Esper
 function renderStatus(s) {
   $('#tally').className = 'tally ' + s.state;
   $('#tally-title').textContent = TITLES[s.state] || s.state;
-  $('#tally-msg').textContent = s.state === 'idle' ? 'Escribe tu usuario y conéctate cuando estés en vivo' : s.message;
+  $('#tally-msg').textContent = s.state === 'idle' ? idleMsg() : s.message;
   $('#app').classList.toggle('on-air', s.state === 'connected');
   $('#live-dot').style.display = s.state === 'connected' ? 'block' : 'none';
   const active = s.state !== 'idle';
   $('#btn-connect').hidden = active;
   $('#btn-disconnect').hidden = !active;
   $('#username').disabled = active;
+  $$('[data-plat]').forEach((b) => { b.disabled = active; });
+  if (s.platform && s.platform !== platform && active) setPlatform(s.platform);
 }
 socket.on('status', renderStatus);
 socket.on('disconnect', () => renderStatus({ state: 'error', message: window.streamv2 ? 'Se perdió la conexión con el motor de la app. Ciérrala y vuelve a abrirla.' : 'La ventana negra de la app se cerró. Ábrela otra vez con INICIAR.bat.' }));
@@ -1414,7 +1477,7 @@ socket.on('rankings', (r) => {
   renderBoard($('#rank-likes'), r.likes);
   renderBoard($('#rank-gifts'), r.gifts);
   $('#s-viewers').textContent = fmt(r.stats.viewers);
-  $('#s-likes').textContent = fmt(r.stats.totalLikes);
+  $('#s-likes').textContent = fmt(platform === 'kick' ? r.stats.subs || 0 : r.stats.totalLikes);
   $('#s-diamonds').textContent = fmt(r.stats.diamonds);
   $('#s-follows').textContent = fmt(r.stats.follows);
 });
@@ -1479,16 +1542,28 @@ socket.on('chat', (m) => {
 });
 socket.on('gift', (g) => {
   const img = g.image ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : '';
-  addFeed(`${whoBtn(g)}<span class="gift-chip">${img}${g.count} × ${esc(g.gift)} <small>${fmt(g.total)} diamantes</small></span>${testTag(g)}`, 'gift', g);
+  const unit = g.unit === 'kicks' ? 'Kicks' : 'diamantes';
+  const what = g.unit === 'kicks' ? `<span class="gift-chip"><span class="kc">K</span> ${esc(g.gift)} <small>${fmt(g.total)} ${unit}</small></span>${g.message ? ` ${esc(g.message)}` : ''}` : `<span class="gift-chip">${img}${g.count} × ${esc(g.gift)} <small>${fmt(g.total)} ${unit}</small></span>`;
+  addFeed(`${whoBtn(g)}${what}${testTag(g)}`, 'gift', g);
   const t = settings?.tts;
   if (t?.readGifts && g.total >= (settings.alerts.minDiamonds || 0)) {
     const kind = g.total >= (settings.voices.bigGiftMin || 100) ? 'bigGift' : 'gift';
-    enqueue(fill(t.giftFormat, { nombre: g.name, usuario: g.user, regalo: g.gift, cantidad: g.count }), kind, true, null, g);
+    // Kicks: "Gracias Fulano por 100 Kicks".
+    const vars = g.unit === 'kicks' ? { regalo: 'Kicks', cantidad: g.total } : { regalo: g.gift, cantidad: g.count };
+    enqueue(fill(t.giftFormat, { nombre: g.name, usuario: g.user, ...vars }), kind, true, null, g);
   }
 });
 socket.on('follow', (u) => {
   addFeed(`${whoBtn(u)}te empezó a seguir`, 'follow', u);
   if (settings?.tts.readFollows) enqueue(fill(settings.tts.followFormat, { nombre: u.name, usuario: u.user }), 'follow');
+});
+// Kick: subs y subs regalados (usan la voz y el volumen de los regalos).
+socket.on('sub', (x) => {
+  const gifted = x.kind === 'giftsub';
+  const what = gifted ? `regaló <b>${x.count} ${x.count === 1 ? 'sub' : 'subs'}</b> ⭐` : `se suscribió ⭐${x.months > 1 ? ` <small>(${x.months} meses)</small>` : ''}`;
+  addFeed(`${whoBtn(x)}${what}${testTag(x)}`, 'gift', x);
+  const t = settings?.tts;
+  if (t?.readSubs) enqueue(fill(gifted ? t.giftSubFormat : t.subFormat, { nombre: x.name, usuario: x.user, cantidad: x.count, meses: x.months }), 'gift', true, null, x);
 });
 socket.on('share', (u) => {
   addFeed(`${whoBtn(u)}compartió tu live`, 'follow', u);
@@ -2213,7 +2288,8 @@ document.addEventListener('change', (e) => {
 // ---------------------------------------------------------------- regalo más caro
 let topGiftList = [];
 const full = (n) => Number(n).toLocaleString('es-MX');
-const giftPic = (g) => g.image
+const ucoin = (g) => (g?.unit === 'kicks' ? '<span class="kc">K</span>' : '💎');
+const giftPic = (g) => g.unit === 'kicks' ? '<span class="kc">K</span>' : g.image
   ? `<img src="${esc(g.image)}" alt="" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${giftEmoji(g.gift)}'))">`
   : giftEmoji(g.gift);
 const ago = (ts) => {
@@ -2228,16 +2304,16 @@ function renderTopGift(flash) {
       <div style="min-width:0">
         <div class="tg-kicker">Récord de este stream</div>
         <div class="tg-name">${esc(top.gift)}</div>
-        <div class="tg-value">${full(top.diamonds)} 💎<small>${top.count > 1 ? `cada uno · mandó ${top.count} (${full(top.total)} 💎 en total)` : 'por regalo'}</small></div>
+        <div class="tg-value">${full(top.diamonds)} ${ucoin(top)}<small>${top.count > 1 ? `cada uno · mandó ${top.count} (${full(top.total)} ${ucoin(top)} en total)` : top.unit === 'kicks' ? 'Kicks' : 'por regalo'}</small></div>
         <div class="tg-from">${avatar(top)}<div><b>${esc(top.name)}</b><small>@${esc(top.user)} · ${ago(top.ts)}${top.test ? ' · prueba' : ''}</small></div></div>
       </div>
     </div>` : `<div class="tg-empty"><b>Todavía no hay regalos en este stream</b>Cuando alguien te mande un regalo aparecerá aquí. Puedes probar con "Regalo" en la sección En vivo.</div>`;
   $('#tg-list').innerHTML = topGiftList.slice(0, 5).map((g, i) => `
     <li><span class="n">${i + 1}</span><span class="gi">${giftPic(g)}</span>
       <span style="min-width:0"><b>${esc(g.gift)}${g.count > 1 ? ` ×${g.count}` : ''}</b><small>${esc(g.name)} · ${ago(g.ts)}</small></span>
-      <span class="v">${full(g.diamonds)} 💎</span></li>`).join('') || '<li><span class="hint" style="grid-column:1/-1">Nadie todavía.</span></li>';
+      <span class="v">${full(g.diamonds)} ${ucoin(g)}</span></li>`).join('') || '<li><span class="hint" style="grid-column:1/-1">Nadie todavía.</span></li>';
   $('#mini-top').innerHTML = top
-    ? `<div class="mini-top"><span class="gi">${giftPic(top)}</span><span style="min-width:0"><b>${esc(top.gift)} · ${full(top.diamonds)} 💎</b><small>de ${esc(top.name)}</small></span></div>`
+    ? `<div class="mini-top"><span class="gi">${giftPic(top)}</span><span style="min-width:0"><b>${esc(top.gift)} · ${full(top.diamonds)} ${ucoin(top)}</b><small>de ${esc(top.name)}</small></span></div>`
     : '<span class="hint">Nadie todavía</span>';
 }
 socket.on('topGifts', ({ list, record }) => {

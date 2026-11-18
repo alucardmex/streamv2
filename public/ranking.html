@@ -6,6 +6,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Bungee&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/fx.css">
 <style>
+  .kc { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; border-radius: 50%; background: #53fc18; color: #0b0b0b; font: 900 .68em/1 system-ui, sans-serif; vertical-align: -.12em; text-shadow: none; }
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
      ?tipo=likes|regalos  ?estilo=lista|podio|lider|compacto|neon|cinta|bolitas  ?top=5  ?titulo=Mis%20fans (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
   :root { --acc: #fe2c55; --acc2: #25f4ee; --gold: #ffc24b; }
@@ -141,7 +142,9 @@
 <script>
 const P = new URLSearchParams(location.search);
 const tipo = /regal|gift/i.test(P.get('tipo') || '') ? 'gifts' : 'likes';
-const icon = tipo === 'gifts' ? '💎' : '❤️';
+// En Kick el ranking de regalos cuenta Kicks (su moneda).
+const KC = '<span class="kc">K</span>';
+let icon = tipo === 'gifts' ? '💎' : '❤️';
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
 const STYLES = ['lista', 'podio', 'lider', 'compacto', 'neon', 'cinta', 'bolitas'];
@@ -231,7 +234,7 @@ function tapBurst(li, diff) {
   for (let i = 0; i < n; i++) {
     const h = document.createElement('span');
     h.className = 'tapfx';
-    h.textContent = icon;
+    h.innerHTML = icon;
     h.style.left = `${r.left + r.width * (0.2 + Math.random() * 0.6) - 10}px`;
     h.style.top = `${r.top + r.height * (0.15 + Math.random() * 0.3)}px`;
     h.style.setProperty('--dx', `${Math.round((Math.random() - 0.5) * 90)}px`);
@@ -322,7 +325,7 @@ function applyFx() {
 
 const socket = io();
 socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.[tipo] || {}) }; applyFx(); applyTextStyle(cfg.text); render(); });
-socket.on('rankings', (r) => { last = r; render(); });
+socket.on('rankings', (r) => { if (tipo === 'gifts') icon = r.stats?.platform === 'kick' ? KC : '💎'; last = r; render(); });
 applyFx();
 render();
 </script>

@@ -136,6 +136,8 @@ function showAdd(a) {
     follow: `${esc(a.name)} te siguió`,
     share: `${esc(a.name)} compartió`,
     chat: esc(a.name),
+    sub: `${esc(a.name)} se suscribió ⭐`,
+    giftsub: `${esc(a.name)} regaló ${a.count || 1} subs ⭐`,
     manual: '',
   }[a.kind] ?? '';
   const pic = a.kind === 'gift' ? (a.image ? `<img src="${esc(a.image)}" alt="" referrerpolicy="no-referrer">` : `<span>${giftEmoji(a.gift)}</span>`) : '';

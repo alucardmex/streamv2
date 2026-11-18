@@ -28,6 +28,19 @@ Tus datos (ajustes, API key, voces, ranking) viven en `%APPDATA%\StreamV2`, sepa
 2. En el panel escribe tu usuario (sin @) y presiona **Conectar**.
 3. Si todavía no estás en vivo, la app espera y se conecta sola cuando empieces. La próxima vez que abras la app se reconecta automáticamente.
 
+### Kick
+
+Arriba, junto a tu usuario, elige **TikTok** o **Kick** (una a la vez). En Kick escribe tu canal (lo que va después de `kick.com/`) y presiona **Conectar**. Los mismos overlays y el mismo bot funcionan con Kick:
+
+- **Chat:** el bot lee el chat de Kick. Kick no avisa si alguien te sigue; para leer solo a seguidores usa el modo *Solo seguidores* del chat en tu canal de Kick.
+- **Kicks** (la moneda para regalar de Kick): salen como regalo en las alertas, el ranking de regalos y el regalo más caro, con el valor en Kicks. El mínimo de las alertas y las alertas propias "desde cierta cantidad" cuentan Kicks.
+- **Subs y subs regalados:** alerta propia, el bot los lee (Voz → **Subs de Kick**, con su formato en Formato) y se apagan en Alertas → **Subs de Kick**.
+- **Follows:** alerta de nuevo seguidor, igual que en TikTok.
+- **Contador de tiempo:** en Overlays → Contador eliges cuánto suma cada Kick y cada sub (también los regalados).
+- Kick no tiene likes ni compartidos, así que en Kick el top de taps queda vacío; arriba se ven los subs en lugar de los likes.
+- En **En vivo → Probar sin estar en vivo** están las pruebas de Kick (Kicks, Sub, Subs regalados), y en Alertas la vista previa también.
+- Kick no manda la foto de quien escribe; en su lugar sale su inicial.
+
 ## 4. Poner los overlays en OBS / TikTok LIVE Studio
 
 Mientras StreamV2 esté abierto, en tu programa de streaming agrega una **Fuente de navegador** (Browser Source) con cada link (son los mismos de la versión anterior):

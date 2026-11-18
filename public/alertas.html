@@ -50,6 +50,13 @@
   .alert.tier3 { --accent: #b26bff; }
   .alert.tier3 .gift-img { width: 240px; height: 240px; font-size: 170px; }
   .alert.follow { --accent: #25f4ee; }
+  /* Kick */
+  .alert.sub { --accent: #53fc18; }
+  .alert.sub .what b, .alert.kicks .what b { color: #53fc18; }
+  .kcoin { border-radius: 50%; background: radial-gradient(circle at 35% 30%, #b6ff8f, #53fc18 45%, #2c9e08); color: #0b0b0b; font-family: system-ui, sans-serif; font-weight: 900; box-shadow: inset 0 -8px 0 rgba(0,0,0,.18), 0 0 40px rgba(83,252,24,.45); }
+  .gift-img.kcoin { width: 150px; height: 150px; font-size: 100px; }
+  .alert.tier3 .gift-img.kcoin { width: 200px; height: 200px; font-size: 130px; }
+  .gi.kcoin { display: inline-grid; place-items: center; width: 1.1em; height: 1.1em; font-size: .9em; vertical-align: -.15em; margin-right: 4px; box-shadow: none; }
 
   /* Alertas personalizadas (tu video, foto o GIF) */
   .custom-media { position: relative; display: block; max-width: 92vw; object-fit: contain; border-radius: 14px; filter: drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
@@ -99,6 +106,7 @@ socket.on('gift', (g) => {
 });
 socket.on('follow', (u) => { if (!PREVIEW && settings.alerts.showFollows) { queue.push({ type: 'follow', ...u }); run(); } });
 socket.on('share', (u) => { if (!PREVIEW && settings.alerts.showShares) { queue.push({ type: 'share', ...u }); run(); } });
+socket.on('sub', (x) => { if (!PREVIEW && settings.alerts.showSubs !== false) { queue.push({ type: 'sub', ...x }); run(); } });
 
 // Vista previa del panel: alertas de ejemplo que solo se ven aquí (no salen en el stream ni las lee el bot).
 const SAMPLES = {
@@ -107,12 +115,15 @@ const SAMPLES = {
   grande: { type: 'gift', name: 'DonCarlos', gift: 'León', count: 1, total: 29999 },
   seguidor: { type: 'follow', name: 'Sofi.gg' },
   compartido: { type: 'share', name: 'Valeria' },
+  sub: { type: 'sub', kind: 'sub', name: 'Sofi.gg', months: 3, count: 1 },
+  subsregalados: { type: 'sub', kind: 'giftsub', name: 'DonCarlos', count: 10 },
+  kicks: { type: 'gift', unit: 'kicks', name: 'ElPana_77', gift: 'Kicks', count: 1, total: 100 },
 };
 window.preview = (kind) => {
   const a = SAMPLES[kind];
   if (!a) return;
   // Si ya te han mandado regalos, la vista previa usa uno real (con su imagen) del precio que toca.
-  const real = a.type === 'gift' && sampleFromCatalog(kind);
+  const real = a.type === 'gift' && !a.unit && sampleFromCatalog(kind);
   queue.push({ ...a, avatar: '', image: '', ...(real || {}) });
   run();
 };
@@ -156,6 +167,7 @@ function findRule(a, giftOnly = false) {
 }
 
 function tierOf(a) {
+  if (a.type === 'sub') return a.kind === 'giftsub' && a.count >= 10 ? 3 : 2;
   if (a.type !== 'gift') return 1;
   return a.total >= 1000 ? 3 : a.total >= 100 ? 2 : 1;
 }
@@ -178,10 +190,22 @@ function run() {
   const rule = a.rule || findRule(a);
 
   const el = document.createElement('div');
-  el.className = `alert tier${tier} ${a.type}${rule ? ` custom size-${rule.size}` : ''}`;
+  el.className = `alert tier${tier} ${a.type}${a.unit === 'kicks' ? ' kicks' : ''}${rule ? ` custom size-${rule.size}` : ''}`;
   el.style.setProperty('--s', rule?.size === 'completo' ? 1 : scale);
   let visual, what, value = '';
-  if (a.type === 'gift') {
+  if (a.type === 'gift' && a.unit === 'kicks') {
+    // Kick: la moneda de Kick en vez de la imagen del regalo.
+    visual = `<div class="gift-img kcoin">K</div>`;
+    const named = a.gift && !/^kicks?$/i.test(a.gift);
+    what = `envió <span class="gi kcoin">K</span><b>${named ? esc(a.gift) : `${fmt(a.total)} Kicks`}</b>`;
+    if (named) value = `${fmt(a.total)} Kicks`;
+    if (a.message) value = `${value ? `${value} · ` : ''}${esc(a.message)}`;
+  } else if (a.type === 'sub') {
+    const gifted = a.kind === 'giftsub';
+    visual = `<div class="gift-img">${gifted ? '🎁' : '⭐'}</div>`;
+    what = gifted ? `regaló <span class="count">${a.count}</span> <b>${a.count === 1 ? 'sub' : 'subs'}</b>` : `¡se <b>suscribió</b>!`;
+    if (!gifted && a.months > 1) value = `${a.months} meses`;
+  } else if (a.type === 'gift') {
     // Siempre se ve el regalo que mandaron: su imagen de TikTok o, si no hay, su dibujo.
     const emo = giftEmoji(a.gift);
     visual = a.image
@@ -264,7 +288,7 @@ function playSound(tier, type) {
     ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
     if (ctx.state === 'suspended') ctx.resume();
     const vol = settings.alerts.volume ?? 0.6;
-    const notes = type !== 'gift' ? [659, 880] : tier === 3 ? [523, 659, 784, 1047, 1319] : tier === 2 ? [587, 740, 880, 1175] : [784, 1047];
+    const notes = type === 'follow' || type === 'share' ? [659, 880] : tier === 3 ? [523, 659, 784, 1047, 1319] : tier === 2 ? [587, 740, 880, 1175] : [784, 1047];
     const now = ctx.currentTime;
     notes.forEach((f, i) => {
       const o = ctx.createOscillator();
