@@ -198,12 +198,12 @@ function render(isRecord = false) {
   if (!g) {
     const msg = '¡Sé el primero en mandar un regalo!';
     root.innerHTML = flip
-      ? `<div class="fxw"><div class="t">${T}</div><div class="card"><div class="faces"><div class="face back" style="transform:none"><div class="gimg">🎁</div></div></div></div><div class="info"><div class="v" style="white-space:normal">${msg}</div></div></div>`
+      ? `<div class="fxw"><div class="t tx-title">${T}</div><div class="card"><div class="faces"><div class="face back" style="transform:none"><div class="gimg">🎁</div></div></div></div><div class="info"><div class="v" style="white-space:normal">${msg}</div></div></div>`
       : s.style === 'banner'
-      ? `<div class="card"><div class="gimg">🎁</div><div><div class="t">${T}</div><div class="line"><span class="n">${msg}</span></div></div></div>`
+      ? `<div class="card"><div class="gimg">🎁</div><div><div class="t tx-title">${T}</div><div class="line"><span class="n">${msg}</span></div></div></div>`
       : s.style === 'trofeo'
-        ? `<div class="card"><div class="crown">👑</div><div class="t">${T}</div><div class="gimg">🎁</div><div class="n" style="font-size:20px">${msg}</div></div>`
-        : `<div class="card"><div class="gimg">🎁</div><div><div class="t sh">${T}</div><div class="n sh" style="font-size:20px">${msg}</div></div></div>`;
+        ? `<div class="card"><div class="crown">👑</div><div class="t tx-title">${T}</div><div class="gimg">🎁</div><div class="n" style="font-size:20px">${msg}</div></div>`
+        : `<div class="card"><div class="gimg">🎁</div><div><div class="t sh tx-title">${T}</div><div class="n sh" style="font-size:20px">${msg}</div></div></div>`;
     root.innerHTML = noTitle(root.innerHTML);
     lastKey = '';
     FX.decorate(root.querySelector('.card'));
@@ -214,13 +214,13 @@ function render(isRecord = false) {
   const key = `${g.ts}-${g.user}-${g.gift}`;
   if (key !== lastKey) { side = 'foto'; swapLoop(); } // regalo nuevo: en el estilo Círculo primero se ve la foto
   const html = {
-    tarjeta: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t sh">${T}</div><div class="n sh">${gift}</div><div class="v sh">${val}</div><div class="f sh">${av}${nm}</div></div></div>`,
-    banner: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="line"><span class="n sh">${gift}</span><span class="v sh">${val}</span></div></div><div class="f sh">${av}${nm}</div></div>`,
-    trofeo: `<div class="card">${badge}<div class="crown">👑</div><div class="t">${T}</div><div class="gimg float">${img}</div><div class="n sh">${gift}</div><div class="v">${val}</div><div class="f sh">${av}${nm}</div></div>`,
-    neon: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t">${T}</div><div class="n">${gift}</div><div class="v">${val}</div><div class="f">${av}${nm}</div></div></div>`,
-    minimal: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t">${T}</div><div class="n">${gift} <span>${val}</span></div><div class="f">de ${nm}</div></div></div>`,
-    circulo: `<div class="t">${T}</div><div class="card ${side === 'regalo' ? 'flipped' : ''}">${badge}<div class="faces"><div class="face front">${face(g)}</div><div class="face back"><div class="gimg float">${img}</div></div></div></div><div class="info"><div class="n sh">${nm}</div><div class="v sh">${gift} · <b>${val}</b></div></div>`,
-    burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh">${T}</div><div class="n sh">${nm}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
+    tarjeta: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t sh tx-title">${T}</div><div class="n sh">${gift}</div><div class="v sh">${val}</div><div class="f sh">${av}${nm}</div></div></div>`,
+    banner: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t tx-title">${T}</div><div class="line"><span class="n sh">${gift}</span><span class="v sh">${val}</span></div></div><div class="f sh">${av}${nm}</div></div>`,
+    trofeo: `<div class="card">${badge}<div class="crown">👑</div><div class="t tx-title">${T}</div><div class="gimg float">${img}</div><div class="n sh">${gift}</div><div class="v">${val}</div><div class="f sh">${av}${nm}</div></div>`,
+    neon: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t tx-title">${T}</div><div class="n">${gift}</div><div class="v">${val}</div><div class="f">${av}${nm}</div></div></div>`,
+    minimal: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t tx-title">${T}</div><div class="n">${gift} <span>${val}</span></div><div class="f">de ${nm}</div></div></div>`,
+    circulo: `<div class="t tx-title">${T}</div><div class="card ${side === 'regalo' ? 'flipped' : ''}">${badge}<div class="faces"><div class="face front">${face(g)}</div><div class="face back"><div class="gimg float">${img}</div></div></div></div><div class="info"><div class="n sh">${nm}</div><div class="v sh">${gift} · <b>${val}</b></div></div>`,
+    burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh tx-title">${T}</div><div class="n sh">${nm}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
   }[s.style === 'cuadro' ? 'circulo' : s.style];
   root.innerHTML = `<div class="fxw">${noTitle(html)}</div>`;
 
@@ -300,7 +300,7 @@ function applyFx() {
 }
 
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.topGift || {}) }; if (KICK && cfg.showTitle !== false) cfg.title = 'Kick más grande del stream'; applyFx(); applyTextStyle(cfg.text); render(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.topGift || {}) }; if (KICK && cfg.showTitle !== false) cfg.title = 'Kick más grande del stream'; applyFx(); applyTextStyle(cfg.text); applyTitleStyle(cfg.titleStyle); render(); });
 socket.on(KICK ? 'kickTopGifts' : 'topGifts', ({ list, record: isNew }) => { record = (list || [])[0] || null; render(!!isNew); });
 applyFx();
 render();

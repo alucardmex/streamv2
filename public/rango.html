@@ -189,6 +189,7 @@
 <div class="stage" id="stage"><div id="root"></div></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/fx.js"></script>
+<script src="/text-style.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
 const STYLES = ['completo', 'barra', 'minimal', 'linea', 'anillo', 'vertical'];
@@ -267,7 +268,7 @@ function render() {
   stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
   document.body.classList.toggle('nobg', !s.bg);
   root.className = s.style;
-  const title = s.title ? `<div class="t">${esc(s.title)}</div>` : '';
+  const title = s.title ? `<div class="t tx-title">${esc(s.title)}</div>` : '';
   const done = Date.now() >= Date.parse(s.end);
   let left, info;
   if (d.stage === 'ace') {
@@ -345,7 +346,7 @@ function applyFx() {
   FX.apply(a);
 }
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.rank || {}) }; applyFx(); render(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.rank || {}) }; applyFx(); applyTitleStyle(cfg.titleStyle); render(); });
 socket.on('rank', (x) => { r = x; render(); announce(x.event, x); });
 // Al llegar la hora final con As conseguido, cambia solo a Conquistador.
 let wasDone = false;

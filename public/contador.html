@@ -59,6 +59,7 @@
 <div class="stage" id="stage"><div id="root"></div></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/fx.js"></script>
+<script src="/text-style.js"></script>
 <script src="/gifts.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
@@ -101,7 +102,7 @@ function build() {
   if (key === built) return;
   built = key;
   root.className = s.style;
-  const t = s.title ? `<div class="t sh">${esc(s.title)}</div>` : '';
+  const t = s.title ? `<div class="t sh tx-title">${esc(s.title)}</div>` : '';
   root.innerHTML = s.style === 'barra'
     ? `<div class="box"><span class="ico">⏱️</span><div class="col">${t}<div class="state"></div><div class="bar"><div class="fill"></div></div></div><div class="time sh"></div><div class="adds"></div></div>`
     : s.style === 'compacto'
@@ -159,7 +160,7 @@ function applyFx() {
   FX.apply(a);
 }
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.timer || {}) }; applyFx(); built = ''; build(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.timer || {}) }; applyFx(); applyTitleStyle(cfg.titleStyle); built = ''; build(); });
 socket.on('timer', (t) => { st = t; tick(); if (t.add) showAdd(t.add); });
 applyFx();
 build();

@@ -194,15 +194,15 @@ function build(s, rows) {
       ? `<div class="col p${n}" data-id="${esc(u.user)}" style="--i:${i}"><div class="crown">${n === 1 ? '👑' : ''}</div>${av(u)}<div class="nm shadow">${nm(u)}</div><div class="v">${cnt(u)}</div><div class="step">${n}</div></div>`
       : `<div class="col p${n}"><div class="crown"></div><div class="step" style="opacity:.35">${n}</div></div>`;
     const rest = rows.slice(3).map((u, i) => `<span>${i + 4}. ${nm(u)} · ${plain(u)}</span>`).join('');
-    root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1><div class="stand">${col(b, 2, 0)}${col(a, 1, 1)}${col(c, 3, 2)}</div>${rest ? `<div class="rest">${rest}</div>` : '<div style="height:12px"></div>'}</div>`;
+    root.innerHTML = `<div class="box"><h1 class="shadow tx-title">${esc(s.title)}</h1><div class="stand">${col(b, 2, 0)}${col(a, 1, 1)}${col(c, 3, 2)}</div>${rest ? `<div class="rest">${rest}</div>` : '<div style="height:12px"></div>'}</div>`;
   } else if (s.style === 'lider') {
     const a = rows[0];
     root.innerHTML = a
-      ? `<div class="box" data-id="${esc(a.user)}"><div class="who"><span class="crown">👑</span>${av(a)}</div><div><small>${esc(s.title)}</small><b class="shadow">${nm(a)}</b><div class="v">${cnt(a)}</div>${rows[1] ? `<div class="next">Le sigue ${nm(rows[1])} con ${plain(rows[1])}</div>` : ''}</div></div>`
-      : `<div class="box"><div><small>${esc(s.title)}</small><b>¿Quién será el primero?</b></div></div>`;
+      ? `<div class="box" data-id="${esc(a.user)}"><div class="who"><span class="crown">👑</span>${av(a)}</div><div><small class="tx-title">${esc(s.title)}</small><b class="shadow">${nm(a)}</b><div class="v">${cnt(a)}</div>${rows[1] ? `<div class="next">Le sigue ${nm(rows[1])} con ${plain(rows[1])}</div>` : ''}</div></div>`
+      : `<div class="box"><div><small class="tx-title">${esc(s.title)}</small><b>¿Quién será el primero?</b></div></div>`;
   } else if (s.style === 'bolitas') {
     const list = rows.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i}"><div class="orb"><span class="ring"></span><div class="pic">${av(u)}</div><span class="pos">${i + 1}</span>${i === 0 ? '<span class="crown">👑</span>' : ''}</div><div class="lbl"><b class="nm shadow">${nm(u)}</b><span class="v shadow">${cnt(u)}</span></div></li>`).join('');
-    root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
+    root.innerHTML = `<div class="box"><h1 class="shadow tx-title">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
   } else if (s.style === 'cinta') {
     const items = rows.map((u, i) => `<span class="it" style="--i:${i}">${i === 0 ? '👑' : `${i + 1}.`} ${av(u)} ${nm(u)} <em>${plain(u)} ${icon}</em></span>`).join('');
     const content = items || '<span class="it">¡Sé el primero en aparecer aquí!</span>';
@@ -212,7 +212,7 @@ function build(s, rows) {
     root.style.setProperty('--dur', Math.max(10, (run.scrollWidth / 2) / 60) + 's');
   } else {
     const list = rows.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i}"><span class="pos">${i + 1}</span>${s.style === 'compacto' ? '' : av(u)}<span class="nm shadow">${nm(u)}</span><span class="v shadow">${cnt(u)}</span></li>`).join('');
-    root.innerHTML = `<div class="box"><h1 class="shadow">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
+    root.innerHTML = `<div class="box"><h1 class="shadow tx-title">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
   }
   // Sin título: se quita su renglón para que no deje hueco.
   if (!s.title) root.querySelectorAll('h1, .lider small, .cinta .tag').forEach((e) => { if (!e.textContent.trim()) e.remove(); });
@@ -326,7 +326,7 @@ function applyFx() {
 }
 
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.[tipo] || {}) }; if (KICKS && cfg.showTitle !== false) cfg.title = 'Top Kicks'; applyFx(); applyTextStyle(cfg.text); render(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.[tipo] || {}) }; if (KICKS && cfg.showTitle !== false) cfg.title = 'Top Kicks'; applyFx(); applyTextStyle(cfg.text); applyTitleStyle(cfg.titleStyle); render(); });
 socket.on('rankings', (r) => { last = r; render(); });
 applyFx();
 render();

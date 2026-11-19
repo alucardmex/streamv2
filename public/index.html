@@ -408,6 +408,13 @@
   .tx-part { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--ink); }
   .tx-part > b { font-size: 13.5px; }
   .tx-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+  .tx-px { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel, #1a1724); }
+  .tx-px button { border: 0; background: none; color: inherit; font: 700 16px inherit; width: 34px; height: 36px; cursor: pointer; }
+  .tx-px button:hover { background: var(--line); }
+  .tx-px input { width: 58px; border: 0; background: none; color: inherit; text-align: center; font: 600 14px inherit; padding: 0; -moz-appearance: textfield; }
+  .tx-px input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  .tx-px span { padding-right: 10px; color: var(--muted); font-size: 13px; }
+  .tx-part.title { border: 1px solid rgba(255,255,255,.08); }
   .tx-row select { background: var(--surface); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 7px 9px; font-size: 15px; min-width: 170px; width: auto; }
   .tx-row input[type=range] { width: 130px; }
   .tx-row .pct { font-size: 12.5px; color: var(--muted); min-width: 42px; }
@@ -1172,6 +1179,7 @@
             <label class="switch"><input type="checkbox" data-key="overlays.rank.showTitle"><span class="track"></span>Mostrar título</label>
             <label class="switch"><input type="checkbox" data-key="overlays.rank.bg"><span class="track"></span>Con fondo</label>
           </div>
+          <div class="st-text"></div>
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del reto de rango" src="/rango.html"></iframe><span class="hint">Vista previa con tu avance real.</span></div>
@@ -1217,6 +1225,7 @@
             <label class="switch"><input type="checkbox" data-key="overlays.timer.showTitle"><span class="track"></span>Mostrar título</label>
             <label class="switch"><input type="checkbox" data-key="overlays.timer.bg"><span class="track"></span>Con fondo</label>
           </div>
+          <div class="st-text"></div>
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del contador de tiempo" src="/contador.html"></iframe><span class="hint">Vista previa con tu contador real.</span></div>
@@ -1250,6 +1259,7 @@
             <label class="switch"><input type="checkbox" data-key="overlays.matches.showTitle"><span class="track"></span>Mostrar título</label>
             <label class="switch"><input type="checkbox" data-key="overlays.matches.bg"><span class="track"></span>Con fondo</label>
           </div>
+          <div class="st-text"></div>
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del marcador de partidas" src="/partidas.html?demo=1"></iframe><span class="hint">Vista previa. Si aún no hay partidas se muestra un ejemplo.</span></div>
@@ -2550,14 +2560,87 @@ function txSave(now) {
   if (now) socket.emit('saveSettings', settings);
   else saveTimer = setTimeout(() => socket.emit('saveSettings', settings), 350);
 }
+const fontOpts = (cur) => `<option value="">La del estilo</option>${TEXT_FONTS.map(([n, fam]) => `<option value="${esc(fam)}" style="font-family:'${esc(fam)}'" ${cur === fam ? 'selected' : ''}>${esc(n)}</option>`).join('')}`;
+// Título del overlay: tamaño en px (0 = el del estilo), color y tipografía.
+function titleCtl(key) {
+  const t = (settings.overlays[key].titleStyle ||= { px: 0, color: '', font: '' });
+  const off = settings.overlays[key].showTitle === false;
+  return `<div class="tx-part title"><b>Título${off ? ' <small class="hint" style="font-weight:400">(está oculto)</small>' : ''}</b>
+    <div class="tx-row">
+      <select data-ttl="${key}:font" aria-label="Tipografía del título" style="font-family:${t.font ? `'${esc(t.font)}'` : 'inherit'}">${fontOpts(t.font)}</select>
+      <span class="tx-px" title="Tamaño de letra del título"><button type="button" data-ttlstep="${key}:-2" aria-label="Más chico">−</button><input type="number" min="0" max="300" step="1" placeholder="Auto" value="${Number(t.px) || ''}" data-ttl="${key}:px" aria-label="Tamaño de letra del título en px"><span>px</span><button type="button" data-ttlstep="${key}:2" aria-label="Más grande">+</button></span>
+      <input type="color" value="${t.color || '#ffffff'}" data-ttl="${key}:color" aria-label="Color del título">
+      ${t.color ? `<button type="button" class="btn sm quiet" data-ttlreset="${key}:color">Color del estilo</button>` : '<span class="auto">Color del estilo</span>'}
+      ${Number(t.px) ? `<button type="button" class="btn sm quiet" data-ttlreset="${key}:px">Tamaño del estilo</button>` : '<span class="auto">Tamaño del estilo</span>'}
+    </div></div>`;
+}
+let ttlLocal = null, ttlLocalTimer = null;
+function ttlSave(now) {
+  clearTimeout(saveTimer);
+  clearTimeout(ttlLocalTimer);
+  ttlLocal = Object.fromEntries(Object.keys(settings.overlays).filter((k) => settings.overlays[k]?.titleStyle).map((k) => [k, { ...settings.overlays[k].titleStyle }]));
+  ttlLocalTimer = setTimeout(() => { ttlLocal = null; }, now ? 1500 : 2000);
+  if (now) socket.emit('saveSettings', settings);
+  else saveTimer = setTimeout(() => socket.emit('saveSettings', settings), 350);
+}
+const ttlOf = (key) => (settings.overlays[key].titleStyle ||= { px: 0, color: '', font: '' });
+function ttlRefresh(key) {
+  // Se redibuja después del evento (el panel también puede estar redibujando por el guardado).
+  setTimeout(() => {
+    const part = $(`.studio[data-ov="${key}"] .tx-part.title`);
+    if (!part?.isConnected || part.contains(document.activeElement)) return;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = titleCtl(key);
+    part.replaceWith(tmp.firstElementChild);
+  }, 0);
+}
+document.addEventListener('input', (e) => {
+  const el = e.target.closest('[data-ttl]');
+  if (!el) return;
+  const [key, prop] = el.dataset.ttl.split(':');
+  const t = ttlOf(key);
+  if (prop === 'px') t.px = Math.max(0, Math.min(300, Math.round(Number(el.value) || 0)));
+  else if (prop === 'color') t.color = el.value;
+  else if (prop === 'font') { t.font = el.value; el.style.fontFamily = el.value ? `'${el.value}'` : 'inherit'; }
+  ttlSave();
+});
+document.addEventListener('change', (e) => {
+  const el = e.target.closest('[data-ttl]');
+  if (el && /:(px|color)$/.test(el.dataset.ttl)) ttlRefresh(el.dataset.ttl.split(':')[0]);
+});
+document.addEventListener('click', (e) => {
+  const step = e.target.closest('[data-ttlstep]');
+  const reset = e.target.closest('[data-ttlreset]');
+  if (step) {
+    const [key, d] = step.dataset.ttlstep.split(':');
+    const t = ttlOf(key);
+    // Si estaba en "el del estilo", empieza desde un tamaño razonable.
+    const base = Number(t.px) || 28;
+    t.px = Math.max(8, Math.min(300, base + Number(d)));
+    const inp = step.parentElement.querySelector('input');
+    inp.value = t.px;
+    ttlSave();
+    if (!step.closest('.tx-row').querySelector('[data-ttlreset$=":px"]')) ttlRefresh(key);
+  } else if (reset) {
+    const [key, prop] = reset.dataset.ttlreset.split(':');
+    ttlOf(key)[prop] = prop === 'px' ? 0 : '';
+    ttlSave(true);
+    ttlRefresh(key);
+  }
+});
+socket.on('config', () => {
+  if (ttlLocal) for (const [k, v] of Object.entries(ttlLocal)) if (settings.overlays[k]) settings.overlays[k].titleStyle = v;
+});
+
 function renderTextCtl(st, key) {
   const box = st.querySelector('.st-text');
-  if (!box || !TX_PARTS[key]) return;
+  if (!box) return;
   // En el panel se cargan las tipografías para verlas en la lista.
   if (!txFontsLoaded) { txFontsLoaded = true; TEXT_FONTS.forEach(([, fam]) => loadTextFont(fam)); }
-  const text = (settings.overlays[key].text ||= {});
   if (box.contains(document.activeElement)) return; // no redibujar mientras lo estás moviendo
-  box.innerHTML = `<h3>Texto</h3>` + TX_PARTS[key].map(([part, label]) => {
+  if (!TX_PARTS[key]) { box.innerHTML = `<h3>Texto</h3>` + titleCtl(key); return; }
+  const text = (settings.overlays[key].text ||= {});
+  box.innerHTML = `<h3>Texto</h3>` + titleCtl(key) + TX_PARTS[key].map(([part, label]) => {
     const t = (text[part] ||= { font: '', size: 1, color: '' });
     const id = `${key}:${part}`;
     return `<div class="tx-part"><b>${label}</b>

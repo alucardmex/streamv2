@@ -1,10 +1,8 @@
-**Kick va aparte y puede ir junto con TikTok.**
+**Títulos de los overlays más grandes y de color.**
 
-- Arriba prendes **TikTok**, **Kick** o **las dos al mismo tiempo**
-- Nueva pestaña **Kick** con todo lo suyo: conexión, alertas, bot de voz, contador de tiempo, pruebas y ranking
-- Kick tiene su propio ranking de Kicks y su Kick más grande, con overlays propios (también en Escena)
-- Lo de Kick sale con una **K** verde en "En vivo" y en el chat en pantalla
-- Las pestañas de TikTok ya no tienen cosas de Kick
-- Tus ajustes de Kick de la versión anterior se pasan solos a la pestaña nueva
+- En **Overlays → Texto → Título** pones el tamaño de letra en **px** (con − y + o escribiendo el número)
+- Cambia el **color** y la **tipografía** del título
+- Funciona en todos los overlays con título: Regalo más caro, Top taps, Top regalos, Contador de tiempo, Partidas y Camino a Conquistador (también en los de Kick y en Escena)
+- **Tamaño del estilo** y **Color del estilo** lo regresan a como venía
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.19.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.20.0 lista", toca **Actualizar**.

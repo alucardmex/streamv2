@@ -121,27 +121,30 @@ const DEFAULT_CONFIG = {
     overlays: {
       // anim: movimiento continuo (idle), efecto al cambiar (change), intensidad,
       // números que suben (counters) y resaltar a quien sube de puesto (rankUp).
-      likes: { style: 'lista', title: '❤️ Top taps', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
-      gifts: { style: 'lista', title: '💎 Top regalos', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      likes: { titleStyle: { px: 0, color: '', font: '' }, style: 'lista', title: '❤️ Top taps', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      gifts: { titleStyle: { px: 0, color: '', font: '' }, style: 'lista', title: '💎 Top regalos', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
       // Contador de tiempo (subathon): cada interacción suma (o resta, con número negativo) segundos.
       timer: {
+        titleStyle: { px: 0, color: '', font: '' },
         style: 'digital', title: 'Tiempo restante', showTitle: true, bg: true, showAdds: true,
         start: 3600, perDiamond: 10, likesEvery: 100, likesSecs: 10, follow: 30, share: 15, chat: 0, max: 0, whilePaused: false,
         anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
       },
       // Marcador de partidas de PUBG Mobile (pollos y derrotas), lo llevas tú desde el panel.
       matches: {
+        titleStyle: { px: 0, color: '', font: '' },
         style: 'marcador', title: 'Partidas de hoy', showTitle: true, bg: true,
         winLabel: 'Pollos', lossLabel: 'Derrotas', showStreak: true, showRate: true, goal: 0,
         anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
       },
       // Camino a Conquistador (PUBG Mobile): rango, puntos, promoción a As y cuenta regresiva.
       rank: {
+        titleStyle: { px: 0, color: '', font: '' },
         style: 'completo', title: 'Camino a Conquistador', showTitle: true, bg: true, showTimer: true, showPath: true,
         start: '', end: '', // fecha y hora de inicio y fin del reto (hora de tu computadora)
         anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
       },
-      topGift: { style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, text: { name: { font: '', size: 1, color: '' }, gift: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
+      topGift: { titleStyle: { px: 0, color: '', font: '' }, style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, text: { name: { font: '', size: 1, color: '' }, gift: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
     },
   },
 };

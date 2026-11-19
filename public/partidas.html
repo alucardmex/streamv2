@@ -72,6 +72,7 @@
 <div class="stage" id="stage"><div id="root"></div></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/fx.js"></script>
+<script src="/text-style.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
 const STYLES = ['marcador', 'pollo', 'compacto'];
@@ -109,7 +110,7 @@ function render() {
   const W = esc(s.winLabel || 'Pollos'), L = esc(s.lossLabel || 'Derrotas');
   const v = (k) => `<span class="val num" data-c="${k}"></span>`;
   if (s.style === 'pollo') {
-    root.innerHTML = `<div class="box">${s.title ? `<div class="t">${esc(s.title)}</div>` : ''}
+    root.innerHTML = `<div class="box">${s.title ? `<div class="t tx-title">${esc(s.title)}</div>` : ''}
       <div class="big"><span class="chick">🍗</span>${v('wins')}${goal ? `<span class="goal">/${goal}</span>` : ''}</div>
       <div class="wwcd">Winner winner chicken dinner</div>
       <div class="meta"><div><span>${L}</span> <b class="num" data-c="losses"></b></div>${s.showStreak ? `<div><span>Racha</span> <b class="num" data-c="streak"></b></div>` : ''}${s.showRate ? `<div><span>Win</span> <b class="num">${rate}%</b></div>` : ''}</div></div>`;
@@ -117,7 +118,7 @@ function render() {
     root.innerHTML = `<div class="box">${s.title ? `<span class="t">${esc(s.title)}</span>` : ''}<span class="it win"><span class="e">🍗</span>${v('wins')}${goal ? `<span style="opacity:.6">/${goal}</span>` : ''}</span><span class="it loss"><span class="e">💀</span>${v('losses')}</span>${s.showStreak && d.streak > 1 ? `<span class="it"><span class="e">🔥</span>${v('streak')}</span>` : ''}</div>`;
   } else {
     const cell = (cls, ico, lbl, inner) => `<div class="cell ${cls}"><span class="ico">${ico}</span><div><div class="lbl">${lbl}</div>${inner}</div></div>`;
-    root.innerHTML = `<div class="box">${s.title ? `<div class="t">${esc(s.title)}</div>` : ''}<div class="row">
+    root.innerHTML = `<div class="box">${s.title ? `<div class="t tx-title">${esc(s.title)}</div>` : ''}<div class="row">
       ${cell('win', '🍗', W, `${v('wins')}${goal ? `<span class="val" style="font-size:30px;opacity:.6">/${goal}</span>` : ''}`)}
       ${cell('loss', '💀', L, v('losses'))}
       ${s.showStreak ? cell('streak', '🔥', 'Racha', v('streak')) : ''}
@@ -173,7 +174,7 @@ function applyFx() {
   FX.apply(a);
 }
 const socket = io();
-socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.matches || {}) }; applyFx(); render(); });
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.matches || {}) }; applyFx(); applyTitleStyle(cfg.titleStyle); render(); });
 socket.on('matches', (x) => {
   m = x;
   render();

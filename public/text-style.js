@@ -1,5 +1,5 @@
 // StreamV2 — tamaño, tipografía y color de los textos de los overlays
-// (nombre del donador, nombre del regalo, cantidad). Lo usan los overlays y el panel.
+// (título, nombre del donador, nombre del regalo, cantidad). Lo usan los overlays y el panel.
 window.TEXT_FONTS = [
   // [nombre que se ve, familia CSS, pesos de Google Fonts ('' = fuente de Windows, no se descarga)]
   ['Outfit', 'Outfit', 'wght@400;700;900'],
@@ -45,9 +45,26 @@ window.TEXT_FONTS = [
     .tx-${p} { font-size: calc(1em * var(--tx-${p}-size, 1)); }
     body.tx-${p}-f .tx-${p}, body.tx-${p}-f .tx-${p} * { font-family: var(--tx-${p}-font), sans-serif !important; }
     body.tx-${p}-c .tx-${p}, body.tx-${p}-c .tx-${p} * { color: var(--tx-${p}-color) !important; -webkit-text-fill-color: var(--tx-${p}-color) !important; }`).join('');
+  // Título del overlay: tamaño en px (no en porcentaje), color y tipografía. 0 / vacío = lo que trae el estilo.
+  const titleCss = `
+    body.tx-title-s .tx-title { font-size: var(--tx-title-px) !important; line-height: 1.1 !important; }
+    body.tx-title-f .tx-title { font-family: var(--tx-title-font), sans-serif !important; }
+    body.tx-title-c .tx-title { color: var(--tx-title-color) !important; -webkit-text-fill-color: var(--tx-title-color) !important; }`;
   const style = document.createElement('style');
-  style.textContent = css;
+  style.textContent = css + titleCss;
   document.head.appendChild(style);
+
+  window.applyTitleStyle = (ts = {}) => {
+    const b = document.body;
+    const px = Math.max(0, Math.min(300, Number(ts?.px) || 0));
+    b.style.setProperty('--tx-title-px', `${px}px`);
+    b.classList.toggle('tx-title-s', px > 0);
+    if (ts?.font) { b.style.setProperty('--tx-title-font', `'${String(ts.font).replace(/'/g, '')}'`); loadTextFont(ts.font); }
+    b.classList.toggle('tx-title-f', !!ts?.font);
+    const ok = /^#[0-9a-f]{3,8}$/i.test(ts?.color || '');
+    if (ok) b.style.setProperty('--tx-title-color', ts.color);
+    b.classList.toggle('tx-title-c', ok);
+  };
 
   // text = { name: { font, size, color }, gift: {...}, value: {...} }; vacío = lo que trae el estilo.
   window.applyTextStyle = (text = {}) => {
