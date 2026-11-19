@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>StreamV2 · Cuenta regresiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Outfit:ital,wght@0,600;0,800;0,900;1,900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/fx.css">
+<style>
+  /* Cuenta regresiva a una fecha y hora (la eliges en el panel).
+     ?estilo=vice|neon|minimal|pastilla  ?escala=1.2  ?titulo=0 (sin título)  ?fondo=0  ?animacion=0 */
+  :root { --pink: #ff2e88; --orange: #ffa63d; --purple: #7b2cff; --cyan: #2ee6ff; --w: #fff; }
+  html, body { margin: 0; background: transparent; overflow: hidden; font-family: 'Outfit', system-ui, sans-serif; color: var(--w); }
+  .stage { display: inline-block; padding: 18px; transform-origin: top left; }
+  .box { position: relative; }
+  .digits { display: flex; align-items: flex-start; gap: 6px; font-family: 'Anton', 'Impact', sans-serif; font-variant-numeric: tabular-nums; line-height: .9; }
+  .seg { display: flex; flex-direction: column; align-items: center; }
+  .seg b { font-weight: 400; display: block; }
+  .seg small { font-family: 'Outfit', sans-serif; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; opacity: .85; margin-top: 4px; }
+  .colon { font-weight: 400; opacity: .8; }
+  .nolabels .seg small { display: none; }
+  .end { font-family: 'Anton', 'Impact', sans-serif; letter-spacing: 2px; text-transform: uppercase; line-height: 1; }
+  .t { font-weight: 900; font-style: italic; text-transform: uppercase; letter-spacing: 1px; line-height: 1.05; }
+
+  /* ---------- VICE (atardecer: rosa, naranja y morado) ---------- */
+  .vice .box { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 28px 18px; border-radius: 22px; overflow: hidden;
+    background: linear-gradient(160deg, #2a0a4a 0%, #6a1b9a 38%, #ff2e88 72%, #ffa63d 100%);
+    box-shadow: 0 0 0 2px rgba(255,255,255,.25) inset, 0 16px 40px rgba(0,0,0,.5), 0 0 40px rgba(255,46,136,.35); }
+  .vice .box::before { content: ''; position: absolute; left: 50%; bottom: -70px; width: 220px; height: 220px; translate: -50% 0; border-radius: 50%;
+    background: repeating-linear-gradient(180deg, rgba(255,230,120,.55) 0 10px, transparent 10px 16px); opacity: .45; pointer-events: none; }
+  .vice .box > * { position: relative; }
+  .vice .t { font-size: 22px; text-shadow: 0 2px 0 rgba(0,0,0,.35), 0 0 14px rgba(255,255,255,.35); }
+  .vice .digits { font-size: 92px; text-shadow: 3px 4px 0 rgba(42,10,74,.75), 0 0 24px rgba(255,255,255,.35); }
+  .vice .colon { font-size: 80px; }
+  .vice .seg small { font-size: 13px; text-shadow: 0 1px 4px rgba(0,0,0,.5); }
+  .vice .end { font-size: 84px; text-shadow: 3px 4px 0 rgba(42,10,74,.75), 0 0 30px rgba(255,255,255,.5); }
+  .nobg .vice .box { background: none; box-shadow: none; }
+  .nobg .vice .box::before { display: none; }
+
+  /* ---------- NEON (oscuro con luz rosa y cian) ---------- */
+  .neon .box { display: inline-flex; flex-direction: column; align-items: center; gap: 6px; padding: 16px 28px 18px; border-radius: 18px;
+    background: rgba(10,6,22,.88); border: 2px solid var(--pink); box-shadow: 0 0 22px rgba(255,46,136,.55), inset 0 0 22px rgba(46,230,255,.18); }
+  .neon .t { font-size: 20px; color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+  .neon .digits { font-size: 88px; color: #ffe1f0; text-shadow: 0 0 6px var(--pink), 0 0 18px var(--pink), 0 0 36px var(--pink); }
+  .neon .colon { font-size: 76px; color: var(--cyan); text-shadow: 0 0 10px var(--cyan); }
+  .neon .seg small { font-size: 12px; color: var(--cyan); text-shadow: 0 0 8px var(--cyan); }
+  .neon .end { font-size: 80px; color: #ffe1f0; text-shadow: 0 0 8px var(--pink), 0 0 24px var(--pink), 0 0 48px var(--pink); }
+  .nobg .neon .box { background: none; border-color: transparent; box-shadow: none; }
+
+  /* ---------- MINIMAL (solo texto) ---------- */
+  .minimal .box { display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px; text-shadow: 0 3px 10px rgba(0,0,0,.85); }
+  .minimal .t { font-size: 20px; color: var(--orange); }
+  .minimal .digits { font-size: 76px; }
+  .minimal .colon { font-size: 64px; }
+  .minimal .seg small { font-size: 11px; }
+  .minimal .end { font-size: 70px; color: var(--orange); }
+
+  /* ---------- PASTILLA (una línea delgada) ---------- */
+  .pastilla .box { display: inline-flex; align-items: center; gap: 14px; padding: 6px 22px 4px 18px; border-radius: 999px;
+    background: linear-gradient(90deg, #6a1b9a, #ff2e88 60%, #ffa63d); box-shadow: 0 8px 24px rgba(0,0,0,.45); white-space: nowrap; }
+  .pastilla .t { font-size: 18px; padding-top: 2px; }
+  .pastilla .digits { font-size: 46px; gap: 3px; padding-top: 4px; text-shadow: 2px 3px 0 rgba(42,10,74,.6); }
+  .pastilla .colon { font-size: 40px; }
+  .pastilla .seg small { display: none; }
+  .pastilla .end { font-size: 44px; padding-top: 4px; }
+  .nobg .pastilla .box { background: none; box-shadow: none; text-shadow: 0 2px 8px rgba(0,0,0,.85); }
+
+  /* Últimos segundos y final */
+  .last .digits { animation: last 1s ease-in-out infinite; }
+  @keyframes last { 0% { scale: 1.08; } 30% { scale: 1; } }
+  .final .seg:last-child b { animation: tick 1s cubic-bezier(.2,1.6,.4,1) infinite; }
+  @keyframes tick { 0% { scale: 1.45; filter: brightness(1.6); } 40% { scale: 1; filter: none; } }
+  .done .end { animation: done 1.4s ease-in-out infinite; }
+  @keyframes done { 50% { scale: 1.08; filter: brightness(1.25); } }
+  .burst { position: fixed; z-index: 20; pointer-events: none; font-size: 30px; animation: burst 1.6s ease-out forwards; }
+  @keyframes burst { 0% { opacity: 1; transform: translate(0, 0) scale(.4); } 100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(1.2) rotate(var(--r)); } }
+  @media (prefers-reduced-motion: reduce) { body:not(.fx-on) * { animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="stage" id="stage"><div id="root"></div></div>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/fx.js"></script>
+<script src="/text-style.js"></script>
+<script>
+const P = new URLSearchParams(location.search);
+const STYLES = ['vice', 'neon', 'minimal', 'pastilla'];
+const root = document.getElementById('root');
+const stage = document.getElementById('stage');
+let cfg = { style: 'vice', title: 'Jugamos GTA 6 en', showTitle: true, bg: true, showLabels: true, target: '', endText: '¡A jugar!', anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal' } };
+let built = '';
+let wasDone = null;
+let demoUntil = 0;
+let lastHtml = '';
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const pad = (n) => String(n).padStart(2, '0');
+
+function settings() {
+  const s = { ...cfg };
+  if (STYLES.includes(P.get('estilo'))) s.style = P.get('estilo');
+  if (P.get('titulo') !== null) s.title = P.get('titulo') === '0' ? '' : P.get('titulo');
+  if (s.showTitle === false) s.title = '';
+  if (P.get('fondo') === '0') s.bg = false;
+  if (!STYLES.includes(s.style)) s.style = 'vice';
+  s.title = String(s.title || '').trim();
+  return s;
+}
+// La fecha se guarda como "2026-11-19T12:00" (hora de esta computadora).
+function targetMs(s) {
+  if (demoUntil) return demoUntil;
+  const t = s.target ? new Date(s.target).getTime() : NaN;
+  return Number.isFinite(t) ? t : NaN;
+}
+function build(s) {
+  const key = `${s.style}|${s.title}|${s.bg}|${s.showLabels}|${s.endText}`;
+  stage.style.transform = `scale(${Number(P.get('escala')) || 1})`;
+  document.body.classList.toggle('nobg', !s.bg);
+  root.classList.toggle('nolabels', s.showLabels === false);
+  if (key === built) return;
+  built = key;
+  wasDone = null;
+  lastHtml = '';
+  root.className = s.style + (s.showLabels === false ? ' nolabels' : '');
+  root.innerHTML = `<div class="box">${s.title ? `<div class="t tx-title">${esc(s.title)}</div>` : ''}<div class="body"></div></div>`;
+  FX.decorate(root.querySelector('.box'));
+  FX.sync(root);
+}
+const segHtml = (v, l) => `<span class="seg"><b>${v}</b><small>${l}</small></span>`;
+function tick() {
+  const s = settings();
+  build(s);
+  const body = root.querySelector('.body');
+  if (!body) return;
+  const t = targetMs(s);
+  if (!Number.isFinite(t)) { body.innerHTML = `<div class="end" style="font-size:40px">Elige la hora en el panel</div>`; return; }
+  const ms = t - Date.now();
+  const done = ms <= 0;
+  if (done) {
+    if (wasDone !== true) {
+      body.innerHTML = `<div class="end">${esc(s.endText || '¡Ya!')}</div>`;
+      lastHtml = '';
+      if (wasDone === false) { FX.change(root.querySelector('.box'), 'fin'); burst(); }
+    }
+    wasDone = true;
+    root.classList.add('done');
+    root.classList.remove('last', 'final');
+    return;
+  }
+  wasDone = false;
+  root.classList.remove('done');
+  const sec = Math.ceil(ms / 1000);
+  const d = Math.floor(sec / 86400), h = Math.floor((sec % 86400) / 3600), m = Math.floor((sec % 3600) / 60), x = sec % 60;
+  const parts = [];
+  if (d) parts.push(segHtml(d, d === 1 ? 'día' : 'días'));
+  if (d || h) parts.push(segHtml(pad(h), 'horas'));
+  parts.push(segHtml(pad(m), 'min'), segHtml(pad(x), 'seg'));
+  const html = `<div class="digits">${parts.join('<span class="colon">:</span>')}</div>`;
+  if (html !== lastHtml) { body.innerHTML = html; lastHtml = html; }
+  root.classList.toggle('last', sec <= 60);
+  root.classList.toggle('final', sec <= 10);
+}
+function burst() {
+  if (!document.body.classList.contains('fx-on')) return;
+  const r = root.querySelector('.box').getBoundingClientRect();
+  const icons = ['🎉', '✨', '🔥', '💥', '🎮', '⭐'];
+  for (let i = 0; i < 26; i++) {
+    const el = document.createElement('span');
+    el.className = 'burst';
+    el.textContent = icons[i % icons.length];
+    el.style.left = `${r.left + r.width / 2}px`;
+    el.style.top = `${r.top + r.height / 2}px`;
+    const a = (i / 26) * Math.PI * 2;
+    el.style.setProperty('--dx', `${Math.cos(a) * (120 + Math.random() * 160)}px`);
+    el.style.setProperty('--dy', `${Math.sin(a) * (80 + Math.random() * 120)}px`);
+    el.style.setProperty('--r', `${Math.random() * 360}deg`);
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1700);
+  }
+}
+// Al cambiar de segundo se redibuja; con 250 ms nunca se salta un número.
+setInterval(tick, 250);
+
+// Botón "Probar animación": cuenta los últimos 5 segundos y muestra el final.
+window.fxDemo = () => { demoUntil = Date.now() + 5200; setTimeout(() => { demoUntil = 0; }, 9000); };
+
+function applyFx() {
+  const a = { ...cfg.anim };
+  if (P.get('animacion') === '0') a.on = false;
+  FX.apply(a);
+}
+const socket = io();
+socket.on('config', (c) => { cfg = { ...cfg, ...(c.settings?.overlays?.countdown || {}) }; applyFx(); applyTitleStyle(cfg.titleStyle); built = ''; tick(); });
+applyFx();
+tick();
+</script>
+</body>
+</html>

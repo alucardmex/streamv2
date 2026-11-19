@@ -60,6 +60,8 @@ Usa los botones **Probar** del panel para ver cómo se ven sin estar en vivo.
 
 En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previa en vivo, y le cambias el título (o lo quitas con **Mostrar título**), los puestos y si lleva fondo. **Tu stream se actualiza solo**: no hace falta volver a pegar el link en OBS.
 
+**Cuenta regresiva:** en Overlays → **Cuenta regresiva** eliges fecha y hora (con botones para 12:00 pm, 12:00 am, +15 min y +1 hora), el título (por ejemplo "Jugamos GTA 6 en") y el mensaje que sale al llegar a cero. Tiene 4 estilos (Vice, Neón, Minimal y Pastilla); en el último minuto late, en los últimos 10 segundos cada número salta y al llegar a cero suelta confeti. Link: `http://127.0.0.1:3939/cuenta.html`. También está en Escena.
+
 **Título:** en **Texto → Título** de cada overlay le pones el tamaño de letra en px (con − y + o escribiendo el número), el color y la tipografía. Vacío = el tamaño del estilo; **Color del estilo** y **Tamaño del estilo** lo regresan a como venía.
 
 - **Regalo más caro:** Tarjeta, Banner (barra horizontal), Trofeo (vertical con corona, ideal para stream vertical), Neón, Minimal (solo texto), Burbuja (foto de quien lo mandó) Círculo y Cuadro (la foto de perfil y el regalo se van volteando como moneda; eliges cada cuántos segundos).

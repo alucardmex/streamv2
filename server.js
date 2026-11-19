@@ -144,6 +144,14 @@ const DEFAULT_CONFIG = {
         start: '', end: '', // fecha y hora de inicio y fin del reto (hora de tu computadora)
         anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
       },
+      // Cuenta regresiva a una fecha y hora (por ejemplo, cuándo empieza un juego).
+      countdown: {
+        titleStyle: { px: 0, color: '', font: '' },
+        style: 'vice', title: 'Jugamos GTA 6 en', showTitle: true, bg: true, showLabels: true,
+        target: '', // fecha y hora, p. ej. "2026-11-19T12:00" (hora de tu computadora)
+        endText: '¡A jugar!',
+        anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal' },
+      },
       topGift: { titleStyle: { px: 0, color: '', font: '' }, style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, text: { name: { font: '', size: 1, color: '' }, gift: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
     },
   },
@@ -252,7 +260,7 @@ function cleanCustom(list) {
 }
 config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
 
-const SCENE_ITEM_TYPES = ['alertas', 'topGift', 'likes', 'gifts', 'chat', 'timer', 'matches', 'rank', 'kickGifts', 'kickTop'];
+const SCENE_ITEM_TYPES = ['alertas', 'topGift', 'likes', 'gifts', 'chat', 'timer', 'matches', 'rank', 'kickGifts', 'kickTop', 'countdown'];
 const clampN = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
 function cleanScenes(list) {
   if (!Array.isArray(list)) return [];

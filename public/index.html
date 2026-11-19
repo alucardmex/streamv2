@@ -407,6 +407,7 @@
   .st-text h3 { margin: 0; font: 700 15px var(--display); }
   .tx-part { display: grid; grid-template-columns: 1fr; gap: 8px; padding: 10px 12px; border-radius: 12px; background: var(--ink); }
   .tx-part > b { font-size: 13.5px; }
+  .field input[type="datetime-local"] { background: var(--ink); color: var(--text); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; color-scheme: dark; font: inherit; }
   .tx-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
   .tx-px { display: inline-flex; align-items: center; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel, #1a1724); }
   .tx-px button { border: 0; background: none; color: inherit; font: 700 16px inherit; width: 34px; height: 36px; cursor: pointer; }
@@ -1183,6 +1184,40 @@
           <div class="st-anim"></div>
         </div>
         <div class="st-preview"><iframe title="Vista previa del reto de rango" src="/rango.html"></iframe><span class="hint">Vista previa con tu avance real.</span></div>
+      </div>
+    </section>
+
+    <section class="studio" data-ov="countdown" data-path="/cuenta.html">
+      <div class="st-head"><div><h2>Cuenta regresiva</h2><p>Cuánto falta para algo que empieza a cierta hora (por ejemplo, cuándo jugamos GTA 6). Al llegar a cero muestra tu mensaje.</p></div><div class="st-link"></div></div>
+      <div class="st-body">
+        <div class="st-side">
+          <div class="ctl" aria-label="Cuándo termina la cuenta">
+            <div class="ctl-big"><b id="cd-left">—</b><small id="cd-when"></small></div>
+            <div class="fields">
+              <label class="field">Fecha y hora <input type="datetime-local" id="cd-target"></label>
+            </div>
+            <div class="row">
+              <button type="button" class="btn sm" data-cdq="noon">12:00 pm (mediodía)</button>
+              <button type="button" class="btn sm" data-cdq="midnight">12:00 am (medianoche)</button>
+              <button type="button" class="btn sm quiet" data-cdq="15">+15 min</button>
+              <button type="button" class="btn sm quiet" data-cdq="60">+1 hora</button>
+              <button type="button" class="btn sm quiet" data-cdq="-15">−15 min</button>
+            </div>
+          </div>
+          <div class="styles" role="radiogroup" aria-label="Estilo de la cuenta regresiva"></div>
+          <div class="fields">
+            <label class="field">Título <input type="text" data-key="overlays.countdown.title" placeholder="Escribe un título" maxlength="60"></label>
+            <label class="field">Mensaje al llegar a cero <input type="text" data-key="overlays.countdown.endText" maxlength="40"></label>
+          </div>
+          <div class="switches">
+            <label class="switch"><input type="checkbox" data-key="overlays.countdown.showTitle"><span class="track"></span>Mostrar título</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.countdown.showLabels"><span class="track"></span>Mostrar horas / min / seg</label>
+            <label class="switch"><input type="checkbox" data-key="overlays.countdown.bg"><span class="track"></span>Con fondo</label>
+          </div>
+          <div class="st-text"></div>
+          <div class="st-anim"></div>
+        </div>
+        <div class="st-preview"><iframe title="Vista previa de la cuenta regresiva" src="/cuenta.html"></iframe><span class="hint">Vista previa con tu hora real. "Probar animación" cuenta los últimos 5 segundos.</span></div>
       </div>
     </section>
 
@@ -2525,6 +2560,8 @@ const OV_SIZE = {
   likes: { lista: '500 × 600', podio: '480 × 420', lider: '520 × 200', compacto: '340 × 360', neon: '500 × 600', cinta: '940 × 90', bolitas: '250 × 760' },
 };
 OV_SIZE.gifts = OV_SIZE.likes;
+OV_STYLES.countdown = [['vice', 'Vice', 'Atardecer rosa, naranja y morado'], ['neon', 'Neón', 'Oscuro con luz rosa y cian'], ['minimal', 'Minimal', 'Solo el texto'], ['pastilla', 'Pastilla', 'Una línea delgada']];
+OV_SIZE.countdown = { vice: '560 × 230', neon: '560 × 230', minimal: '480 × 170', pastilla: '620 × 90' };
 OV_SIZE.rank = { completo: '620 × 340', barra: '820 × 150', minimal: '460 × 200', linea: '640 × 100', anillo: '300 × 360', vertical: '270 × 420' };
 OV_SIZE.timer = { digital: '420 × 260', barra: '640 × 220', compacto: '420 × 180' };
 OV_SIZE.matches = { marcador: '720 × 180', pollo: '360 × 360', compacto: '420 × 100' };
@@ -2711,6 +2748,53 @@ function fillRankFields() {
   if (document.activeElement !== $('#rk-end')) $('#rk-end').value = k.end;
 }
 socket.on('config', () => queueMicrotask(fillRankFields));
+
+// ---------------------------------------------------------------- cuenta regresiva
+// Próxima vez que el reloj marque esa hora (si ya pasó hoy, mañana).
+function nextAt(h) {
+  const d = new Date();
+  d.setHours(h, 0, 0, 0);
+  if (d.getTime() <= Date.now()) d.setDate(d.getDate() + 1);
+  return d;
+}
+function fillCountdown() {
+  const c = settings?.overlays?.countdown;
+  if (!c || !$('#cd-target')) return;
+  if (!c.target) { c.target = rkLocal(nextAt(12)); socket.emit('saveSettings', settings); }
+  if (document.activeElement !== $('#cd-target')) $('#cd-target').value = c.target;
+  cdTick();
+}
+function setCountdown(d) {
+  settings.overlays.countdown.target = rkLocal(d);
+  $('#cd-target').value = settings.overlays.countdown.target;
+  saveSettingsNow();
+  cdTick();
+}
+function cdTick() {
+  const c = settings?.overlays?.countdown;
+  if (!c || !$('#cd-left')) return;
+  const t = new Date(c.target).getTime();
+  if (!Number.isFinite(t)) { $('#cd-left').textContent = '—'; $('#cd-when').textContent = 'Elige fecha y hora'; return; }
+  const sec = Math.ceil((t - Date.now()) / 1000);
+  const fmtT = (n) => { const d = Math.floor(n / 86400), h = Math.floor((n % 86400) / 3600), m = Math.floor((n % 3600) / 60), x = n % 60; return `${d ? `${d}d ` : ''}${d || h ? `${h}:${tmPad(m)}` : m}:${tmPad(x)}`; };
+  $('#cd-left').textContent = sec > 0 ? `Faltan ${fmtT(sec)}` : '¡Ya llegó la hora!';
+  $('#cd-when').textContent = new Date(t).toLocaleString('es-MX', { weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' });
+}
+setInterval(cdTick, 1000);
+socket.on('config', () => queueMicrotask(fillCountdown));
+$('#cd-target')?.addEventListener('change', (e) => { if (e.target.value) { settings.overlays.countdown.target = e.target.value; saveSettingsNow(); cdTick(); } });
+document.addEventListener('click', (e) => {
+  const q = e.target.closest('[data-cdq]');
+  if (!q) return;
+  const v = q.dataset.cdq;
+  if (v === 'noon') return setCountdown(nextAt(12));
+  if (v === 'midnight') return setCountdown(nextAt(0));
+  const cur = new Date(settings.overlays.countdown.target).getTime();
+  const base = Number.isFinite(cur) && cur > Date.now() ? cur : Date.now();
+  const d = new Date(base + Number(v) * 60000);
+  d.setSeconds(0, 0);
+  setCountdown(d);
+});
 ['start', 'end'].forEach((f) => $(`#rk-${f}`)?.addEventListener('change', (e) => { settings.overlays.rank[f] = e.target.value; saveSettingsNow(); }));
 $('#rk-set')?.addEventListener('click', () => {
   const v = $('#rk-set-tier').value;
@@ -3397,7 +3481,8 @@ FX_IDLE.gifts = FX_IDLE.likes;
 FX_IDLE.timer = FX_IDLE.likes.filter(([k]) => k !== 'ola');
 FX_IDLE.matches = FX_IDLE.timer;
 FX_IDLE.rank = FX_IDLE.timer;
-const FX_CHANGE_LABEL = { topGift: 'Cuando hay nuevo récord', likes: 'Cuando alguien entra o sube de puesto', gifts: 'Cuando alguien entra o sube de puesto', timer: 'Cuando se suma o resta tiempo', matches: 'Cuando sumas una partida', rank: 'Cuando cambian los puntos o el rango' };
+FX_IDLE.countdown = FX_IDLE.timer;
+const FX_CHANGE_LABEL = { topGift: 'Cuando hay nuevo récord', likes: 'Cuando alguien entra o sube de puesto', gifts: 'Cuando alguien entra o sube de puesto', timer: 'Cuando se suma o resta tiempo', matches: 'Cuando sumas una partida', rank: 'Cuando cambian los puntos o el rango', countdown: 'Cuando llega a cero' };
 const FX_CHANGE = [['pop', 'Pop'], ['deslizar', 'Deslizar'], ['zoom', 'Zoom'], ['voltear', 'Voltear'], ['sacudida', 'Sacudida'], ['giro3d', 'Giro 3D'], ['cubo3d', 'Cubo 3D'], ['fondo3d', 'Desde el fondo 3D']];
 const FX_INT = [['suave', 'Suave'], ['normal', 'Normal'], ['fuerte', 'Fuerte']];
 

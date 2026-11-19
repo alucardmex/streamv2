@@ -1,8 +1,11 @@
-**Títulos de los overlays más grandes y de color.**
+Nuevo overlay: **Cuenta regresiva**.
 
-- En **Overlays → Texto → Título** pones el tamaño de letra en **px** (con − y + o escribiendo el número)
-- Cambia el **color** y la **tipografía** del título
-- Funciona en todos los overlays con título: Regalo más caro, Top taps, Top regalos, Contador de tiempo, Partidas y Camino a Conquistador (también en los de Kick y en Escena)
-- **Tamaño del estilo** y **Color del estilo** lo regresan a como venía
+- Eliges la fecha y hora, con botones rápidos para 12:00 pm, 12:00 am, +15 min y +1 hora
+- Título editable (viene como "Jugamos GTA 6 en") y mensaje al llegar a cero ("¡A jugar!")
+- 4 estilos: Vice (atardecer rosa y naranja), Neón, Minimal y Pastilla
+- En el último minuto late, en los últimos 10 segundos cada número salta y al llegar a cero suelta confeti
+- También está en Escena
 
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.20.0 lista", toca **Actualizar**.
+Está en **Overlays → Cuenta regresiva**.
+
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.21.0 lista", toca **Actualizar**.
