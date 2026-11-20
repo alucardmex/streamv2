@@ -1,11 +1,7 @@
-Nuevo overlay: **Cuenta regresiva**.
+Panel más limpio: se quitaron por ahora **Camino a Conquistador** y la **Cuenta regresiva**.
 
-- Eliges la fecha y hora, con botones rápidos para 12:00 pm, 12:00 am, +15 min y +1 hora
-- Título editable (viene como "Jugamos GTA 6 en") y mensaje al llegar a cero ("¡A jugar!")
-- 4 estilos: Vice (atardecer rosa y naranja), Neón, Minimal y Pastilla
-- En el último minuto late, en los últimos 10 segundos cada número salta y al llegar a cero suelta confeti
-- También está en Escena
+- Ya no salen en Overlays ni en Escena
+- Si los tenías en una escena, dejan de mostrarse en tu stream
+- Tu avance y tus ajustes quedan guardados, por si los vuelves a necesitar
 
-Está en **Overlays → Cuenta regresiva**.
-
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.21.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.22.0 lista", toca **Actualizar**.

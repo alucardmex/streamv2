@@ -8,8 +8,9 @@ window.SCENE_TYPES = {
   chat: { name: 'Chat', icon: '💬', path: '/chat.html', w: 460, h: 520 },
   timer: { name: 'Contador de tiempo', icon: '⏱️', path: '/contador.html', w: 460, h: 260 },
   matches: { name: 'Partidas PUBG', icon: '🍗', path: '/partidas.html', w: 720, h: 170 },
-  rank: { name: 'Camino a Conquistador', icon: '🏅', path: '/rango.html', w: 620, h: 330 },
-  countdown: { name: 'Cuenta regresiva', icon: '⏳', path: '/cuenta.html', w: 620, h: 230 },
+  // Ocultos por ahora (no se usan). Para regresarlos, quita hidden: true aquí y en las secciones del panel.
+  rank: { name: 'Camino a Conquistador', icon: '🏅', path: '/rango.html', w: 620, h: 330, hidden: true },
+  countdown: { name: 'Cuenta regresiva', icon: '⏳', path: '/cuenta.html', w: 620, h: 230, hidden: true },
   kickGifts: { name: 'Top Kicks (Kick)', icon: '🟢', path: '/ranking.html?tipo=kicks', w: 420, h: 560 },
   kickTop: { name: 'Kick más grande', icon: '🟢', path: '/top-regalo.html?plataforma=kick', w: 540, h: 280 },
 };
@@ -18,7 +19,7 @@ window.SCENE_TYPES = {
 // muestra datos de ejemplo y las alertas reales no suenan ahí.
 window.sceneSrc = (item, preview = false) => {
   const t = window.SCENE_TYPES[item.type];
-  if (!t) return 'about:blank';
+  if (!t || t.hidden) return 'about:blank';
   const u = new URL(t.path, location.origin);
   if (item.scale && item.scale !== 1) u.searchParams.set('escala', String(item.scale));
   if (item.type === 'alertas' && item.pos && item.pos !== 'centro') u.searchParams.set('posicion', item.pos);

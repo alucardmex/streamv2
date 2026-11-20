@@ -34,7 +34,7 @@ function apply(scenes) {
   sceneEl.style.height = sc.h + 'px';
   const keep = new Set();
   sc.items.forEach((it, i) => {
-    if (it.on === false || !SCENE_TYPES[it.type]) return;
+    if (it.on === false || !SCENE_TYPES[it.type] || SCENE_TYPES[it.type].hidden) return;
     keep.add(it.id);
     let f = frames.get(it.id);
     if (!f) {

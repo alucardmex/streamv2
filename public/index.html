@@ -1085,7 +1085,7 @@
     <div class="switches" style="margin-bottom:6px">
       <label class="switch"><input type="checkbox" data-key="resetOnNewLive"><span class="track"></span>Empezar en cero cada live nuevo</label>
     </div>
-    <p class="hint" style="margin:0 0 14px">Al empezar otro live se borran solos los comentarios, likes, diamantes, rankings y el regalo más caro del anterior. Si solo se corta y se reconecta al mismo live, no se borra nada. El contador de tiempo, las partidas y Camino a Conquistador no se tocan.</p>
+    <p class="hint" style="margin:0 0 14px">Al empezar otro live se borran solos los comentarios, likes, diamantes, rankings y el regalo más caro del anterior. Si solo se corta y se reconecta al mismo live, no se borra nada. El contador de tiempo y las partidas no se tocan.</p>
     <div class="row" style="margin-bottom:10px">
       <label class="field" style="flex-direction:row;align-items:center;gap:10px">Puestos en el overlay <input type="number" min="1" max="10" data-key="overlays.likes.top" style="width:80px"></label>
       <button class="btn quiet" id="btn-reset" style="margin-left:auto">Reiniciar ranking</button>
@@ -1146,7 +1146,7 @@
       </div>
     </section>
 
-    <section class="studio" data-ov="rank" data-path="/rango.html">
+    <section class="studio" data-ov="rank" data-path="/rango.html" hidden>
       <div class="st-head"><div><h2>Camino a Conquistador · PUBG Mobile</h2><p>Tu reto de rango: de Diamante V a Corona I (100 puntos cada rango), la promoción a As al mejor de 3 y la cuenta regresiva hasta la hora final.</p></div><div class="st-link"></div></div>
       <div class="st-body">
         <div class="st-side">
@@ -1187,7 +1187,7 @@
       </div>
     </section>
 
-    <section class="studio" data-ov="countdown" data-path="/cuenta.html">
+    <section class="studio" data-ov="countdown" data-path="/cuenta.html" hidden>
       <div class="st-head"><div><h2>Cuenta regresiva</h2><p>Cuánto falta para algo que empieza a cierta hora (por ejemplo, cuándo jugamos GTA 6). Al llegar a cero muestra tu mensaje.</p></div><div class="st-link"></div></div>
       <div class="st-body">
         <div class="st-side">
@@ -2954,7 +2954,7 @@ function renderScene(full) {
   if (full) { scFrames.forEach((el) => el.remove()); scFrames.clear(); }
   const keep = new Set();
   sc.items.forEach((it, i) => {
-    if (it.on === false) return;
+    if (it.on === false || !SCENE_TYPES[it.type] || SCENE_TYPES[it.type].hidden) return;
     keep.add(it.id);
     let el = scFrames.get(it.id);
     if (!el) {
@@ -2981,6 +2981,7 @@ function renderScene(full) {
   $('#sc-types').innerHTML = Object.entries(SCENE_TYPES).map(([type, t]) => {
     const it = sc.items.find((x) => x.type === type && x.on !== false);
     if (type.startsWith('kick') && !kickOn && !it) return ''; // los de Kick solo si Kick está prendido
+    if (t.hidden) return '';
     return `<div class="sc-type${it ? ' in' : ''}"><span>${t.icon} ${t.name}</span>${it
       ? `<span class="row" style="gap:6px"><button type="button" class="btn sm quiet" data-scselect="${it.id}">Elegir</button><button type="button" class="btn sm quiet" data-scremove="${it.id}" aria-label="Quitar ${t.name}">Quitar</button></span>`
       : `<button type="button" class="btn sm" data-scaddtype="${type}">＋ Agregar</button>`}</div>`;
@@ -2994,7 +2995,7 @@ function renderScene(full) {
 function renderSceneSel() {
   const sc = curScene();
   const box = $('#sc-sel');
-  const it = sc?.items.find((x) => x.id === scSel && x.on !== false);
+  const it = sc?.items.find((x) => x.id === scSel && x.on !== false && !SCENE_TYPES[x.type]?.hidden);
   if (!it) { box.innerHTML = '<h3>Overlay elegido</h3><p class="hint">Toca un overlay en la escena para moverlo con precisión o cambiar su tamaño.</p>'; return; }
   const t = SCENE_TYPES[it.type];
   const ae = document.activeElement;

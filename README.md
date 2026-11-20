@@ -20,7 +20,7 @@ StreamV2 busca versiones nuevas al abrirse y cada 2 horas. Cuando hay una, **la 
 
 Tus datos (ajustes, API key, voces, ranking) viven en `%APPDATA%\StreamV2`, separados de la app, así que **las actualizaciones no los tocan**. Para verlos: botón de versión → **Abrir carpeta de datos**.
 
-**Cada live empieza en cero:** cuando empiezas un live nuevo, StreamV2 borra solo los comentarios, likes, diamantes, rankings y el regalo más caro del live anterior, para que la app vaya ligera. Si solo se corta la conexión y se reconecta al mismo live, no se borra nada. El contador de tiempo, las partidas y Camino a Conquistador no se tocan. Se apaga en **Ranking → Empezar en cero cada live nuevo**.
+**Cada live empieza en cero:** cuando empiezas un live nuevo, StreamV2 borra solo los comentarios, likes, diamantes, rankings y el regalo más caro del live anterior, para que la app vaya ligera. Si solo se corta la conexión y se reconecta al mismo live, no se borra nada. El contador de tiempo y las partidas no se tocan. Se apaga en **Ranking → Empezar en cero cada live nuevo**.
 
 ## 3. Conectarte a tu live
 
@@ -60,8 +60,6 @@ Usa los botones **Probar** del panel para ver cómo se ven sin estar en vivo.
 
 En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previa en vivo, y le cambias el título (o lo quitas con **Mostrar título**), los puestos y si lleva fondo. **Tu stream se actualiza solo**: no hace falta volver a pegar el link en OBS.
 
-**Cuenta regresiva:** en Overlays → **Cuenta regresiva** eliges fecha y hora (con botones para 12:00 pm, 12:00 am, +15 min y +1 hora), el título (por ejemplo "Jugamos GTA 6 en") y el mensaje que sale al llegar a cero. Tiene 4 estilos (Vice, Neón, Minimal y Pastilla); en el último minuto late, en los últimos 10 segundos cada número salta y al llegar a cero suelta confeti. Link: `http://127.0.0.1:3939/cuenta.html`. También está en Escena.
-
 **Título:** en **Texto → Título** de cada overlay le pones el tamaño de letra en px (con − y + o escribiendo el número), el color y la tipografía. Vacío = el tamaño del estilo; **Color del estilo** y **Tamaño del estilo** lo regresan a como venía.
 
 - **Regalo más caro:** Tarjeta, Banner (barra horizontal), Trofeo (vertical con corona, ideal para stream vertical), Neón, Minimal (solo texto), Burbuja (foto de quien lo mandó) Círculo y Cuadro (la foto de perfil y el regalo se van volteando como moneda; eliges cada cuántos segundos).
@@ -70,18 +68,6 @@ En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previ
 ### Contador de tiempo (subathon)
 
 En **Overlays → Contador de tiempo** pones el tiempo inicial y cuánto suma cada cosa: segundos por cada 💎 diamante, cada cierta cantidad de likes, por seguidor nuevo, por compartido y por mensaje en el chat. Con números negativos **resta** tiempo. Desde ahí lo inicias, lo pausas, le sumas o quitas minutos a mano o lo fijas en un tiempo exacto. Puedes poner un tiempo máximo y elegir si suma aunque esté en pausa. Al sumar se ve en el overlay qué se sumó y quién lo hizo. Si cierras la app con el contador corriendo, sigue donde iba. Estilos: Digital, Barra y Compacto.
-
-### Camino a Conquistador · PUBG Mobile
-
-Overlay para un reto de rango, con las insignias del juego. En **Overlays → Camino a Conquistador**:
-
-- Empiezas en **Diamante V**. Cada rango (V, IV, III, II, I) son **100 puntos**; al llenarlo pasa solo al siguiente, y de Diamante I pasa a Corona V.
-- Sumas o restas los puntos de cada partida con los botones (+5 … +30, −5 … −20) o escribiendo la cantidad. Si restas de más, baja de rango.
-- Al llenar **Corona I** empieza la **promoción a As** al mejor de 3: con 2 ganadas subes a As; con 2 perdidas la serie empieza de nuevo.
-- Con As conseguido, al llegar la hora final cambia a **Conquistador**.
-- **6 estilos:** Completo, Barra, Minimal (sin panel), Línea (pastilla delgada), Anillo (el avance rodea la insignia) y Vertical (tarjeta angosta). Con las animaciones prendidas la insignia brilla y flota, la barra destella y el anillo se llena al sumar puntos.
-- Pones cuándo **empieza** y cuándo **termina** el reto y el overlay muestra la cuenta regresiva.
-- **Deshacer**, **Corregir** (poner rango y puntos a mano) y **Reiniciar reto**.
 
 ### Partidas · PUBG Mobile
 
