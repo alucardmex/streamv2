@@ -108,6 +108,8 @@ const DEFAULT_CONFIG = {
       volume: 0.6,
       showFollows: true,
       showShares: false,
+      // Diseño de las alertas: 'botin' (foto, nombre y cantidad; el color dice qué tan grande es) o 'clasica'.
+      style: 'botin',
       // Alertas con tu propio video, foto o GIF para un regalo o desde cierta cantidad de diamantes.
       // Lo que no tenga una propia usa la animación de siempre.
       custom: [],
@@ -121,8 +123,8 @@ const DEFAULT_CONFIG = {
     overlays: {
       // anim: movimiento continuo (idle), efecto al cambiar (change), intensidad,
       // números que suben (counters) y resaltar a quien sube de puesto (rankUp).
-      likes: { titleStyle: { px: 0, color: '', font: '' }, style: 'lista', title: '❤️ Top taps', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
-      gifts: { titleStyle: { px: 0, color: '', font: '' }, style: 'lista', title: '💎 Top regalos', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      likes: { titleStyle: { px: 0, color: '', font: '' }, style: 'mvp', title: '❤️ Top taps', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
+      gifts: { titleStyle: { px: 0, color: '', font: '' }, style: 'mvp', title: '💎 Top regalos', showTitle: true, top: 5, bg: true, text: { name: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } },
       // Contador de tiempo (subathon): cada interacción suma (o resta, con número negativo) segundos.
       timer: {
         titleStyle: { px: 0, color: '', font: '' },
@@ -152,7 +154,7 @@ const DEFAULT_CONFIG = {
         endText: '¡A jugar!',
         anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal' },
       },
-      topGift: { titleStyle: { px: 0, color: '', font: '' }, style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, text: { name: { font: '', size: 1, color: '' }, gift: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
+      topGift: { titleStyle: { px: 0, color: '', font: '' }, style: 'leyenda', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, text: { name: { font: '', size: 1, color: '' }, gift: { font: '', size: 1, color: '' }, value: { font: '', size: 1, color: '' } }, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } },
     },
   },
 };

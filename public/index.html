@@ -880,14 +880,17 @@
   <!-- ============ ALERTAS ============ -->
   <main class="view" id="view-alerts" role="tabpanel">
     <h1>Alertas en pantalla</h1>
-    <p class="lede">Aparecen en tu stream cuando alguien te manda un regalo o te sigue. Los regalos de más de 100 diamantes llevan confeti y duran un poco más.</p>
+    <p class="lede">Aparecen en tu stream cuando alguien te manda un regalo o te sigue, con su foto, su nombre y cuánto mandó. En el diseño Botín el color dice qué tan grande es el regalo: ¡Épico! desde 100 💎, ¡Legendario! desde 1,000 y ¡Mítico! desde 10,000.</p>
     <div class="al-prev">
       <div class="al-screen" id="al-screen"><iframe id="al-frame" src="/alertas.html?vista=1" title="Vista previa de las alertas" tabindex="-1"></iframe><span class="tag">Vista previa · así se verá en tu stream</span></div>
       <div class="al-side">
+        <h3>Diseño</h3>
+        <div class="seg" role="group" aria-label="Diseño de las alertas"><button aria-pressed="true" data-aldesign="botin">Botín</button><button aria-pressed="false" data-aldesign="clasica">Clásica</button></div>
         <h3>Ver alerta de</h3>
         <button class="btn" data-alprev="regalo">🌹 Regalo chico</button>
-        <button class="btn" data-alprev="mediano">🍩 Regalo de 100+ 💎</button>
-        <button class="btn" data-alprev="grande">🦁 Regalo de 1,000+ 💎</button>
+        <button class="btn" data-alprev="mediano">🍩 Épico (100+ 💎)</button>
+        <button class="btn" data-alprev="grande">🎆 Legendario (1,000+ 💎)</button>
+        <button class="btn" data-alprev="mitico">🌌 Mítico (10,000+ 💎)</button>
         <button class="btn" data-alprev="seguidor">💖 Nuevo seguidor</button>
         <button class="btn" data-alprev="compartido">📢 Compartido</button>
         <h3>Pantalla</h3>
@@ -2532,6 +2535,7 @@ $('#tg-copy').onclick = () => navigator.clipboard.writeText(location.origin + '/
 // ---------------------------------------------------------------- estudio de overlays
 const OV_STYLES = {
   topGift: [
+    ['leyenda', 'Leyenda', 'Foto, regalo y su rareza'],
     ['tarjeta', 'Tarjeta', 'Clásica, con la imagen'],
     ['banner', 'Banner', 'Barra horizontal'],
     ['trofeo', 'Trofeo', 'Vertical con corona'],
@@ -2542,6 +2546,7 @@ const OV_STYLES = {
     ['cuadro', 'Cuadro', 'Alterna foto y regalo'],
   ],
   likes: [
+    ['mvp', 'MVP', 'El #1 en grande y barras'],
     ['lista', 'Lista', 'Clásica con fotos'],
     ['podio', 'Podio', 'Top 3 en escalones'],
     ['lider', 'Líder', 'Solo el #1 en grande'],
@@ -2556,8 +2561,8 @@ OV_STYLES.rank = [['completo', 'Completo', 'Insignia, puntos, camino y reloj'], 
 OV_STYLES.timer = [['digital', 'Digital', 'Números grandes'], ['barra', 'Barra', 'Con barra de tiempo'], ['compacto', 'Compacto', 'Pequeño, en una línea']];
 OV_STYLES.matches = [['marcador', 'Marcador', 'Barra estilo PUBG'], ['pollo', 'Pollo', 'Tarjeta con el pollo grande'], ['compacto', 'Compacto', '🍗 y 💀 en una línea']];
 const OV_SIZE = {
-  topGift: { tarjeta: '520 × 220', banner: '640 × 120', trofeo: '320 × 480', neon: '520 × 220', minimal: '420 × 120', burbuja: '520 × 180', circulo: '340 × 400', cuadro: '340 × 400' },
-  likes: { lista: '500 × 600', podio: '480 × 420', lider: '520 × 200', compacto: '340 × 360', neon: '500 × 600', cinta: '940 × 90', bolitas: '250 × 760' },
+  topGift: { leyenda: '600 × 300', tarjeta: '520 × 220', banner: '640 × 120', trofeo: '320 × 480', neon: '520 × 220', minimal: '420 × 120', burbuja: '520 × 180', circulo: '340 × 400', cuadro: '340 × 400' },
+  likes: { mvp: '440 × 590', lista: '500 × 600', podio: '480 × 420', lider: '520 × 200', compacto: '340 × 360', neon: '500 × 600', cinta: '940 × 90', bolitas: '250 × 760' },
 };
 OV_SIZE.gifts = OV_SIZE.likes;
 OV_STYLES.countdown = [['vice', 'Vice', 'Atardecer rosa, naranja y morado'], ['neon', 'Neón', 'Oscuro con luz rosa y cian'], ['minimal', 'Minimal', 'Solo el texto'], ['pastilla', 'Pastilla', 'Una línea delgada']];
@@ -3452,6 +3457,12 @@ function renderAlertLink() {
   $$('[data-alpos]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.alpos === alPos)));
   try { $('#al-frame').contentWindow.setPosition?.(alPos); } catch {}
 }
+// Diseño de las alertas: Botín (el nuevo) o Clásica.
+function syncAlDesign() {
+  const cur = settings?.alerts?.style === 'clasica' ? 'clasica' : 'botin';
+  $$('[data-aldesign]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.aldesign === cur)));
+}
+socket.on('config', () => queueMicrotask(syncAlDesign));
 if (window.ResizeObserver && $('#al-screen')) new ResizeObserver(fitAlertPreview).observe($('#al-screen'));
 $('#al-frame')?.addEventListener('load', () => { fitAlertPreview(); renderAlertLink(); });
 renderAlertLink();
@@ -3463,6 +3474,13 @@ document.addEventListener('click', (e) => {
     $('#al-screen').classList.toggle('vertical', sh.dataset.alshape === 'v');
     $$('[data-alshape]').forEach((b) => b.setAttribute('aria-pressed', String(b === sh)));
     fitAlertPreview();
+    return;
+  }
+  const dz = e.target.closest('[data-aldesign]');
+  if (dz && settings?.alerts) {
+    settings.alerts.style = dz.dataset.aldesign;
+    saveSettingsNow();
+    syncAlDesign();
     return;
   }
   const ps = e.target.closest('[data-alpos]');

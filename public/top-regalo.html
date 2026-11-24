@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>Regalo más caro</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Bungee&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Bungee&family=Teko:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/fx.css">
 <style>
   .kc { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; border-radius: 50%; background: #53fc18; color: #0b0b0b; font: 900 .68em/1 system-ui, sans-serif; vertical-align: -.12em; text-shadow: none; }
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?estilo=tarjeta|banner|trofeo|neon|minimal|burbuja|circulo|cuadro  ?cambio=4 (segundos, estilos Círculo y Cuadro)  ?titulo=Rey%20del%20stream (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
+     ?estilo=leyenda|tarjeta|banner|trofeo|neon|minimal|burbuja|circulo|cuadro  ?cambio=4 (segundos, estilos Círculo y Cuadro)  ?titulo=Rey%20del%20stream (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?ocultarVacio=1  ?demo=1  ?animacion=0 */
   .fxw { display: block; }
   :root { --gold: #ffc24b; --gold2: #ffe17a; --pink: #fe2c55; --cyan: #25f4ee; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
@@ -107,6 +107,72 @@
   .burbuja .badge { top: -14px; left: 110px; }
   .nobg .burbuja .card { background: none; border: 0; box-shadow: none; }
 
+
+  /* ---------- LEYENDA (foto de quien lo mandó, su regalo y la rareza del regalo) ----------
+     El color dice qué tan caro es: azul, ¡Épico! 100+ 💎 (morado), ¡Legendario! 1,000+ (dorado), ¡Mítico! 10,000+ (rojo). */
+  .leyenda .fxw { padding: 16px 0 16px; }
+  .leyenda .card { --c: #ffb21e; --c2: #fff0b8; --glow: rgba(255,178,30,.5); --ink: #14081f;
+    position: relative; display: flex; align-items: center; gap: 44px; min-width: 470px; max-width: 580px; box-sizing: border-box; padding: 28px 36px 30px 34px; border-radius: 28px;
+    background: radial-gradient(80% 160% at 0% 50%, var(--glow), transparent 62%), linear-gradient(135deg, rgba(44,18,66,.96), rgba(16,7,27,.95));
+    box-shadow: inset 0 0 0 2px var(--c), 0 0 34px var(--glow), 0 18px 42px rgba(0,0,0,.5); }
+  .leyenda .card.r0 { --c: #25f4ee; --c2: #c9fdff; --glow: rgba(37,244,238,.4); }
+  .leyenda .card.r1 { --c: #b45cff; --c2: #ecd6ff; --glow: rgba(180,92,255,.46); }
+  .leyenda .card.r3 { --c: #ff2d55; --c2: #ffd0da; --glow: rgba(255,45,85,.5); }
+  .nobg .leyenda .card { background: none; box-shadow: none; }
+  .leyenda .t { position: absolute; z-index: 4; left: 214px; top: -15px; padding: 7px 20px 6px; font: 800 15px/1 'Outfit', sans-serif; color: var(--ink); white-space: nowrap;
+    background: linear-gradient(90deg, #fff, var(--c2) 30%, var(--c)); clip-path: polygon(9px 0, 100% 0, calc(100% - 9px) 100%, 0 100%); }
+  .lg-bg { position: absolute; inset: 0; z-index: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+  .lg-bg::before { content: ''; position: absolute; left: -104px; top: 50%; width: 412px; height: 412px; margin-top: -206px; border-radius: 50%;
+    background: repeating-conic-gradient(var(--glow) 0deg 6deg, transparent 6deg 18deg);
+    -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 74%); mask-image: radial-gradient(closest-side, #000 20%, transparent 74%); }
+  .fx-on .lg-bg::before { animation: lgSpin calc(22s * var(--spd)) linear infinite; }
+  .lg-who { position: relative; z-index: 1; flex: none; width: 140px; height: 140px; margin: 0 0 12px; }
+  .lg-ret { position: absolute; inset: -20px; border-radius: 50%; background: repeating-conic-gradient(var(--c) 0deg 5deg, transparent 5deg 22.5deg); opacity: .85;
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px)); mask: radial-gradient(farthest-side, transparent calc(100% - 5px), #000 calc(100% - 4px)); }
+  .lg-ring { position: absolute; inset: -9px; border-radius: 50%; background: conic-gradient(var(--c), var(--c2), #fff, var(--c2), var(--c), var(--c2), var(--c));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px)); mask: radial-gradient(farthest-side, transparent calc(100% - 8px), #000 calc(100% - 7px)); }
+  .fx-on .lg-ret { animation: lgSpin calc(12s * var(--spd)) linear infinite reverse; }
+  .fx-on .lg-ring { animation: lgSpin calc(3s * var(--spd)) linear infinite; }
+  @keyframes lgSpin { to { transform: rotate(360deg); } }
+  .lg-pic { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; background: var(--ink); box-shadow: 0 0 0 4px var(--ink), 0 0 30px 6px var(--glow); }
+  .lg-pic img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .lg-ini { width: 100%; height: 100%; display: grid; place-items: center; font: 900 64px/1 'Outfit', sans-serif; text-shadow: 0 4px 16px rgba(0,0,0,.35); }
+  .lg-crown { position: absolute; z-index: 3; left: -16px; top: -32px; font-size: 46px; line-height: 1; transform: rotate(-22deg); filter: drop-shadow(0 4px 8px rgba(0,0,0,.5)); }
+  .fx-on .lg-crown { animation: lgCrown calc(2.6s * var(--spd)) ease-in-out infinite; }
+  @keyframes lgCrown { 50% { transform: rotate(-15deg) translateY(calc(-5px * var(--amp))); } }
+  .lg-st { position: absolute; z-index: 3; right: -24px; top: -14px; width: 72px; height: 72px; display: grid; place-items: center; border-radius: 50%; font-size: 40px; line-height: 1;
+    background: radial-gradient(circle at 38% 30%, #3d1e5e, var(--ink) 72%); border: 3px solid var(--c); box-shadow: 0 0 18px var(--glow), 0 6px 14px rgba(0,0,0,.5); }
+  .lg-st img { width: 82%; height: 82%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,.4)); }
+  .lg-st .kc { font-size: 44px; }
+  .fx-on .lg-st { animation: lgWiggle calc(3.2s * var(--spd)) ease-in-out infinite; }
+  @keyframes lgWiggle { 0%, 50%, 100% { transform: rotate(0); } 10% { transform: rotate(calc(-12deg * var(--amp))) scale(1.08); } 22% { transform: rotate(calc(9deg * var(--amp))); } 34% { transform: rotate(calc(-4deg * var(--amp))); } }
+  .lg-plate { position: absolute; z-index: 3; left: 50%; bottom: -20px; white-space: nowrap; transform: translateX(-50%) rotate(-3deg); filter: drop-shadow(0 5px 8px rgba(0,0,0,.5)); }
+  .lg-plate b { position: relative; display: block; overflow: hidden; padding: 6px 18px 1px; font: 700 26px/1 'Teko', 'Impact', sans-serif; letter-spacing: 1.5px; color: var(--ink);
+    background: linear-gradient(180deg, #fff, var(--c2) 38%, var(--c)); clip-path: polygon(11px 0, calc(100% - 11px) 0, 100% 50%, calc(100% - 11px) 100%, 11px 100%, 0 50%); }
+  .fx-on .lg-plate b::after { content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 40%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.9), transparent);
+    animation: lgShine calc(3s * var(--spd)) ease-in-out infinite; }
+  @keyframes lgShine { 0% { left: -60%; } 45%, 100% { left: 130%; } }
+  .lg-txt { position: relative; z-index: 1; min-width: 0; }
+  .leyenda .n { font: 900 38px/1.08 'Outfit', sans-serif; max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    text-shadow: 0 3px 0 var(--ink), 0 6px 0 rgba(0,0,0,.25), 0 8px 18px rgba(0,0,0,.5); }
+  .lg-gift { display: flex; align-items: center; gap: 8px; max-width: 300px; margin-top: 6px; font: 700 21px/1.2 'Outfit', sans-serif; color: #efe6ff; white-space: nowrap; }
+  .lg-gift .gi3 { width: 32px; height: 32px; flex: none; object-fit: contain; display: inline-grid; place-items: center; font-size: 26px; }
+  .lg-gift .tx-gift { color: var(--c2); font-weight: 900; overflow: hidden; text-overflow: ellipsis; }
+  .leyenda .v { margin-top: 4px; font: 700 64px/1 'Teko', 'Impact', sans-serif; letter-spacing: 1px; filter: drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 0 16px var(--glow)); }
+  .leyenda .v .tx-value { display: inline-flex; align-items: center; gap: 10px; }
+  .leyenda .v .dia { font-size: .5em; line-height: 1; }
+  .leyenda .v .dia .kc { font-size: 1.1em; }
+  .leyenda .v .cnt { padding-top: .14em; background: linear-gradient(180deg, #fff 30%, var(--c2) 58%, var(--c)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .leyenda .empty-msg { max-width: 300px; font: 800 24px/1.2 'Outfit', sans-serif; text-shadow: 0 3px 10px rgba(0,0,0,.6); }
+  /* Nuevo récord: sello que cae y la tarjeta tiembla */
+  .leyenda .badge { top: auto; bottom: -18px; right: 22px; left: auto; z-index: 5; padding: 9px 18px 4px; border-radius: 6px; font: 700 28px/1 'Teko', 'Impact', sans-serif; letter-spacing: 1.5px; color: #fff;
+    background: linear-gradient(90deg, #ff2d55, #ff7a1a); box-shadow: 0 8px 24px rgba(255,45,85,.55); transform: rotate(-4deg) scale(.6); }
+  .record.leyenda .badge { animation: lgStamp 6s ease forwards; }
+  @keyframes lgStamp { 0% { opacity: 0; transform: rotate(-16deg) scale(2.4); filter: blur(4px); } 8% { opacity: 1; transform: rotate(-2deg) scale(.92); filter: none; }
+    13% { transform: rotate(-4deg) scale(1); } 86% { opacity: 1; transform: rotate(-4deg) scale(1); } 100% { opacity: 0; transform: rotate(-4deg) scale(1); } }
+  .record.leyenda .card { animation: lgRec .7s ease .1s; }
+  @keyframes lgRec { 0%, 100% { transform: none; } 15% { transform: translate(-8px, 3px) rotate(-.8deg); } 30% { transform: translate(7px, -4px) rotate(.6deg); } 50% { transform: translate(-4px, 2px); } 70% { transform: translate(2px, -1px); } }
+  .record.leyenda .lg-bg::before { animation-duration: 3s; }
   /* Con animaciones apagadas se respeta "reducir movimiento" de Windows. */
   /* ---------- CÍRCULO (alterna foto de perfil y regalo, como moneda) ---------- */
   .circulo .fxw { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 300px; padding-top: 4px; }
@@ -141,6 +207,7 @@
 <div class="stage" id="stage"><div id="root"></div></div>
 <script src="/socket.io/socket.io.js"></script>
 <script src="/gifts.js"></script>
+<script src="/faces.js"></script>
 <script src="/text-style.js"></script>
 <script src="/fx.js"></script>
 <script>
@@ -149,16 +216,16 @@ const P = new URLSearchParams(location.search);
 const KICK = /kick/i.test(P.get('plataforma') || '');
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
-const STYLES = ['tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja', 'circulo', 'cuadro'];
-let cfg = { style: 'tarjeta', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } };
+const STYLES = ['leyenda', 'tarjeta', 'banner', 'trofeo', 'neon', 'minimal', 'burbuja', 'circulo', 'cuadro'];
+let cfg = { style: 'leyenda', title: 'Regalo más caro del stream', showTitle: true, bg: true, swap: 4, anim: { on: true, idle: 'brillo', change: 'pop', intensity: 'normal', counters: true } };
 let record = null;
 let demoGift = null; // regalo de prueba del botón "Probar animación"
 const DEMO_GIFTS = [
-  { user: 'lupita', name: 'Lupita', avatar: '', gift: 'Universo', image: '', diamonds: 34999, count: 1 },
-  { user: 'doncarlos', name: 'DonCarlos', avatar: '', gift: 'Fénix', image: '', diamonds: 41999, count: 1 },
+  { user: 'lupita', name: 'Lupita', avatar: demoFace(0), gift: 'Universo', image: '', diamonds: 34999, count: 1 },
+  { user: 'doncarlos', name: 'DonCarlos', avatar: demoFace(3), gift: 'Fénix', image: '', diamonds: 41999, count: 1 },
 ];
 let lastKey = '';
-const DEMO = { user: 'elpana77', name: 'ElPana_77', avatar: '', gift: 'León', image: '', diamonds: 29999, count: 1, total: 29999, ts: Date.now() };
+const DEMO = { user: 'elpana77', name: 'ElPana_77', avatar: demoFace(2), gift: 'León', image: '', diamonds: 29999, count: 1, total: 29999, ts: Date.now() };
 
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const full = (n) => Number(n).toLocaleString('es-MX');
@@ -171,7 +238,7 @@ function settings() {
   if (P.get('fondo') === '0') s.bg = false;
   if (Number(P.get('cambio'))) s.swap = Number(P.get('cambio'));
   s.swap = Math.max(2, Math.min(30, Number(s.swap) || 4));
-  if (!STYLES.includes(s.style)) s.style = 'tarjeta';
+  if (!STYLES.includes(s.style)) s.style = 'leyenda';
   s.title = String(s.title || '').trim();
   return s;
 }
@@ -194,10 +261,16 @@ function render(isRecord = false) {
   const nm = g ? `<span class="tx-name">${esc(g.name)}</span>` : '';
   const T = esc(s.title);
   const badge = '<span class="badge">¡Nuevo récord!</span>';
+  // Leyenda: la rareza va según cuántos diamantes (o Kicks) vale el regalo.
+  const rar = g ? (g.diamonds >= 10000 ? 3 : g.diamonds >= 1000 ? 2 : g.diamonds >= 100 ? 1 : 0) : 2;
+  const PLATE = ['¡REGALO!', '¡ÉPICO!', '¡LEGENDARIO!', '¡MÍTICO!'];
+  const coin = g?.unit === 'kicks' ? '<span class="kc">K</span>' : '💎';
 
   if (!g) {
     const msg = '¡Sé el primero en mandar un regalo!';
-    root.innerHTML = flip
+    root.innerHTML = s.style === 'leyenda'
+      ? `<div class="fxw"><div class="card r2"><span class="lg-bg"></span><div class="t tx-title">${T}</div><div class="lg-who"><i class="lg-ret"></i><i class="lg-ring"></i><span class="lg-pic"><span class="lg-ini" style="background:linear-gradient(135deg,#ffb21e,#ff2d55);font-size:62px">🎁</span></span></div><div class="lg-txt"><div class="empty-msg">${msg}</div></div></div></div>`
+      : flip
       ? `<div class="fxw"><div class="t tx-title">${T}</div><div class="card"><div class="faces"><div class="face back" style="transform:none"><div class="gimg">🎁</div></div></div></div><div class="info"><div class="v" style="white-space:normal">${msg}</div></div></div>`
       : s.style === 'banner'
       ? `<div class="card"><div class="gimg">🎁</div><div><div class="t tx-title">${T}</div><div class="line"><span class="n">${msg}</span></div></div></div>`
@@ -219,6 +292,7 @@ function render(isRecord = false) {
     trofeo: `<div class="card">${badge}<div class="crown">👑</div><div class="t tx-title">${T}</div><div class="gimg float">${img}</div><div class="n sh">${gift}</div><div class="v">${val}</div><div class="f sh">${av}${nm}</div></div>`,
     neon: `<div class="card">${badge}<div class="gimg float">${img}</div><div><div class="t tx-title">${T}</div><div class="n">${gift}</div><div class="v">${val}</div><div class="f">${av}${nm}</div></div></div>`,
     minimal: `<div class="card">${badge}<div class="gimg">${img}</div><div><div class="t tx-title">${T}</div><div class="n">${gift} <span>${val}</span></div><div class="f">de ${nm}</div></div></div>`,
+    leyenda: `<div class="card r${rar}">${badge}<span class="lg-bg"></span><div class="t tx-title">${T}</div><div class="lg-who"><i class="lg-ret"></i><i class="lg-ring"></i><span class="lg-pic">${faceHtml(g, 'lg-ini')}</span><span class="lg-crown">👑</span><span class="lg-st">${img}</span><span class="lg-plate"><b>${PLATE[rar]}</b></span></div><div class="lg-txt"><div class="n">${nm}</div><div class="lg-gift">mandó ${g.unit === 'kicks' ? '' : `<span class="gi3">${img}</span>`}${gift}</div><div class="v"><span class="tx-value"><span class="dia">${coin}</span><span class="cnt">${full(g.diamonds)}</span></span></div></div></div>`,
     circulo: `<div class="t tx-title">${T}</div><div class="card ${side === 'regalo' ? 'flipped' : ''}">${badge}<div class="faces"><div class="face front">${face(g)}</div><div class="face back"><div class="gimg float">${img}</div></div></div></div><div class="info"><div class="n sh">${nm}</div><div class="v sh">${gift} · <b>${val}</b></div></div>`,
     burbuja: `<div class="card">${badge}<div class="who">${av}<div class="gimg">${img}</div></div><div><div class="t sh tx-title">${T}</div><div class="n sh">${nm}</div><div class="v sh">mandó ${gift} · <b>${val}</b></div></div></div>`,
   }[s.style === 'cuadro' ? 'circulo' : s.style];
@@ -243,7 +317,7 @@ function render(isRecord = false) {
 }
 
 // Sin título: se quita su renglón para que no deje hueco.
-const noTitle = (html) => html.replace(/<div class="t( sh)?"><\/div>/g, '');
+const noTitle = (html) => html.replace(/<div class="t[^"]*"><\/div>/g, '');
 
 // Estilo Círculo: la cara de la foto (o la inicial si no hay foto).
 let side = 'foto';

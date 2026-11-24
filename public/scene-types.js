@@ -2,9 +2,9 @@
 // Lo usan escena.html (lo que ve OBS / TikTok LIVE Studio) y el editor del panel.
 window.SCENE_TYPES = {
   alertas: { name: 'Alertas', icon: '🎁', path: '/alertas.html', w: 900, h: 520 },
-  topGift: { name: 'Regalo más caro', icon: '💎', path: '/top-regalo.html', w: 540, h: 280 },
-  likes: { name: 'Top taps', icon: '❤️', path: '/ranking.html', w: 420, h: 560 },
-  gifts: { name: 'Top regalos', icon: '🏆', path: '/ranking.html?tipo=regalos', w: 420, h: 560 },
+  topGift: { name: 'Regalo más caro', icon: '💎', path: '/top-regalo.html', w: 600, h: 300 },
+  likes: { name: 'Top taps', icon: '❤️', path: '/ranking.html', w: 440, h: 590 },
+  gifts: { name: 'Top regalos', icon: '🏆', path: '/ranking.html?tipo=regalos', w: 440, h: 590 },
   chat: { name: 'Chat', icon: '💬', path: '/chat.html', w: 460, h: 520 },
   timer: { name: 'Contador de tiempo', icon: '⏱️', path: '/contador.html', w: 460, h: 260 },
   matches: { name: 'Partidas PUBG', icon: '🍗', path: '/partidas.html', w: 720, h: 170 },

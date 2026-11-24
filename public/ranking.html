@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <title>Top taps</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;900&family=Bungee&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&family=Bungee&family=Teko:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/fx.css">
 <style>
   .kc { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; border-radius: 50%; background: #53fc18; color: #0b0b0b; font: 900 .68em/1 system-ui, sans-serif; vertical-align: -.12em; text-shadow: none; }
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?tipo=likes|regalos  ?estilo=lista|podio|lider|compacto|neon|cinta|bolitas  ?top=5  ?titulo=Mis%20fans (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
+     ?tipo=likes|regalos  ?estilo=mvp|lista|podio|lider|compacto|neon|cinta|bolitas  ?top=5  ?titulo=Mis%20fans (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
   :root { --acc: #fe2c55; --acc2: #25f4ee; --gold: #ffc24b; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
   .stage { display: inline-block; transform-origin: top left; padding: 10px; }
@@ -18,6 +18,71 @@
   .bump { animation: bump .5s ease; }
   @keyframes bump { 40% { transform: scale(1.06); } }
 
+
+  /* ---------- MVP (el #1 en grande con su foto; los demás con barras que muestran qué tan cerca van) ---------- */
+  .mvp .box { --ink: #14081f; width: 410px; box-sizing: border-box; padding: 16px 16px 14px; border-radius: 26px;
+    background: rgba(16,7,27,.8); box-shadow: inset 0 0 0 2px rgba(255,255,255,.08), 0 16px 40px rgba(0,0,0,.45); }
+  .nobg .mvp .box { background: none; box-shadow: none; }
+  .mvp h1 { display: flex; align-items: center; gap: 10px; margin: 0 0 16px 4px; font: 900 23px/1.1 'Outfit', sans-serif; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+  .mvp h1::before { content: ''; flex: none; width: 7px; height: 22px; border-radius: 2px; background: linear-gradient(#25f4ee, #fe2c55); transform: skewX(-14deg); }
+  .mv-hero { --c: #ffb21e; --c2: #fff0b8; --glow: rgba(255,178,30,.5); position: relative; isolation: isolate; display: flex; align-items: center; gap: 24px;
+    padding: 22px 20px 20px 26px; border-radius: 22px; background: linear-gradient(135deg, rgba(62,30,10,.96), rgba(26,10,34,.95));
+    box-shadow: inset 0 0 0 2px var(--c), 0 0 26px var(--glow), 0 12px 30px rgba(0,0,0,.45); transition: transform .45s cubic-bezier(.2,.9,.3,1.2); }
+  .mv-bg { position: absolute; inset: 0; z-index: -1; border-radius: inherit; overflow: hidden; pointer-events: none; }
+  .mv-bg::before { content: ''; position: absolute; left: -102px; top: 50%; width: 360px; height: 360px; margin-top: -180px; border-radius: 50%;
+    background: repeating-conic-gradient(var(--glow) 0deg 6deg, transparent 6deg 18deg);
+    -webkit-mask-image: radial-gradient(closest-side, #000 20%, transparent 74%); mask-image: radial-gradient(closest-side, #000 20%, transparent 74%); }
+  .fx-on .mv-bg::before { animation: mvSpin calc(22s * var(--spd)) linear infinite; }
+  .mv-who { position: relative; flex: none; width: 104px; height: 104px; margin: 4px 0; }
+  .mv-ret { position: absolute; inset: -16px; border-radius: 50%; background: repeating-conic-gradient(var(--c) 0deg 5deg, transparent 5deg 22.5deg); opacity: .85;
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)); mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3px)); }
+  .mv-ring { position: absolute; inset: -8px; border-radius: 50%; background: conic-gradient(var(--c), var(--c2), #fff, var(--c2), var(--c), var(--c2), var(--c));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); mask: radial-gradient(farthest-side, transparent calc(100% - 7px), #000 calc(100% - 6px)); }
+  .fx-on .mv-ret { animation: mvSpin calc(12s * var(--spd)) linear infinite reverse; }
+  .fx-on .mv-ring { animation: mvSpin calc(3s * var(--spd)) linear infinite; }
+  @keyframes mvSpin { to { transform: rotate(360deg); } }
+  .mv-pic { position: absolute; inset: 0; border-radius: 50%; overflow: hidden; background: var(--ink); box-shadow: 0 0 0 4px var(--ink), 0 0 24px 4px var(--glow); }
+  .mv-pic img, .mv-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .mv-ini { width: 100%; height: 100%; display: grid; place-items: center; font: 900 46px/1 'Outfit', sans-serif; color: #fff; text-shadow: 0 3px 10px rgba(0,0,0,.35); }
+  .mv-crown { position: absolute; z-index: 2; left: 50%; top: -34px; font-size: 36px; line-height: 1; transform: translateX(-50%) rotate(-8deg); filter: drop-shadow(0 4px 6px rgba(0,0,0,.5)); }
+  .fx-on .mv-crown { animation: mvCrown calc(2.6s * var(--spd)) ease-in-out infinite; }
+  @keyframes mvCrown { 50% { transform: translateX(-50%) rotate(-3deg) translateY(calc(-5px * var(--amp))); } }
+  .mv-txt { flex: 1; min-width: 0; }
+  .mv-tag { display: inline-block; filter: drop-shadow(0 4px 6px rgba(0,0,0,.45)); }
+  .mv-tag b { position: relative; display: block; overflow: hidden; padding: 5px 16px 0; font: 700 22px/1 'Teko', 'Impact', sans-serif; letter-spacing: 2px; color: var(--ink);
+    background: linear-gradient(180deg, #fff, var(--c2) 38%, var(--c)); clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 10px 100%, 0 50%); }
+  .fx-on .mv-tag b::after { content: ''; position: absolute; top: 0; bottom: 0; left: -60%; width: 45%; background: linear-gradient(100deg, transparent, rgba(255,255,255,.9), transparent);
+    animation: mvShine calc(3.2s * var(--spd)) ease-in-out infinite; }
+  @keyframes mvShine { 0% { left: -60%; } 45%, 100% { left: 130%; } }
+  .mv-hero .nm { display: block; margin-top: 6px; font: 900 30px/1.08 'Outfit', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    text-shadow: 0 3px 0 var(--ink), 0 6px 14px rgba(0,0,0,.5); }
+  .mv-hero .v { margin-top: 2px; font: 700 50px/1 'Teko', 'Impact', sans-serif; letter-spacing: 1px; white-space: nowrap; filter: drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 0 14px var(--glow)); }
+  .mv-hero .v .tx-value, .mvp li .v .tx-value { display: inline-flex; align-items: center; gap: 8px; }
+  .mv-hero .v .cnt { padding-top: .14em; background: linear-gradient(180deg, #fff 30%, var(--c2) 58%, var(--c)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .mvp .v .ic { font-size: .48em; line-height: 1; }
+  .mvp .v .ic .kc { font-size: 1.2em; }
+  .mv-gap { margin-top: 4px; font: 700 15px/1.3 'Outfit', sans-serif; color: #f6ead2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 6px rgba(0,0,0,.6); }
+  .mv-gap b { color: var(--c2); }
+  .mv-hero.empty .nm { white-space: normal; font-size: 24px; }
+  .mvp ol { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .mvp li { --rc: rgba(255,255,255,.6); position: relative; isolation: isolate; display: flex; align-items: center; gap: 12px; padding: 8px 22px 8px 10px;
+    transition: transform .45s cubic-bezier(.2,.9,.3,1.2); }
+  .mvp li::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 14px 0 0 14px;
+    background: linear-gradient(90deg, rgba(255,255,255,.14), rgba(255,255,255,.05)); clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); }
+  .mvp li:nth-child(1) { --rc: #c58bff; }
+  .mvp li:nth-child(2) { --rc: #25f4ee; }
+  .mvp .pos { flex: none; width: 26px; padding-top: 5px; font: 700 34px/1 'Teko', 'Impact', sans-serif; color: var(--rc); text-align: center; text-shadow: 0 2px 0 var(--ink); }
+  .mv-av { position: relative; flex: none; width: 46px; height: 46px; border-radius: 50%; overflow: hidden; box-shadow: 0 0 0 2px var(--rc); }
+  .mv-av .mv-ini { font-size: 20px; }
+  .mvp .mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  .mvp li .nm { font: 800 19px/1.1 'Outfit', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .mvp .bar { display: block; height: 6px; border-radius: 99px; background: rgba(255,255,255,.12); overflow: hidden; }
+  .mvp .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--rc), #fff); transition: width .8s cubic-bezier(.2,.9,.3,1); }
+  .mvp li .v { flex: none; min-width: 58px; padding-top: 5px; text-align: right; font: 700 30px/1 'Teko', 'Impact', sans-serif; letter-spacing: .5px; text-shadow: 0 2px 0 var(--ink); }
+  .mvp li .v .tx-value { justify-content: flex-end; }
+  .mvp .orb.tap { animation: mvTap .35s ease; }
+  @keyframes mvTap { 40% { transform: scale(calc(1 + .1 * var(--amp))); } }
+  .mvp li.fx-up::after, .mv-hero.fx-up::after { border-radius: 14px; }
   /* ---------- LISTA (clásico) ---------- */
   .lista .box { min-width: 340px; padding: 16px 16px 12px; border-radius: 22px; background: rgba(12,12,18,.78); border: 2px solid rgba(255,255,255,.1); box-shadow: 0 12px 40px rgba(0,0,0,.45); }
   .nobg .lista .box, .nobg .compacto .box, .nobg .lider .box, .nobg .podio .box { background: none; border: 0; box-shadow: none; }
@@ -139,6 +204,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="/fx.js"></script>
 <script src="/text-style.js"></script>
+<script src="/faces.js"></script>
 <script>
 const P = new URLSearchParams(location.search);
 // ?tipo=kicks es el top de Kick: usa el estilo del Top regalos pero cuenta Kicks.
@@ -149,8 +215,8 @@ const KC = '<span class="kc">K</span>';
 const icon = KICKS ? KC : tipo === 'gifts' ? '💎' : '❤️';
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
-const STYLES = ['lista', 'podio', 'lider', 'compacto', 'neon', 'cinta', 'bolitas'];
-let cfg = { style: 'lista', title: tipo === 'gifts' ? '💎 Top regalos' : '❤️ Top taps', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } };
+const STYLES = ['mvp', 'lista', 'podio', 'lider', 'compacto', 'neon', 'cinta', 'bolitas'];
+let cfg = { style: 'mvp', title: tipo === 'gifts' ? '💎 Top regalos' : '❤️ Top taps', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } };
 let last = null;
 let prev = new Map();   // usuario -> { value, pos } de la vez anterior
 let lastKey = '';       // qué hay dibujado (si no cambia, solo se actualizan los números)
@@ -163,7 +229,7 @@ const av = (u) => u.avatar
   : `<span class="av">${esc((u.name || '?')[0].toUpperCase())}</span>`;
 
 const DEMO = [['Lupita', 1240], ['ElPana_77', 980], ['Sofi.gg', 640], ['DonCarlos', 410], ['Valeria', 220], ['Kevin_mx', 120], ['MaríaJosé', 90], ['Leo', 40]]
-  .map(([name, value]) => ({ user: name.toLowerCase(), name, value: tipo === 'gifts' ? value * 7 : value, avatar: '' }));
+  .map(([name, value], i) => ({ user: name.toLowerCase(), name, value: tipo === 'gifts' ? value * 7 : value, avatar: i < 5 ? demoFace(i) : '' }));
 
 function settings() {
   const s = { ...cfg };
@@ -173,11 +239,14 @@ function settings() {
   if (P.get('titulo') !== null) s.title = P.get('titulo') === '0' ? '' : P.get('titulo');
   if (P.get('fondo') === '0') s.bg = false;
   s.top = Math.max(1, Math.min(10, s.top || 5));
+  if (!STYLES.includes(s.style)) s.style = 'mvp';
   s.title = String(s.title || '').trim();
   return s;
 }
 
 const ancho = () => Number(P.get('ancho')) || 900;
+// MVP: qué tan llena va la barra de cada quien comparado con el #1.
+const pct = (v, max) => Math.max(4, Math.min(100, Math.round((v / Math.max(1, max)) * 100)));
 const sel = (k) => `[data-k="${CSS.escape(k)}"]`;
 
 // Dibuja todo el overlay. Solo se llama cuando cambia quién aparece o el estilo;
@@ -188,7 +257,15 @@ function build(s, rows) {
   const plain = (u) => `<span class="tx-value"><span class="cv" data-k="${esc(u.user)}">${fmt(u.value)}</span></span>`;
   const nm = (u) => `<span class="tx-name">${esc(u.name)}</span>`;
 
-  if (s.style === 'podio') {
+  if (s.style === 'mvp') {
+    const [a, ...more] = rows;
+    const cntI = (u) => `<span class="tx-value"><span class="cnt" data-k="${esc(u.user)}">${fmt(u.value)}</span><span class="ic">${icon}</span></span>`;
+    const hero = a
+      ? `<div class="mv-hero" data-id="${esc(a.user)}" style="--i:0"><span class="mv-bg"></span><div class="mv-who orb"><i class="mv-ret"></i><i class="mv-ring"></i><span class="mv-pic">${faceHtml(a, 'mv-ini')}</span><span class="mv-crown">👑</span></div><div class="mv-txt"><span class="mv-tag"><b>MVP</b></span><b class="nm">${nm(a)}</b><div class="v">${cntI(a)}</div>${more[0] ? `<div class="mv-gap">${nm(more[0])} está a <b class="gapv">${fmt(Math.max(0, a.value - more[0].value))}</b> ${icon}</div>` : ''}</div></div>`
+      : `<div class="mv-hero empty"><span class="mv-bg"></span><div class="mv-who"><i class="mv-ret"></i><i class="mv-ring"></i><span class="mv-pic"><span class="mv-ini" style="background:linear-gradient(135deg,#ffb21e,#ff2d55)">👑</span></span></div><div class="mv-txt"><span class="mv-tag"><b>MVP</b></span><b class="nm">¡Sé el primero en aparecer aquí!</b></div></div>`;
+    const list = more.map((u, i) => `<li data-id="${esc(u.user)}" style="--i:${i + 1}"><span class="pos">${i + 2}</span><span class="mv-av orb">${faceHtml(u, 'mv-ini')}</span><span class="mid"><span class="nm shadow">${nm(u)}</span><span class="bar"><i data-bar="${esc(u.user)}" style="width:${pct(u.value, a.value)}%"></i></span></span><span class="v">${cntI(u)}</span></li>`).join('');
+    root.innerHTML = `<div class="box"><h1 class="tx-title">${esc(s.title)}</h1>${hero}${list ? `<ol>${list}</ol>` : ''}</div>`;
+  } else if (s.style === 'podio') {
     const [a, b, c] = rows;
     const col = (u, n, i) => u
       ? `<div class="col p${n}" data-id="${esc(u.user)}" style="--i:${i}"><div class="crown">${n === 1 ? '👑' : ''}</div>${av(u)}<div class="nm shadow">${nm(u)}</div><div class="v">${cnt(u)}</div><div class="step">${n}</div></div>`
@@ -287,6 +364,12 @@ function render() {
     lastKey = key;
   }
 
+  // MVP: las barras crecen y se actualiza cuánto le falta al #2.
+  if (s.style === 'mvp' && rows[0]) {
+    rows.forEach((u) => { const b = root.querySelector(`[data-bar="${CSS.escape(u.user)}"]`); if (b) b.style.width = `${pct(u.value, rows[0].value)}%`; });
+    const gap = root.querySelector('.gapv');
+    if (gap && rows[1]) gap.textContent = fmt(Math.max(0, rows[0].value - rows[1].value));
+  }
   // Números: suben poco a poco (o de golpe si está apagado).
   rows.forEach((u) => {
     root.querySelectorAll(`.cv${sel(u.user)}`).forEach((n) => { n.textContent = fmt(u.value); });
@@ -295,7 +378,7 @@ function render() {
     if (changed.has(u.user) && !entered.has(u.user)) {
       if (FX.on) {
         restart(n?.closest('.v'), 'fx-tick');
-        if (s.style === 'bolitas') tapBurst(el(u), u.value - (oldVal.get(u.user) || 0));
+        if (s.style === 'bolitas' || s.style === 'mvp') tapBurst(el(u), u.value - (oldVal.get(u.user) || 0));
       }
       else restart(el(u), 'bump');
     }

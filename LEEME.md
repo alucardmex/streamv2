@@ -60,6 +60,8 @@ Usa los botones **Probar** del panel para ver cómo se ven sin estar en vivo.
 
 En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previa en vivo, y le cambias el título (o lo quitas con **Mostrar título**), los puestos y si lleva fondo. **Tu stream se actualiza solo**: no hace falta volver a pegar el link en OBS.
 
+**Estilos nuevos:** **Leyenda** para el regalo más caro (la foto de quien lo mandó con corona, su regalo, la rareza del regalo y los diamantes; al romperse el récord cae el sello "¡Nuevo récord!") y **MVP** para el Top taps y el Top regalos (el #1 en grande con su foto y corona, cuánto le falta al #2, y los demás con barras que muestran qué tan cerca van). Tamaño sugerido: Leyenda 600 × 300, MVP 440 × 590.
+
 **Título:** en **Texto → Título** de cada overlay le pones el tamaño de letra en px (con − y + o escribiendo el número), el color y la tipografía. Vacío = el tamaño del estilo; **Color del estilo** y **Tamaño del estilo** lo regresan a como venía.
 
 - **Regalo más caro:** Tarjeta, Banner (barra horizontal), Trofeo (vertical con corona, ideal para stream vertical), Neón, Minimal (solo texto), Burbuja (foto de quien lo mandó) Círculo y Cuadro (la foto de perfil y el regalo se van volteando como moneda; eliges cada cuántos segundos).
@@ -111,6 +113,17 @@ Con **▶ Probar animación** ves en la vista previa cómo se vería un récord 
 - Top taps / top regalos: `?tipo=regalos`, `?estilo=podio`, `?top=3`, `?titulo=Mis%20fans` (`?titulo=0` sin título), `?fondo=0` (sin caja), `?ancho=1200` (estilo Cinta), `?escala=1.2`, `?animacion=0` (sin animaciones)
 - Regalo más caro: `?estilo=trofeo`, `?titulo=Rey%20del%20stream` (`?titulo=0` sin título), `?fondo=0`, `?escala=1.2`, `?ocultarVacio=1` (no se muestra hasta el primer regalo), `?cambio=4` (segundos entre foto y regalo, estilos Círculo y Cuadro), `?animacion=0`
 - Chat: `?ocultar=30` (segundos; `0` = nunca), `?max=8`, `?regalos=0`, `?escala=1.2`
+
+### Diseño de las alertas: Botín
+
+Cada alerta sale con la **foto de quien te manda el regalo**, su **nombre** en grande, el regalo que mandó y **cuántos diamantes** (el número sube). El color dice qué tan grande es el regalo, como el botín de un juego:
+
+- **¡Regalo!** (azul): menos de 100 💎
+- **¡Épico!** (morado): desde 100 💎, con confeti
+- **¡Legendario!** (dorado): desde 1,000 💎, con destello, temblor y lluvia de diamantes
+- **¡Mítico!** (rojo): desde 10,000 💎, todo lo anterior en grande
+
+Los seguidores, compartidos y subs de Kick también salen con su foto. Si alguien no tiene foto (o no carga), sale su inicial sobre un color. En la pestaña **Alertas**, junto a la vista previa, eliges **Botín** o **Clásica** (el diseño de antes). Las vistas previas usan fotos de ejemplo; en tu live sale la foto real de cada quien.
 
 ### Probador de alertas
 
