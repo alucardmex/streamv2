@@ -1,11 +1,9 @@
-**Overlays más llamativos.**
+**Efectos, más alertas y sonidos a tu gusto.**
 
-- **Alertas nuevas (diseño Botín):** cada alerta sale con la **foto de quien dona**, su **nombre** en grande, el regalo y **los diamantes** subiendo. El color dice qué tan grande es: ¡Regalo!, ¡Épico! (100+ 💎), ¡Legendario! (1,000+) y ¡Mítico! (10,000+), con más efectos mientras más grande: rayo de luz, destello, temblor y lluvia de diamantes
-- Seguidores, compartidos y Kick también con foto
-- **Regalo más caro:** estilo nuevo **Leyenda**, con la foto de quien lo mandó, corona, su regalo y la rareza
-- **Top taps y Top regalos:** estilo nuevo **MVP**, con el #1 en grande, cuánto le falta al #2 y barras para los demás
-- Si prefieres las alertas de antes, en **Alertas → Diseño** eliges **Clásica**
+- **Efectos para las alertas:** además de Luz, ahora hay **Explosión**, **Portal**, **Fuego**, **Relámpago** y **Neón**, o **Al azar** para que cada alerta salga distinta. Los eliges en **Alertas → Efecto** y se ven al momento en la vista previa
+- **Más alertas:** prende las que quieras en **Alertas → Qué alertas salen**: nuevos seguidores, compartidos, **Super Fans**, **metas de likes**, **cofres** y **bienvenidas** a quien entra al live
+- **Sonidos por alerta:** cada tipo de alerta con su sonido y su volumen. Hay 10 incluidos (Campana, Moneda, Fanfarria, Arcade, Láser, Tambores, Explosión, Magia, Latido y Burbuja) o sube los tuyos en MP3, WAV u OGG
+- **Variantes del MVP** para Top taps y Top regalos: **Podio MVP**, **Barra MVP**, **Mini MVP** y **Columna MVP**, con el mismo diseño del MVP
+- El bot puede leer a los Super Fans y el contador de tiempo les suma segundos
 
-Los estilos Leyenda y MVP los eliges en **Overlays** (tus estilos actuales no cambian solos).
-
-**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.23.0 lista", toca **Actualizar**.
+**Si ya tienes StreamV2:** se actualiza solo. Cuando veas "Versión 1.24.0 lista", toca **Actualizar**.

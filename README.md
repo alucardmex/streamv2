@@ -62,6 +62,8 @@ En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previ
 
 **Estilos nuevos:** **Leyenda** para el regalo más caro (la foto de quien lo mandó con corona, su regalo, la rareza del regalo y los diamantes; al romperse el récord cae el sello "¡Nuevo récord!") y **MVP** para el Top taps y el Top regalos (el #1 en grande con su foto y corona, cuánto le falta al #2, y los demás con barras que muestran qué tan cerca van). Tamaño sugerido: Leyenda 600 × 300, MVP 440 × 590.
 
+**Variantes del MVP** (el mismo diseño en otras formas, para Top taps y Top regalos): **Podio MVP** (los 3 primeros en tarjetas, el #1 en medio y más grande con corona; los demás abajo con barras), **Barra MVP** (horizontal, para arriba o abajo de la pantalla), **Mini MVP** (solo el #1 y cuánto le falta al #2, para una esquina) y **Columna MVP** (angosta, para un lado de la pantalla). Cada puesto tiene su color: #1 dorado, #2 morado y #3 aqua. Tamaño sugerido: Podio MVP 570 × 530, Barra MVP 1040 × 190, Mini MVP 430 × 200 y Columna MVP 290 × 610.
+
 **Título:** en **Texto → Título** de cada overlay le pones el tamaño de letra en px (con − y + o escribiendo el número), el color y la tipografía. Vacío = el tamaño del estilo; **Color del estilo** y **Tamaño del estilo** lo regresan a como venía.
 
 - **Regalo más caro:** Tarjeta, Banner (barra horizontal), Trofeo (vertical con corona, ideal para stream vertical), Neón, Minimal (solo texto), Burbuja (foto de quien lo mandó) Círculo y Cuadro (la foto de perfil y el regalo se van volteando como moneda; eliges cada cuántos segundos).
@@ -69,7 +71,7 @@ En la pestaña **Overlays** eliges el estilo de cada overlay con una vista previ
 
 ### Contador de tiempo (subathon)
 
-En **Overlays → Contador de tiempo** pones el tiempo inicial y cuánto suma cada cosa: segundos por cada 💎 diamante, cada cierta cantidad de likes, por seguidor nuevo, por compartido y por mensaje en el chat. Con números negativos **resta** tiempo. Desde ahí lo inicias, lo pausas, le sumas o quitas minutos a mano o lo fijas en un tiempo exacto. Puedes poner un tiempo máximo y elegir si suma aunque esté en pausa. Al sumar se ve en el overlay qué se sumó y quién lo hizo. Si cierras la app con el contador corriendo, sigue donde iba. Estilos: Digital, Barra y Compacto.
+En **Overlays → Contador de tiempo** pones el tiempo inicial y cuánto suma cada cosa: segundos por cada 💎 diamante, cada cierta cantidad de likes, por seguidor nuevo, por compartido, por Super Fan y por mensaje en el chat. Con números negativos **resta** tiempo. Desde ahí lo inicias, lo pausas, le sumas o quitas minutos a mano o lo fijas en un tiempo exacto. Puedes poner un tiempo máximo y elegir si suma aunque esté en pausa. Al sumar se ve en el overlay qué se sumó y quién lo hizo. Si cierras la app con el contador corriendo, sigue donde iba. Estilos: Digital, Barra y Compacto.
 
 ### Partidas · PUBG Mobile
 
@@ -109,8 +111,8 @@ Con **▶ Probar animación** ves en la vista previa cómo se vería un récord 
 
 **Opciones extra en el link** (se combinan con `&`):
 
-- Alertas: `?escala=1.3`, `?posicion=arriba` / `abajo`, `?sonido=0` (la posición también la eliges en la pestaña **Alertas**, junto a la vista previa, y el link se arma solo)
-- Top taps / top regalos: `?tipo=regalos`, `?estilo=podio`, `?top=3`, `?titulo=Mis%20fans` (`?titulo=0` sin título), `?fondo=0` (sin caja), `?ancho=1200` (estilo Cinta), `?escala=1.2`, `?animacion=0` (sin animaciones)
+- Alertas: `?escala=1.3`, `?posicion=arriba` / `abajo`, `?sonido=0` (la posición también la eliges en la pestaña **Alertas**, junto a la vista previa, y el link se arma solo), `?diseno=clasica`, `?efecto=fuego` (`luz`, `explosion`, `portal`, `fuego`, `relampago`, `neon` o `aleatorio`; manda sobre el efecto del panel, útil si tienes dos fuentes con efectos distintos)
+- Top taps / top regalos: `?tipo=regalos`, `?estilo=podio` (o `mvp-podio`, `mvp-barra`, `mvp-mini`, `mvp-columna`), `?top=3`, `?titulo=Mis%20fans` (`?titulo=0` sin título), `?fondo=0` (sin caja), `?ancho=1200` (estilo Cinta), `?escala=1.2`, `?animacion=0` (sin animaciones)
 - Regalo más caro: `?estilo=trofeo`, `?titulo=Rey%20del%20stream` (`?titulo=0` sin título), `?fondo=0`, `?escala=1.2`, `?ocultarVacio=1` (no se muestra hasta el primer regalo), `?cambio=4` (segundos entre foto y regalo, estilos Círculo y Cuadro), `?animacion=0`
 - Chat: `?ocultar=30` (segundos; `0` = nunca), `?max=8`, `?regalos=0`, `?escala=1.2`
 
@@ -125,6 +127,40 @@ Cada alerta sale con la **foto de quien te manda el regalo**, su **nombre** en g
 
 Los seguidores, compartidos y subs de Kick también salen con su foto. Si alguien no tiene foto (o no carga), sale su inicial sobre un color. En la pestaña **Alertas**, junto a la vista previa, eliges **Botín** o **Clásica** (el diseño de antes). Las vistas previas usan fotos de ejemplo; en tu live sale la foto real de cada quien.
 
+**Efecto** (junto a la vista previa; al tocar uno lo ves en la vista previa):
+
+- **✨ Luz** (el de siempre): el botín cae del cielo con un rayo de luz.
+- **💥 Explosión:** estalla en el centro con ondas de choque, las letras del nombre llegan volando de todos lados y siguen saliendo chispas.
+- **🌀 Portal:** se abre un círculo mágico con anillos que giran y la foto sale girando de adentro.
+- **🔥 Fuego:** la foto sube entre llamas del color de la alerta (azules, moradas, doradas o rojas).
+- **⚡ Relámpago:** cae un rayo sobre la foto con destello y la foto queda electrizada.
+- **💡 Neón:** se prende como letrero de neón, con parpadeo, y al final se apaga como tele vieja.
+- **🎲 Al azar:** cada alerta con un efecto distinto.
+
+Los efectos son del diseño Botín (si eliges uno estando en Clásica, se cambia a Botín).
+
+### Qué alertas salen
+
+En **Alertas → Qué alertas salen**: los regalos siempre salen, y prendes las demás que quieras:
+
+- **💖 Nuevos seguidores** y **📢 Compartidos**.
+- **⭐ Super Fans:** quien se suscribe a tu live de TikTok (así se llaman ahora las suscripciones), con sus meses si ya lleva varios. El bot también los puede leer (**Voz → Super Fans**, frase en **Frases → Super Fan**, con `{meses}`) y el contador de tiempo les suma lo que pongas.
+- **❤️ Metas de likes:** cada vez que el live junta otra meta (5,000, 10,000, 15,000… o la que pongas en **Meta de likes cada**), sale quien dio el tap que llegó, con lluvia de corazones.
+- **💰 Cofres:** quien suelta un cofre de diamantes, con cuántos diamantes y para cuántas personas. El color va con su tamaño, como los regalos.
+- **👋 Bienvenidas:** quien entra a tu live, una vez por persona en cada live. Salen más chicas y rápidas, solo cuando no hay otra alerta, y cualquier regalo las corta para no atrasarse.
+
+Para probarlas sin estar en vivo: **En vivo → Probar sin estar en vivo** (Super Fan, Meta de likes, Cofre y Bienvenida) o los botones de **Ver alerta de** junto a la vista previa.
+
+### Sonidos de las alertas
+
+En **Alertas → Sonido** cada alerta tiene su sonido y su volumen: regalo chico, épico, legendario, mítico, nuevo seguidor, compartido, Super Fan (y subs de Kick), meta de likes, cofre y bienvenida.
+
+- **Incluidos:** Campana (la de siempre), Moneda, Fanfarria, Arcade, Láser, Tambores, Explosión, Magia, Latido, Burbuja o Sin sonido. Se generan en la app, no necesitan archivos.
+- **Tuyos:** toca **Subir** en la alerta que quieras y elige un MP3, WAV u OGG. Se guarda en tu carpeta de datos (`media`) y queda en la lista para usarlo en otras alertas. Con la ✕ lo quitas de la lista.
+- **▶** lo escuchas. El volumen de cada alerta va sobre el **Volumen general** (100% = igual que el general, hasta 150%).
+
+Las alertas personalizadas con **El sonido de la alerta** usan el que elegiste aquí para ese tamaño de regalo.
+
 ### Probador de alertas
 
 En la pestaña **Alertas** está el **Probador de alertas**: eliges si es regalo, seguidor o compartido, quién lo manda, qué regalo y cuántos. Te dice qué alerta va a salir (tu video/foto/GIF o la animación de siempre) y si tu mínimo de diamantes la dejaría fuera. Puedes verla en la vista previa, mandarla a tu stream (sale en OBS y el bot la lee, pero no cuenta para el ranking ni para el regalo más caro) o probar 5 seguidas para ver cómo se forman en fila.
@@ -136,7 +172,7 @@ En la pestaña **Alertas**, sección **Alertas personalizadas**, toca **＋ Agre
 - **Para un regalo:** escribe el nombre del regalo. Los regalos que ya te han mandado aparecen en la lista para elegirlos. Los más comunes funcionan en español o en inglés ("Rosa" o "Rose").
 - **Desde cierta cantidad:** por ejemplo, "Desde 1,000 💎". Cuenta el total (precio × cantidad). Si hay varias, gana la más alta que alcance.
 - **Tamaño:** Chico, Mediano, Grande o Pantalla completa.
-- **Sonido:** el del video, la campanita de siempre o sin sonido.
+- **Sonido:** el del video, el sonido de la alerta (el que elegiste en **Sonido** para ese tamaño de regalo) o sin sonido.
 - **Segundos:** los videos duran lo que dure el video (hasta 60 s); las fotos y GIF usan los segundos de siempre, o los que pongas.
 
 Si un regalo tiene alerta para él y además alcanza una cantidad, gana la del regalo. Lo que no tenga alerta propia usa la animación de siempre. Una alerta para un regalo se muestra aunque ese regalo cueste menos que el mínimo de diamantes. Formatos: MP4 o WEBM para video; GIF, PNG, JPG o WEBP para imagen. Los archivos se guardan en tu carpeta de datos (`media`).
@@ -145,7 +181,7 @@ Si un regalo tiene alerta para él y además alcanza una cantidad, gana la del r
 
 - Habla desde la ventana de StreamV2, aunque esté minimizada.
 - Tu programa de streaming lo captura como **audio del escritorio**. Si no se escucha en el live, revisa que tengas la fuente "Audio del escritorio" activa.
-- Puedes elegir qué leer (comentarios, regalos, seguidores, compartidos).
+- Puedes elegir qué leer (comentarios, regalos, seguidores, compartidos y Super Fans).
 
 ### Voces de Fish Audio
 

@@ -78,6 +78,7 @@ const DEFAULT_CONFIG = {
       readGifts: true,
       readFollows: false,
       readShares: false,
+      readSubs: true, // Super Fans (suscripciones) de TikTok
       voice: '',
       rate: 1.05,
       pitch: 1,
@@ -88,6 +89,7 @@ const DEFAULT_CONFIG = {
       giftFormat: 'Gracias {nombre} por {cantidad} {regalo}',
       followFormat: '{nombre} te empezó a seguir',
       shareFormat: '{nombre} compartió el live',
+      subFormat: 'Gracias {nombre} por hacerte Super Fan',
       ignorePrefix: '!',
       maxLength: 150,
       maxQueue: 8,
@@ -110,6 +112,21 @@ const DEFAULT_CONFIG = {
       showShares: false,
       // Diseño de las alertas: 'botin' (foto, nombre y cantidad; el color dice qué tan grande es) o 'clasica'.
       style: 'botin',
+      // Efecto con el que entran las alertas Botín: luz, explosion, portal, fuego, relampago, neon o aleatorio.
+      effect: 'luz',
+      // Otras alertas además de los regalos.
+      showSubs: true, // Super Fans (suscripciones) de TikTok
+      showLikeGoals: true, // metas de likes
+      likeGoalEvery: 5000,
+      showChests: true, // cofres
+      showJoins: false, // bienvenida a quien entra al live (en lives con mucha gente pueden ser muchas)
+      // Sonido de cada alerta: un sonido incluido o 'file:<archivo>' (uno tuyo), y su volumen (1 = el general).
+      sounds: {
+        regalo: { s: 'campana', v: 1 }, epico: { s: 'campana', v: 1 }, legendario: { s: 'campana', v: 1 }, mitico: { s: 'campana', v: 1 },
+        follow: { s: 'campana', v: 1 }, share: { s: 'campana', v: 1 }, sub: { s: 'fanfarria', v: 1 },
+        likes: { s: 'magia', v: 1 }, cofre: { s: 'moneda', v: 1 }, join: { s: 'burbuja', v: 0.8 },
+      },
+      soundFiles: [], // tus sonidos subidos: [{ file, name }]
       // Alertas con tu propio video, foto o GIF para un regalo o desde cierta cantidad de diamantes.
       // Lo que no tenga una propia usa la animación de siempre.
       custom: [],
@@ -130,6 +147,7 @@ const DEFAULT_CONFIG = {
         titleStyle: { px: 0, color: '', font: '' },
         style: 'digital', title: 'Tiempo restante', showTitle: true, bg: true, showAdds: true,
         start: 3600, perDiamond: 10, likesEvery: 100, likesSecs: 10, follow: 30, share: 15, chat: 0, max: 0, whilePaused: false,
+        superFan: 300, // segundos por cada Super Fan (suscripción) de TikTok
         anim: { on: true, idle: 'ninguno', change: 'pop', intensity: 'normal', counters: true },
       },
       // Marcador de partidas de PUBG Mobile (pollos y derrotas), lo llevas tú desde el panel.
@@ -238,8 +256,10 @@ const saveConfig = () => fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, nu
 // ---------------------------------------------------------------------------
 const MEDIA_DIR = path.join(DATA_DIR, 'media');
 fs.mkdirSync(MEDIA_DIR, { recursive: true });
-const MEDIA_EXT = { mp4: 'video', webm: 'video', mov: 'video', m4v: 'video', gif: 'image', png: 'image', jpg: 'image', jpeg: 'image', webp: 'image', apng: 'image' };
-const MEDIA_NAME = /^[a-z0-9][a-z0-9-]{0,80}\.(mp4|webm|mov|m4v|gif|png|jpe?g|webp|apng)$/;
+const MEDIA_EXT = { mp4: 'video', webm: 'video', mov: 'video', m4v: 'video', gif: 'image', png: 'image', jpg: 'image', jpeg: 'image', webp: 'image', apng: 'image',
+  mp3: 'audio', wav: 'audio', ogg: 'audio', m4a: 'audio', aac: 'audio' };
+const MEDIA_NAME = /^[a-z0-9][a-z0-9-]{0,80}\.(mp4|webm|mov|m4v|gif|png|jpe?g|webp|apng|mp3|wav|ogg|m4a|aac)$/;
+const AUDIO_NAME = /^[a-z0-9][a-z0-9-]{0,80}\.(mp3|wav|ogg|m4a|aac)$/;
 const pick1 = (v, list, d) => (list.includes(v) ? v : d);
 
 function cleanCustom(list) {
@@ -261,6 +281,28 @@ function cleanCustom(list) {
   }));
 }
 config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
+
+// Sonidos de las alertas: solo sonidos incluidos o archivos de audio que subiste.
+const SOUND_PRESETS = ['campana', 'moneda', 'fanfarria', 'arcade', 'laser', 'tambores', 'explosion', 'magia', 'latido', 'burbuja', 'ninguno'];
+const ALERT_EFFECTS = ['luz', 'explosion', 'portal', 'fuego', 'relampago', 'neon', 'aleatorio'];
+function cleanAlertSounds(a) {
+  const def = DEFAULT_CONFIG.settings.alerts.sounds;
+  const out = {};
+  for (const k of Object.keys(def)) {
+    const v = a.sounds?.[k] || {};
+    const id = String(v.s || '');
+    const ok = SOUND_PRESETS.includes(id) || (id.startsWith('file:') && AUDIO_NAME.test(id.slice(5)));
+    const vol = Number(v.v);
+    out[k] = { s: ok ? id : def[k].s, v: Number.isFinite(vol) ? Math.max(0, Math.min(1.5, vol)) : def[k].v };
+  }
+  a.sounds = out;
+  const seen = new Set();
+  a.soundFiles = (Array.isArray(a.soundFiles) ? a.soundFiles : []).filter((f) => f && AUDIO_NAME.test(String(f.file || '')) && !seen.has(f.file) && seen.add(f.file))
+    .slice(0, 40).map((f) => ({ file: String(f.file), name: String(f.name || f.file).slice(0, 60) }));
+  a.effect = pick1(a.effect, ALERT_EFFECTS, 'luz');
+  a.likeGoalEvery = Math.max(100, Math.min(10000000, Math.round(Number(a.likeGoalEvery) || 5000)));
+}
+cleanAlertSounds(config.settings.alerts);
 
 const SCENE_ITEM_TYPES = ['alertas', 'topGift', 'likes', 'gifts', 'chat', 'timer', 'matches', 'rank', 'kickGifts', 'kickTop', 'countdown'];
 const clampN = (v, lo, hi, d) => { const n = Math.round(Number(v)); return Number.isFinite(n) ? Math.max(lo, Math.min(hi, n)) : d; };
@@ -388,6 +430,8 @@ export function newLiveReset() {
   stats.totalLikes = 0;
   stats.diamonds = 0;
   stats.follows = 0;
+  likeGoal.primed = false;
+  joinedNow.clear();
   dropChat('tiktok');
   followedNow.clear();
   resetTopGifts();
@@ -515,7 +559,69 @@ function handleLike(d) {
   timerLikes(count, who);
   const total = Number(d.total ?? d.totalLikeCount ?? 0);
   stats.totalLikes = total > stats.totalLikes ? total : stats.totalLikes + count;
+  checkLikeGoal(who);
   broadcastRankings();
+}
+
+// Metas de likes: cada vez que el live pasa de 5,000, 10,000... sale una alerta con quien dio el tap que la cruzó.
+// Al conectarte a un live que ya lleva likes (o si cambias la meta) solo se marca dónde va:
+// no salen de golpe las metas que ya habían pasado.
+const likeGoal = { every: 0, reached: 0, primed: false };
+function syncLikeGoal() {
+  likeGoal.every = config.settings.alerts.likeGoalEvery;
+  likeGoal.reached = Math.floor(stats.totalLikes / likeGoal.every);
+}
+function checkLikeGoal(who) {
+  if (!likeGoal.primed || likeGoal.every !== config.settings.alerts.likeGoalEvery) {
+    likeGoal.primed = true;
+    return syncLikeGoal();
+  }
+  const reached = Math.floor(stats.totalLikes / likeGoal.every);
+  if (reached <= likeGoal.reached) return;
+  likeGoal.reached = reached;
+  if (config.settings.alerts.showLikeGoals) io.emit('likeGoal', { ...who, goal: reached * likeGoal.every, platform: 'tiktok' });
+}
+syncLikeGoal();
+
+// Super Fans (así se llaman ahora las suscripciones de TikTok). Llegan por dos caminos: se evita repetir la alerta.
+const recentSubs = new Map();
+function handleSubscribe(d, isTest = false) {
+  const who = normUser(d.user);
+  if (!isTest) {
+    if (Date.now() - (recentSubs.get(who.user) || 0) < 20000) return;
+    recentSubs.set(who.user, Date.now());
+  }
+  const months = Math.max(0, Math.round(Number(d.subMonth) || 0));
+  if (!isTest) timerAdd(Number(tcfg().superFan) || 0, who, 'superfan');
+  io.emit('sub', { ...who, kind: 'sub', months, count: 1, platform: 'tiktok', test: isTest });
+}
+
+// Quién entra al live (para las bienvenidas). Cada quien una sola vez por live.
+const joinedNow = new Set();
+function handleMember(d) {
+  const action = Number(d.action);
+  if (action === 3) return handleSubscribe(d);
+  if (action !== 1 || !config.settings.alerts.showJoins) return;
+  const who = normUser(d.user);
+  if (joinedNow.has(who.user)) return;
+  joinedNow.add(who.user);
+  io.emit('join', { ...who, platform: 'tiktok' });
+}
+
+// Cofres: alguien suelta diamantes para que los agarre la gente del live.
+const seenChests = new Set();
+function handleChest(d, isTest = false) {
+  const e = d.envelopeInfo || {};
+  const id = String(e.envelopeId || '');
+  if (id) {
+    if (seenChests.has(id)) return;
+    seenChests.add(id);
+  }
+  const name = String(e.sendUserName || 'Alguien');
+  io.emit('chest', {
+    user: String(e.sendUserId || name).toLowerCase(), name, avatar: firstUrl(e.sendUserAvatar),
+    diamonds: Math.max(0, Number(e.diamondCount) || 0), people: Math.max(0, Number(e.peopleCount) || 0), platform: 'tiktok', test: isTest,
+  });
 }
 
 // Quién te sigue: TikTok lo manda en cada comentario. Además se recuerda a quien te sigue durante el live
@@ -869,12 +975,17 @@ async function connectLive() {
 
   const c = new TikTokLiveConnection(username, options);
   conn = c;
+  likeGoal.primed = false;
 
   c.on(WebcastEvent.GIFT, (d) => handleGift(d));
   c.on(WebcastEvent.LIKE, (d) => handleLike(d));
   c.on(WebcastEvent.CHAT, (d) => handleChat(d));
   c.on(WebcastEvent.FOLLOW, (d) => handleFollow(d));
   c.on(WebcastEvent.SHARE, (d) => handleShare(d));
+  c.on(WebcastEvent.SUPER_FAN_JOIN, (d) => handleSubscribe(d));
+  c.on(WebcastEvent.SUB_NOTIFY, (d) => handleSubscribe(d));
+  c.on(WebcastEvent.MEMBER, (d) => handleMember(d));
+  c.on(WebcastEvent.ENVELOPE, (d) => handleChest(d));
   c.on(WebcastEvent.ROOM_USER, (d) => {
     stats.viewers = Number(d.total ?? d.viewerCount ?? 0);
     broadcastRankings();
@@ -947,7 +1058,7 @@ app.post('/api/media', express.raw({ type: () => true, limit: '400mb' }), (req, 
   const orig = String(req.query.name || 'archivo');
   const ext = (orig.split('.').pop() || '').toLowerCase();
   const kind = MEDIA_EXT[ext];
-  if (!kind) return res.status(400).json({ error: 'Formato no compatible. Usa MP4, WEBM, GIF, PNG, JPG o WEBP.' });
+  if (!kind) return res.status(400).json({ error: 'Formato no compatible. Usa MP4, WEBM, GIF, PNG, JPG o WEBP (o MP3, WAV u OGG para sonidos).' });
   if (!req.body?.length) return res.status(400).json({ error: 'El archivo llegó vacío.' });
   const slug = orig.slice(0, -(ext.length + 1)).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'alerta';
   const file = `${Date.now().toString(36)}-${slug}.${ext === 'jpeg' ? 'jpg' : ext}`;
@@ -1095,6 +1206,7 @@ io.on('connection', (socket) => {
   socket.on('saveSettings', (settings) => {
     config.settings = deepMerge(DEFAULT_CONFIG.settings, settings);
     config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
+    cleanAlertSounds(config.settings.alerts);
     config.settings.scenes = cleanScenes(config.settings.scenes);
     saveConfig();
     io.emit('config', publicConfig());
@@ -1106,6 +1218,7 @@ io.on('connection', (socket) => {
     likesByUser.clear();
     giftsByUser.clear();
     stats.totalLikes = 0;
+    likeGoal.primed = false;
     stats.diamonds = 0;
     stats.follows = 0;
     rankingDirty = true;
@@ -1129,6 +1242,16 @@ io.on('connection', (socket) => {
     for (let i = 0; i < 6; i++) handleLike({ user: fakeUser(), count: 1 + Math.floor(Math.random() * 40) });
   });
   socket.on('test:follow', () => handleFollow({ user: fakeUser() }));
+  socket.on('test:sub', () => handleSubscribe({ user: fakeUser(), subMonth: pick([1, 1, 3, 6]) }, true));
+  socket.on('test:likegoal', () => {
+    const every = config.settings.alerts.likeGoalEvery;
+    io.emit('likeGoal', { ...normUser(fakeUser()), goal: every * (1 + Math.floor(Math.random() * 6)), platform: 'tiktok', test: true });
+  });
+  socket.on('test:chest', () => {
+    const u = normUser(fakeUser());
+    handleChest({ envelopeInfo: { envelopeId: `prueba-${Date.now()}`, sendUserName: u.name, sendUserId: u.user, diamondCount: pick([99, 500, 1000, 5000]), peopleCount: pick([10, 25, 50]) } }, true);
+  });
+  socket.on('test:join', () => io.emit('join', { ...normUser(fakeUser()), platform: 'tiktok', test: true }));
   // Pruebas de Kick
   socket.on('test:kick:chat', () => kickChat({ user: fakeUser(), content: pick(TEST_COMMENTS) }, true));
   socket.on('test:kick:kicks', () => kickGift({ user: fakeUser(), name: 'Kicks', amount: pick([1, 10, 50, 100, 500, 1000]) }, true));
@@ -1153,7 +1276,7 @@ io.on('connection', (socket) => {
   // Solo para desarrollo: inyecta eventos con la forma exacta de TikTok.
   if (process.env.KIT_DEBUG) {
     socket.on('debug:raw', ({ type, data }) => {
-      ({ gift: handleGift, like: handleLike, chat: handleChat, follow: handleFollow })[type]?.(data);
+      ({ gift: handleGift, like: handleLike, chat: handleChat, follow: handleFollow, sub: handleSubscribe, member: handleMember, chest: handleChest })[type]?.(data);
     });
   }
 });

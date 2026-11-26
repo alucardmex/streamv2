@@ -8,7 +8,7 @@
 <style>
   .kc { display: inline-grid; place-items: center; width: 1.05em; height: 1.05em; border-radius: 50%; background: #53fc18; color: #0b0b0b; font: 900 .68em/1 system-ui, sans-serif; vertical-align: -.12em; text-shadow: none; }
   /* El estilo se elige en el panel (Overlays). Opciones por URL que mandan sobre el panel:
-     ?tipo=likes|regalos  ?estilo=mvp|lista|podio|lider|compacto|neon|cinta|bolitas  ?top=5  ?titulo=Mis%20fans (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
+     ?tipo=likes|regalos  ?estilo=mvp|mvp-podio|mvp-barra|mvp-mini|mvp-columna|lista|podio|lider|compacto|neon|cinta|bolitas  ?top=5  ?titulo=Mis%20fans (?titulo=0 sin título)  ?fondo=0  ?escala=1.2  ?demo=1  ?animacion=0 */
   :root { --acc: #fe2c55; --acc2: #25f4ee; --gold: #ffc24b; }
   html, body { margin: 0; background: transparent; font-family: 'Outfit', system-ui, sans-serif; color: #fff; overflow: hidden; }
   .stage { display: inline-block; transform-origin: top left; padding: 10px; }
@@ -83,6 +83,114 @@
   .mvp .orb.tap { animation: mvTap .35s ease; }
   @keyframes mvTap { 40% { transform: scale(calc(1 + .1 * var(--amp))); } }
   .mvp li.fx-up::after, .mv-hero.fx-up::after { border-radius: 14px; }
+
+  /* ---------- Variantes del MVP: Podio MVP, Barra MVP, Mini MVP y Columna MVP ----------
+     El mismo diseño (foto con aro que gira, sello hexagonal, números grandes) en otras formas.
+     Cada puesto tiene su color: #1 dorado, #2 morado, #3 aqua. */
+  .mvpk { --ink: #14081f; }
+  .mvpk .rk1 { --c: #ffb21e; --c2: #fff0b8; --glow: rgba(255,178,30,.5); --rc: #ffb21e; --bg1: rgba(62,30,10,.96); }
+  .mvpk .rk2 { --c: #b45cff; --c2: #ecd6ff; --glow: rgba(180,92,255,.5); --rc: #c58bff; --bg1: rgba(44,16,70,.96); }
+  .mvpk .rk3 { --c: #25f4ee; --c2: #c9fdff; --glow: rgba(37,244,238,.42); --rc: #25f4ee; --bg1: rgba(6,44,56,.96); }
+  .mvpk .rkn { --c: #d9d2e6; --c2: #ffffff; --glow: rgba(255,255,255,.22); --rc: rgba(255,255,255,.6); --bg1: rgba(40,30,52,.96); }
+  .mvpk .box { box-sizing: border-box; border-radius: 26px; background: rgba(16,7,27,.8); box-shadow: inset 0 0 0 2px rgba(255,255,255,.08), 0 16px 40px rgba(0,0,0,.45); }
+  .nobg .mvpk .box { background: none; box-shadow: none; }
+  .mvpk h1 { display: flex; align-items: center; gap: 10px; margin: 0 0 14px 4px; font: 900 22px/1.1 'Outfit', sans-serif; text-shadow: 0 2px 8px rgba(0,0,0,.6); }
+  .mvpk h1::before { content: ''; flex: none; width: 7px; height: 21px; border-radius: 2px; background: linear-gradient(#25f4ee, #fe2c55); transform: skewX(-14deg); }
+  .mk-card { position: relative; isolation: isolate; box-sizing: border-box; border-radius: 20px; background: linear-gradient(150deg, var(--bg1), rgba(22,9,32,.95));
+    box-shadow: inset 0 0 0 2px var(--c), 0 0 22px var(--glow), 0 10px 26px rgba(0,0,0,.45); transition: transform .45s cubic-bezier(.2,.9,.3,1.2); }
+  .mk-card .mv-who { position: relative; flex: none; }
+  .mk-txt { flex: 1; min-width: 0; }
+  .mvpk .nm { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font: 900 20px/1.1 'Outfit', sans-serif; text-shadow: 0 3px 0 var(--ink), 0 5px 12px rgba(0,0,0,.5); }
+  .mvpk .v { font: 700 34px/1 'Teko', 'Impact', sans-serif; letter-spacing: .5px; white-space: nowrap; }
+  .mk-card .v { filter: drop-shadow(0 3px 0 var(--ink)) drop-shadow(0 0 12px var(--glow)); }
+  .mvpk .v .tx-value { display: inline-flex; align-items: center; gap: 6px; }
+  .mk-card .v .cnt { padding-top: .14em; background: linear-gradient(180deg, #fff 30%, var(--c2) 58%, var(--c)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .mvpk .v .ic { font-size: .5em; line-height: 1; }
+  .mvpk .v .ic .kc { font-size: 1.2em; }
+  .mvpk .mv-tag b { font-size: 20px; padding: 4px 14px 0; }
+  .mk-empty .nm { white-space: normal; font-size: 18px; }
+  .mvpk .orb.tap { animation: mvTap .35s ease; }
+  .mvpk .bar { display: block; height: 6px; border-radius: 99px; background: rgba(255,255,255,.12); overflow: hidden; }
+  .mvpk .bar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--rc), #fff); transition: width .8s cubic-bezier(.2,.9,.3,1); }
+  .mvpk .pos { flex: none; padding-top: 5px; font: 700 30px/1 'Teko', 'Impact', sans-serif; color: var(--rc); text-align: center; text-shadow: 0 2px 0 var(--ink); }
+  .mvpk ol { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 7px; }
+  .mvpk ol li { position: relative; isolation: isolate; display: flex; align-items: center; gap: 11px; padding: 7px 20px 7px 9px; transition: transform .45s cubic-bezier(.2,.9,.3,1.2); }
+  .mvpk ol li::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 14px 0 0 14px;
+    background: linear-gradient(90deg, rgba(255,255,255,.14), rgba(255,255,255,.05)); clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); }
+  .mvpk ol .pos { width: 24px; }
+  .mvpk ol .mv-av { width: 42px; height: 42px; }
+  .mvpk ol .mid { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+  .mvpk ol .nm { font: 800 18px/1.1 'Outfit', sans-serif; text-shadow: 0 2px 6px rgba(0,0,0,.6); }
+  .mvpk ol .v { min-width: 52px; padding-top: 5px; text-align: right; font-size: 28px; text-shadow: 0 2px 0 var(--ink); }
+  .mvpk ol .v .tx-value { justify-content: flex-end; }
+  .mvpk li.fx-up::after, .mk-card.fx-up::after { border-radius: 14px; }
+
+  /* Podio MVP: los 3 primeros en tarjetas (el #1 en medio y más grande); los demás abajo con barras */
+  .mvp-podio .box { width: 540px; padding: 16px 16px 14px; }
+  .mp-stand { display: flex; align-items: flex-end; justify-content: center; gap: 10px; padding-top: 30px; }
+  .mp-stand .mk-card { width: 150px; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 22px 10px 14px; }
+  .mp-stand .mk-card.rk1 { width: 196px; padding: 36px 12px 18px; }
+  .mp-stand .mv-who { width: 72px; height: 72px; }
+  .mp-stand .rk1 .mv-who { width: 100px; height: 100px; }
+  .mp-stand .mv-tag { position: relative; z-index: 2; margin-top: -11px; }
+  .mp-stand .nm { margin-top: 8px; max-width: 100%; font-size: 17px; }
+  .mp-stand .rk1 .nm { font-size: 21px; }
+  .mp-stand .v { margin-top: 2px; font-size: 32px; }
+  .mp-stand .rk1 .v { font-size: 44px; }
+  .mp-stand .mv-bg::before { left: 50%; top: 58px; width: 260px; height: 260px; margin: -130px 0 0 -130px; }
+  .mp-stand .rk1 .mv-bg::before { top: 86px; width: 330px; height: 330px; margin: -165px 0 0 -165px; }
+  .mk-slot { opacity: .4; }
+  .mk-slot .mv-ini { background: rgba(255,255,255,.08); color: rgba(255,255,255,.7); }
+
+  /* Barra MVP: horizontal, para arriba o abajo de la pantalla */
+  .mvp-barra .box { display: flex; align-items: center; gap: 12px; width: max-content; padding: 10px 12px 10px 10px; border-radius: 24px; }
+  .mb-hero { flex: none; width: 280px; display: flex; align-items: center; gap: 18px; padding: 16px 14px 14px 22px; }
+  .mb-hero .mv-who { width: 78px; height: 78px; }
+  .mb-hero .mv-crown { font-size: 28px; top: -29px; }
+  .mb-hero .nm { margin-top: 5px; font-size: 21px; }
+  .mb-hero .v { margin-top: 1px; font-size: 38px; }
+  .mb-hero .mv-bg::before { left: -79px; width: 280px; height: 280px; margin-top: -140px; }
+  .mb-side { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .mvp-barra h1 { margin: 0 0 0 4px; font-size: 17px; }
+  .mvp-barra h1::before { width: 6px; height: 16px; }
+  .mvp-barra ol { flex-direction: row; margin: 0; gap: 8px; }
+  .mvp-barra ol li { width: 168px; box-sizing: border-box; flex-wrap: wrap; gap: 6px 8px; padding: 8px 12px 10px 8px; }
+  .mvp-barra ol li::before { border-radius: 14px; clip-path: none; }
+  .mvp-barra ol .pos { width: 16px; font-size: 26px; }
+  .mvp-barra ol .mv-av { width: 36px; height: 36px; }
+  .mvp-barra ol .mid { gap: 1px; }
+  .mvp-barra ol .nm { font-size: 15px; }
+  .mvp-barra ol .v { min-width: 0; padding-top: 3px; text-align: left; font-size: 25px; }
+  .mvp-barra ol .v .tx-value { justify-content: flex-start; }
+  .mvp-barra ol .bar { flex-basis: 100%; }
+
+  /* Mini MVP: solo el #1, para una esquina */
+  .mvp-mini .box { width: 400px; padding: 0; background: none; box-shadow: none; }
+  .mm-card { display: flex; align-items: center; gap: 20px; padding: 20px 18px 16px 24px; }
+  .mm-card .mv-who { width: 84px; height: 84px; margin: 4px 0; }
+  .mm-card .mv-crown { font-size: 30px; top: -30px; }
+  .mm-head { display: flex; align-items: center; gap: 9px; min-width: 0; }
+  .mm-head small { min-width: 0; font: 800 14px/1.1 'Outfit', sans-serif; color: var(--c2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-shadow: 0 2px 6px rgba(0,0,0,.6); }
+  .mm-card .nm { margin-top: 6px; font-size: 25px; }
+  .mm-card .v { margin-top: 2px; font-size: 42px; }
+  .mm-card .mv-gap { font-size: 13.5px; }
+  .mm-card .mv-bg::before { left: -86px; width: 300px; height: 300px; margin-top: -150px; }
+
+  /* Columna MVP: angosta y vertical, para un lado de la pantalla */
+  .mvp-columna .box { width: 260px; padding: 14px 12px 12px; }
+  .mvp-columna h1 { margin-bottom: 12px; font-size: 19px; }
+  .mc-hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 38px 12px 14px; }
+  .mc-hero .mv-who { width: 104px; height: 104px; }
+  .mc-hero .mv-tag { position: relative; z-index: 2; margin-top: -11px; }
+  .mc-hero .nm { margin-top: 8px; max-width: 100%; font-size: 23px; }
+  .mc-hero .v { margin-top: 2px; font-size: 46px; }
+  .mc-hero .mv-gap { max-width: 100%; white-space: normal; font-size: 13.5px; line-height: 1.25; }
+  .mc-hero .mv-bg::before { left: 50%; top: 90px; width: 320px; height: 320px; margin: -160px 0 0 -160px; }
+  .mvp-columna ol li { gap: 8px; padding: 6px 16px 6px 7px; }
+  .mvp-columna ol .pos { width: 18px; font-size: 26px; }
+  .mvp-columna ol .mv-av { width: 36px; height: 36px; }
+  .mvp-columna ol .nm { font-size: 15px; }
+  .mvp-columna ol .v { min-width: 38px; font-size: 24px; }
   /* ---------- LISTA (clásico) ---------- */
   .lista .box { min-width: 340px; padding: 16px 16px 12px; border-radius: 22px; background: rgba(12,12,18,.78); border: 2px solid rgba(255,255,255,.1); box-shadow: 0 12px 40px rgba(0,0,0,.45); }
   .nobg .lista .box, .nobg .compacto .box, .nobg .lider .box, .nobg .podio .box { background: none; border: 0; box-shadow: none; }
@@ -215,7 +323,7 @@ const KC = '<span class="kc">K</span>';
 const icon = KICKS ? KC : tipo === 'gifts' ? '💎' : '❤️';
 const stage = document.getElementById('stage');
 const root = document.getElementById('root');
-const STYLES = ['mvp', 'lista', 'podio', 'lider', 'compacto', 'neon', 'cinta', 'bolitas'];
+const STYLES = ['mvp', 'mvp-podio', 'mvp-barra', 'mvp-mini', 'mvp-columna', 'lista', 'podio', 'lider', 'compacto', 'neon', 'cinta', 'bolitas'];
 let cfg = { style: 'mvp', title: tipo === 'gifts' ? '💎 Top regalos' : '❤️ Top taps', showTitle: true, top: 5, bg: true, anim: { on: true, idle: 'ola', change: 'pop', intensity: 'normal', counters: true, rankUp: true } };
 let last = null;
 let prev = new Map();   // usuario -> { value, pos } de la vez anterior
@@ -257,7 +365,9 @@ function build(s, rows) {
   const plain = (u) => `<span class="tx-value"><span class="cv" data-k="${esc(u.user)}">${fmt(u.value)}</span></span>`;
   const nm = (u) => `<span class="tx-name">${esc(u.name)}</span>`;
 
-  if (s.style === 'mvp') {
+  if (s.style.startsWith('mvp-')) {
+    buildMvpk(s, rows);
+  } else if (s.style === 'mvp') {
     const [a, ...more] = rows;
     const cntI = (u) => `<span class="tx-value"><span class="cnt" data-k="${esc(u.user)}">${fmt(u.value)}</span><span class="ic">${icon}</span></span>`;
     const hero = a
@@ -292,8 +402,42 @@ function build(s, rows) {
     root.innerHTML = `<div class="box"><h1 class="shadow tx-title">${esc(s.title)}</h1>${list ? `<ol>${list}</ol>` : empty}</div>`;
   }
   // Sin título: se quita su renglón para que no deje hueco.
-  if (!s.title) root.querySelectorAll('h1, .lider small, .cinta .tag').forEach((e) => { if (!e.textContent.trim()) e.remove(); });
+  if (!s.title) root.querySelectorAll('h1, .lider small, .cinta .tag, .mm-head small').forEach((e) => { if (!e.textContent.trim()) e.remove(); });
   FX.decorate(root.querySelector('.box'));
+}
+
+// Variantes del MVP (Podio, Barra, Mini y Columna): mismas piezas que el MVP.
+function buildMvpk(s, rows) {
+  const nm = (u) => `<span class="tx-name">${esc(u.name)}</span>`;
+  const cntI = (u) => `<span class="tx-value"><span class="cnt" data-k="${esc(u.user)}">${fmt(u.value)}</span><span class="ic">${icon}</span></span>`;
+  const rk = (i) => (i < 3 ? `rk${i + 1}` : 'rkn');
+  const who = (u, i) => `<div class="mv-who orb"><i class="mv-ret"></i><i class="mv-ring"></i><span class="mv-pic">${faceHtml(u, 'mv-ini')}</span>${i === 0 ? '<span class="mv-crown">👑</span>' : ''}</div>`;
+  const tag = (i) => `<span class="mv-tag"><b>${i === 0 ? 'MVP' : `#${i + 1}`}</b></span>`;
+  const [a] = rows;
+  const gap = a && rows[1] ? `<div class="mv-gap">${nm(rows[1])} está a <b class="gapv">${fmt(Math.max(0, a.value - rows[1].value))}</b> ${icon}</div>` : '';
+  const bar = (u) => `<span class="bar"><i data-bar="${esc(u.user)}" style="width:${pct(u.value, a.value)}%"></i></span>`;
+  const row = (u, i) => `<li class="${rk(i)}" data-id="${esc(u.user)}" style="--i:${i}"><span class="pos">${i + 1}</span><span class="mv-av orb">${faceHtml(u, 'mv-ini')}</span><span class="mid"><span class="nm">${nm(u)}</span>${bar(u)}</span><span class="v">${cntI(u)}</span></li>`;
+  const title = `<h1 class="tx-title">${esc(s.title)}</h1>`;
+  const emptyHero = (cls, head = tag(0)) => `<div class="mk-card rk1 ${cls} mk-empty"><span class="mv-bg"></span><div class="mv-who"><i class="mv-ret"></i><i class="mv-ring"></i><span class="mv-pic"><span class="mv-ini" style="background:linear-gradient(135deg,#ffb21e,#ff2d55)">👑</span></span></div><div class="mk-txt">${head}<b class="nm">¡Sé el primero en aparecer aquí!</b></div></div>`;
+  if (s.style === 'mvp-podio') {
+    const card = (u, i) => u
+      ? `<div class="mk-card ${rk(i)}" data-id="${esc(u.user)}" style="--i:${i}"><span class="mv-bg"></span>${who(u, i)}${tag(i)}<b class="nm">${nm(u)}</b><div class="v">${cntI(u)}</div></div>`
+      : `<div class="mk-card ${rk(i)} mk-slot"><div class="mv-who"><i class="mv-ret"></i><span class="mv-pic"><span class="mv-ini">?</span></span></div>${tag(i)}<b class="nm">${i === 0 ? '¿Quién será?' : '—'}</b></div>`;
+    const rest = rows.slice(3).map((u, i) => row(u, i + 3)).join('');
+    root.innerHTML = `<div class="box">${title}<div class="mp-stand">${card(rows[1], 1)}${card(rows[0], 0)}${card(rows[2], 2)}</div>${rest ? `<ol>${rest}</ol>` : ''}</div>`;
+  } else if (s.style === 'mvp-barra') {
+    const chip = (u, i) => `<li class="${rk(i)}" data-id="${esc(u.user)}" style="--i:${i}"><span class="pos">${i + 1}</span><span class="mv-av orb">${faceHtml(u, 'mv-ini')}</span><span class="mid"><span class="nm">${nm(u)}</span><span class="v">${cntI(u)}</span></span>${bar(u)}</li>`;
+    const hero = a ? `<div class="mk-card rk1 mb-hero" data-id="${esc(a.user)}" style="--i:0"><span class="mv-bg"></span>${who(a, 0)}<div class="mk-txt">${tag(0)}<b class="nm">${nm(a)}</b><div class="v">${cntI(a)}</div></div></div>` : emptyHero('mb-hero');
+    const chips = rows.slice(1).map((u, i) => chip(u, i + 1)).join('');
+    root.innerHTML = `<div class="box">${hero}<div class="mb-side">${title}${chips ? `<ol>${chips}</ol>` : ''}</div></div>`;
+  } else if (s.style === 'mvp-mini') {
+    const head = `<span class="mm-head">${tag(0)}<small class="tx-title">${esc(s.title)}</small></span>`;
+    root.innerHTML = `<div class="box">${a ? `<div class="mk-card rk1 mm-card" data-id="${esc(a.user)}" style="--i:0"><span class="mv-bg"></span>${who(a, 0)}<div class="mk-txt">${head}<b class="nm">${nm(a)}</b><div class="v">${cntI(a)}</div>${gap}</div></div>` : emptyHero('mm-card', head)}</div>`;
+  } else {
+    const hero = a ? `<div class="mk-card rk1 mc-hero" data-id="${esc(a.user)}" style="--i:0"><span class="mv-bg"></span>${who(a, 0)}${tag(0)}<b class="nm">${nm(a)}</b><div class="v">${cntI(a)}</div>${gap}</div>` : emptyHero('mc-hero');
+    const rest = rows.slice(1).map((u, i) => row(u, i + 1)).join('');
+    root.innerHTML = `<div class="box">${title}${hero}${rest ? `<ol>${rest}</ol>` : ''}</div>`;
+  }
 }
 
 function restart(el, cls) {
@@ -332,7 +476,7 @@ function render() {
   document.body.classList.toggle('nobg', !s.bg);
   const scale = Number(P.get('escala')) || 1;
   stage.style.transform = `scale(${scale})`;
-  root.className = s.style;
+  root.className = s.style.startsWith('mvp-') ? `mvpk ${s.style}` : s.style;
 
   // Qué cambió desde la vez anterior.
   const hadPrev = prev.size > 0;
@@ -364,8 +508,8 @@ function render() {
     lastKey = key;
   }
 
-  // MVP: las barras crecen y se actualiza cuánto le falta al #2.
-  if (s.style === 'mvp' && rows[0]) {
+  // MVP (y sus variantes): las barras crecen y se actualiza cuánto le falta al #2.
+  if (s.style.startsWith('mvp') && rows[0]) {
     rows.forEach((u) => { const b = root.querySelector(`[data-bar="${CSS.escape(u.user)}"]`); if (b) b.style.width = `${pct(u.value, rows[0].value)}%`; });
     const gap = root.querySelector('.gapv');
     if (gap && rows[1]) gap.textContent = fmt(Math.max(0, rows[0].value - rows[1].value));
@@ -378,7 +522,7 @@ function render() {
     if (changed.has(u.user) && !entered.has(u.user)) {
       if (FX.on) {
         restart(n?.closest('.v'), 'fx-tick');
-        if (s.style === 'bolitas' || s.style === 'mvp') tapBurst(el(u), u.value - (oldVal.get(u.user) || 0));
+        if (s.style === 'bolitas' || s.style.startsWith('mvp')) tapBurst(el(u), u.value - (oldVal.get(u.user) || 0));
       }
       else restart(el(u), 'bump');
     }

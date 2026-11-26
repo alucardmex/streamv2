@@ -507,7 +507,7 @@
   .cr-actions { display: flex; gap: 8px; margin-left: auto; }
   .cr-empty { color: var(--muted); font-size: 14px; padding: 14px; border: 1px dashed var(--line); border-radius: 14px; }
   @media (max-width: 760px) { .cr { grid-template-columns: 1fr; } }
-  .al-prev { max-width: 1000px; display: grid; grid-template-columns: minmax(0, 1fr) 230px; gap: 18px; align-items: start; margin-bottom: 10px; }
+  .al-prev { max-width: 1000px; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 18px; align-items: start; margin-bottom: 10px; }
   .al-screen { position: relative; width: 100%; aspect-ratio: 16 / 9; border-radius: 16px; overflow: hidden; border: 1px solid var(--line);
     background: radial-gradient(ellipse at 30% 20%, #3b4a5c, transparent 60%), radial-gradient(ellipse at 80% 90%, #3a2a4a, transparent 55%), linear-gradient(160deg, #26323f, #141a24); }
   .al-screen.vertical { aspect-ratio: 9 / 16; width: auto; height: 520px; justify-self: center; }
@@ -517,6 +517,29 @@
   .al-side .btn { justify-content: flex-start; width: 100%; }
   .al-side h3 { font: 700 14px var(--display); margin: 6px 0 2px; color: var(--muted); }
   .al-side p { color: var(--muted); font-size: 12.5px; margin: 4px 0 0; }
+  .al-side h3 small { font: 600 12px var(--body); }
+  .al-efs, .al-prevs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .al-efs button { border: 1px solid var(--line); background: var(--ink); color: var(--text); border-radius: 10px; padding: 7px 8px; font: 600 13px var(--body); cursor: pointer; text-align: left; white-space: nowrap; }
+  .al-efs button:hover { border-color: var(--muted); }
+  .al-efs button[aria-checked=true] { border-color: var(--gift); background: rgba(255,194,75,.12); box-shadow: inset 0 0 0 1px var(--gift); }
+  .al-efs button:focus-visible { outline: 2px solid var(--voice); outline-offset: 2px; }
+  .al-efs .wide { grid-column: 1 / -1; }
+  .al-efs.off button { opacity: .5; }
+  .al-side .al-prevs .btn { padding: 7px 8px; font-size: 12.5px; overflow: hidden; text-overflow: ellipsis; }
+  /* Sonido de cada alerta */
+  .snd-list { display: flex; flex-direction: column; gap: 6px; max-width: 780px; }
+  .snd { display: grid; grid-template-columns: minmax(150px, 1fr) minmax(150px, 200px) minmax(90px, 130px) 42px auto auto; gap: 10px; align-items: center;
+    padding: 6px 8px 6px 12px; border-radius: 12px; background: var(--surface); border: 1px solid var(--line); }
+  .snd-l { font-weight: 700; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .snd select { padding: 7px 8px; font-size: 13.5px; }
+  .snd input[type=range] { margin: 0; }
+  .snd-v { font-size: 12.5px; color: var(--muted); text-align: right; font-variant-numeric: tabular-nums; }
+  .snd .btn.sm { padding: 6px 10px; }
+  .snd-files { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .snd-file { display: inline-flex; align-items: center; gap: 4px; padding: 3px 4px 3px 11px; border-radius: 999px; background: var(--ink); border: 1px solid var(--line); font-size: 13px; }
+  .snd-file button { border: 0; background: none; color: var(--muted); cursor: pointer; font-size: 12px; padding: 3px 6px; border-radius: 999px; }
+  .snd-file button:hover { color: var(--text); background: var(--raised); }
+  @media (max-width: 760px) { .snd { grid-template-columns: 1fr 1fr; } .snd-l { grid-column: 1 / -1; } }
   @media (max-width: 1100px) { .al-prev { grid-template-columns: 1fr; } }
   .st-preview { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
   .st-preview iframe { width: 100%; height: 240px; border: 0; border-radius: 14px; display: block; transition: height .2s;
@@ -698,6 +721,10 @@
             <button class="btn sm" data-test="chat-nofollow" title="Comentario de alguien que no te sigue">Comentario (no te sigue)</button>
             <button class="btn sm" data-test="likes">Likes</button>
             <button class="btn sm" data-test="follow">Seguidor</button>
+            <button class="btn sm" data-test="sub">Super Fan</button>
+            <button class="btn sm" data-test="likegoal">Meta de likes</button>
+            <button class="btn sm" data-test="chest">Cofre</button>
+            <button class="btn sm" data-test="join" title="Sale solo si tienes prendidas las bienvenidas">Bienvenida</button>
           </div>
 
         </div>
@@ -785,6 +812,7 @@
           <label class="switch"><input type="checkbox" data-key="tts.readGifts"><span class="track"></span>Regalos</label>
           <label class="switch"><input type="checkbox" data-key="tts.readFollows"><span class="track"></span>Nuevos seguidores</label>
           <label class="switch"><input type="checkbox" data-key="tts.readShares"><span class="track"></span>Compartidos</label>
+          <label class="switch"><input type="checkbox" data-key="tts.readSubs"><span class="track"></span>Super Fans</label>
           <label class="switch"><input type="checkbox" data-key="tts.readUsername"><span class="track"></span>Decir quién escribió</label>
         </div>
         <label class="field" style="max-width:320px"><span class="field-head">Volumen general <span class="val" id="v-volume"></span></span><input type="range" min="0" max="1" step="0.05" data-key="tts.volume"></label>
@@ -823,12 +851,13 @@
     <section class="group">
       <div><h2>Frases</h2><p>Lo que dice el bot en cada caso.</p></div>
       <div class="controls">
-        <div class="chips-vars"><code>{nombre}</code><code>{usuario}</code><code>{mensaje}</code><code>{regalo}</code><code>{cantidad}</code></div>
+        <div class="chips-vars"><code>{nombre}</code><code>{usuario}</code><code>{mensaje}</code><code>{regalo}</code><code>{cantidad}</code><code>{meses}</code></div>
         <div class="fields">
           <label class="field">Comentario <input type="text" data-key="tts.chatFormat"></label>
           <label class="field">Regalo <input type="text" data-key="tts.giftFormat"></label>
           <label class="field">Nuevo seguidor <input type="text" data-key="tts.followFormat"></label>
           <label class="field">Compartido <input type="text" data-key="tts.shareFormat"></label>
+          <label class="field">Super Fan <input type="text" data-key="tts.subFormat"></label>
         </div>
       </div>
     </section>
@@ -880,19 +909,35 @@
   <!-- ============ ALERTAS ============ -->
   <main class="view" id="view-alerts" role="tabpanel">
     <h1>Alertas en pantalla</h1>
-    <p class="lede">Aparecen en tu stream cuando alguien te manda un regalo o te sigue, con su foto, su nombre y cuánto mandó. En el diseño Botín el color dice qué tan grande es el regalo: ¡Épico! desde 100 💎, ¡Legendario! desde 1,000 y ¡Mítico! desde 10,000.</p>
+    <p class="lede">Aparecen en tu stream cuando alguien te manda un regalo, te sigue, se hace Super Fan y más, con su foto, su nombre y cuánto mandó. En el diseño Botín el color dice qué tan grande es el regalo: ¡Épico! desde 100 💎, ¡Legendario! desde 1,000 y ¡Mítico! desde 10,000.</p>
     <div class="al-prev">
       <div class="al-screen" id="al-screen"><iframe id="al-frame" src="/alertas.html?vista=1" title="Vista previa de las alertas" tabindex="-1"></iframe><span class="tag">Vista previa · así se verá en tu stream</span></div>
       <div class="al-side">
         <h3>Diseño</h3>
         <div class="seg" role="group" aria-label="Diseño de las alertas"><button aria-pressed="true" data-aldesign="botin">Botín</button><button aria-pressed="false" data-aldesign="clasica">Clásica</button></div>
+        <h3 id="al-ef-h">Efecto <small id="al-ef-note" hidden>· solo en Botín</small></h3>
+        <div class="al-efs" id="al-efs" role="radiogroup" aria-labelledby="al-ef-h">
+          <button type="button" role="radio" aria-checked="true" data-alef="luz">✨ Luz</button>
+          <button type="button" role="radio" aria-checked="false" data-alef="explosion">💥 Explosión</button>
+          <button type="button" role="radio" aria-checked="false" data-alef="portal">🌀 Portal</button>
+          <button type="button" role="radio" aria-checked="false" data-alef="fuego">🔥 Fuego</button>
+          <button type="button" role="radio" aria-checked="false" data-alef="relampago">⚡ Relámpago</button>
+          <button type="button" role="radio" aria-checked="false" data-alef="neon">💡 Neón</button>
+          <button type="button" role="radio" aria-checked="false" data-alef="aleatorio" class="wide">🎲 Al azar (uno distinto cada vez)</button>
+        </div>
         <h3>Ver alerta de</h3>
-        <button class="btn" data-alprev="regalo">🌹 Regalo chico</button>
-        <button class="btn" data-alprev="mediano">🍩 Épico (100+ 💎)</button>
-        <button class="btn" data-alprev="grande">🎆 Legendario (1,000+ 💎)</button>
-        <button class="btn" data-alprev="mitico">🌌 Mítico (10,000+ 💎)</button>
-        <button class="btn" data-alprev="seguidor">💖 Nuevo seguidor</button>
-        <button class="btn" data-alprev="compartido">📢 Compartido</button>
+        <div class="al-prevs">
+          <button class="btn" data-alprev="regalo" title="Menos de 100 💎">🌹 Regalo</button>
+          <button class="btn" data-alprev="mediano" title="Desde 100 💎">🍩 Épico</button>
+          <button class="btn" data-alprev="grande" title="Desde 1,000 💎">🎆 Legendario</button>
+          <button class="btn" data-alprev="mitico" title="Desde 10,000 💎">🌌 Mítico</button>
+          <button class="btn" data-alprev="seguidor">💖 Seguidor</button>
+          <button class="btn" data-alprev="compartido">📢 Compartido</button>
+          <button class="btn" data-alprev="superfan">⭐ Super Fan</button>
+          <button class="btn" data-alprev="metalikes">❤️ Meta likes</button>
+          <button class="btn" data-alprev="cofre">💰 Cofre</button>
+          <button class="btn" data-alprev="bienvenida">👋 Bienvenida</button>
+        </div>
         <h3>Pantalla</h3>
         <div class="seg" role="group" aria-label="Forma de la pantalla"><button aria-pressed="true" data-alshape="h">Horizontal</button><button aria-pressed="false" data-alshape="v">Vertical</button></div>
         <h3>Posición</h3>
@@ -922,16 +967,22 @@
       <p class="sub" style="margin:0">"Mandar a mi stream" sale en OBS y el bot la lee, pero no cuenta para el ranking ni para el regalo más caro.</p>
     </section>
     <section class="group">
-      <div><h2>Cuándo aparecen</h2><p>El mínimo también decide qué regalos lee el bot.</p></div>
+      <div><h2>Qué alertas salen</h2><p>Los regalos siempre salen. Prende las demás que quieras ver en tu stream. El mínimo de diamantes también decide qué regalos lee el bot.</p></div>
       <div class="controls">
         <div class="fields">
           <label class="field">Diamantes mínimos para mostrar un regalo <input type="number" min="0" data-key="alerts.minDiamonds"></label>
           <label class="field">Segundos en pantalla <input type="number" min="2" max="30" data-key="alerts.duration"></label>
         </div>
         <div class="switches">
-          <label class="switch"><input type="checkbox" data-key="alerts.showFollows"><span class="track"></span>Nuevos seguidores</label>
-          <label class="switch"><input type="checkbox" data-key="alerts.showShares"><span class="track"></span>Compartidos</label>
+          <label class="switch"><input type="checkbox" data-key="alerts.showFollows"><span class="track"></span>💖 Nuevos seguidores</label>
+          <label class="switch"><input type="checkbox" data-key="alerts.showShares"><span class="track"></span>📢 Compartidos</label>
+          <label class="switch"><input type="checkbox" data-key="alerts.showSubs"><span class="track"></span>⭐ Super Fans</label>
+          <label class="switch"><input type="checkbox" data-key="alerts.showLikeGoals"><span class="track"></span>❤️ Metas de likes</label>
+          <label class="switch"><input type="checkbox" data-key="alerts.showChests"><span class="track"></span>💰 Cofres</label>
+          <label class="switch"><input type="checkbox" data-key="alerts.showJoins"><span class="track"></span>👋 Bienvenidas</label>
         </div>
+        <label class="field" style="max-width:280px">Meta de likes cada <input type="number" min="100" step="500" data-key="alerts.likeGoalEvery" aria-describedby="al-types-h"></label>
+        <p class="hint" id="al-types-h"><b>Super Fans:</b> quien se suscribe a tu live de TikTok. <b>Metas de likes:</b> cada vez que el live junta otra meta de likes, con quien dio el tap que llegó. <b>Cofres:</b> quien suelta un cofre de diamantes. <b>Bienvenidas:</b> quien entra a tu live, una vez por persona y solo cuando no hay otra alerta, para no atrasar los regalos.</p>
       </div>
     </section>
     <section class="group">
@@ -947,10 +998,14 @@
       </div>
     </section>
     <section class="group">
-      <div><h2>Sonido</h2></div>
+      <div><h2>Sonido</h2><p>Cada alerta con su sonido y su volumen. Puedes subir los tuyos en MP3, WAV u OGG. También suenan con las alertas de Kick.</p></div>
       <div class="controls">
         <div class="switches"><label class="switch"><input type="checkbox" data-key="alerts.sound"><span class="track"></span>Sonar con cada alerta</label></div>
-        <label class="field" style="max-width:320px"><span class="field-head">Volumen <span class="val" id="v-avol"></span></span><input type="range" min="0" max="1" step="0.05" data-key="alerts.volume"></label>
+        <label class="field" style="max-width:320px"><span class="field-head">Volumen general <span class="val" id="v-avol"></span></span><input type="range" min="0" max="1" step="0.05" data-key="alerts.volume"></label>
+        <div class="snd-list" id="snd-list" aria-label="Sonido de cada alerta"></div>
+        <input type="file" id="snd-file" accept="audio/mpeg,audio/wav,audio/x-wav,audio/ogg,audio/mp4,audio/aac,.mp3,.wav,.ogg,.m4a,.aac" hidden>
+        <div class="snd-files" id="snd-files"></div>
+        <p class="hint" id="snd-status">El volumen de cada una va sobre el volumen general (100% = igual que el general). Las alertas con tu propio video usan el sonido que les pongas allá.</p>
       </div>
     </section>
     <section class="group">
@@ -1252,6 +1307,7 @@
               <span class="inl">❤️ Cada <input type="number" min="1" data-key="overlays.timer.likesEvery" aria-label="Cantidad de likes"> likes</span><input type="number" step="any" data-key="overlays.timer.likesSecs" aria-label="Segundos por bloque de likes">
               <span>💖 Nuevo seguidor</span><input type="number" step="any" data-key="overlays.timer.follow" aria-label="Segundos por seguidor">
               <span>📢 Compartido</span><input type="number" step="any" data-key="overlays.timer.share" aria-label="Segundos por compartido">
+              <span>⭐ Super Fan</span><input type="number" step="any" data-key="overlays.timer.superFan" aria-label="Segundos por Super Fan">
               <span>💬 Mensaje en el chat</span><input type="number" step="any" data-key="overlays.timer.chat" aria-label="Segundos por mensaje">
               <span>⏳ Tiempo máximo (minutos, 0 = sin límite)</span><input type="number" min="0" id="tm-max" aria-label="Tiempo máximo en minutos">
             </div>
@@ -1456,6 +1512,7 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="/gifts.js"></script>
+<script src="/alert-sounds.js"></script>
 <script src="/scene-types.js"></script>
 <script src="/text-style.js"></script>
 <script>
@@ -1758,14 +1815,18 @@ socket.on('follow', (u) => {
   if (u.platform === 'kick') { if (settings?.kick?.tts.readFollows) enqueue(fill(settings.kick.tts.followFormat, { nombre: u.name, usuario: u.user }), 'follow'); }
   else if (settings?.tts.readFollows) enqueue(fill(settings.tts.followFormat, { nombre: u.name, usuario: u.user }), 'follow');
 });
-// Kick: subs y subs regalados (usan la voz y el volumen de los regalos).
+// Subs de Kick y Super Fans de TikTok (usan la voz y el volumen de los regalos).
 socket.on('sub', (x) => {
   const gifted = x.kind === 'giftsub';
-  const what = gifted ? `regaló <b>${x.count} ${x.count === 1 ? 'sub' : 'subs'}</b> ⭐` : `se suscribió ⭐${x.months > 1 ? ` <small>(${x.months} meses)</small>` : ''}`;
+  const kick = x.platform === 'kick';
+  const months = x.months > 1 ? ` <small>(${x.months} meses)</small>` : '';
+  const what = gifted ? `regaló <b>${x.count} ${x.count === 1 ? 'sub' : 'subs'}</b> ⭐` : kick ? `se suscribió ⭐${months}` : `se hizo tu <b>Super Fan</b> ⭐${months}`;
   addFeed(`${whoBtn(x)}${what}${testTag(x)}`, 'gift', x);
-  const t = settings?.kick?.tts;
-  if (t?.readSubs) enqueue(fill(gifted ? t.giftSubFormat : t.subFormat, { nombre: x.name, usuario: x.user, cantidad: x.count, meses: x.months }), 'gift', true, null, x);
+  const t = kick ? settings?.kick?.tts : settings?.tts;
+  if (t?.readSubs) enqueue(fill(gifted ? t.giftSubFormat : t.subFormat, { nombre: x.name, usuario: x.user, cantidad: x.count, meses: x.months || 1 }), 'gift', true, null, x);
 });
+socket.on('likeGoal', (x) => addFeed(`❤️ ¡Llegaron a <b>${fmt(x.goal)} likes</b>! El tap de la meta: ${whoBtn(x)}${testTag(x)}`, 'follow', x));
+socket.on('chest', (x) => addFeed(`${whoBtn(x)}soltó un <b>cofre</b> 💰${x.diamonds ? ` <small>${fmt(x.diamonds)} diamantes${x.people ? ` · para ${fmt(x.people)} personas` : ''}</small>` : ''}${testTag(x)}`, 'gift', x));
 socket.on('share', (u) => {
   addFeed(`${whoBtn(u)}compartió tu live`, 'follow', u);
   if (settings?.tts.readShares) enqueue(fill(settings.tts.shareFormat, { nombre: u.name, usuario: u.user }), 'share');
@@ -2547,6 +2608,10 @@ const OV_STYLES = {
   ],
   likes: [
     ['mvp', 'MVP', 'El #1 en grande y barras'],
+    ['mvp-podio', 'Podio MVP', 'Los 3 primeros en tarjetas'],
+    ['mvp-barra', 'Barra MVP', 'Horizontal, arriba o abajo'],
+    ['mvp-mini', 'Mini MVP', 'Solo el #1, para una esquina'],
+    ['mvp-columna', 'Columna MVP', 'Angosta, para un lado'],
     ['lista', 'Lista', 'Clásica con fotos'],
     ['podio', 'Podio', 'Top 3 en escalones'],
     ['lider', 'Líder', 'Solo el #1 en grande'],
@@ -2562,7 +2627,7 @@ OV_STYLES.timer = [['digital', 'Digital', 'Números grandes'], ['barra', 'Barra'
 OV_STYLES.matches = [['marcador', 'Marcador', 'Barra estilo PUBG'], ['pollo', 'Pollo', 'Tarjeta con el pollo grande'], ['compacto', 'Compacto', '🍗 y 💀 en una línea']];
 const OV_SIZE = {
   topGift: { leyenda: '600 × 300', tarjeta: '520 × 220', banner: '640 × 120', trofeo: '320 × 480', neon: '520 × 220', minimal: '420 × 120', burbuja: '520 × 180', circulo: '340 × 400', cuadro: '340 × 400' },
-  likes: { mvp: '440 × 590', lista: '500 × 600', podio: '480 × 420', lider: '520 × 200', compacto: '340 × 360', neon: '500 × 600', cinta: '940 × 90', bolitas: '250 × 760' },
+  likes: { mvp: '440 × 590', 'mvp-podio': '570 × 530', 'mvp-barra': '1040 × 190', 'mvp-mini': '430 × 200', 'mvp-columna': '290 × 610', lista: '500 × 600', podio: '480 × 420', lider: '520 × 200', compacto: '340 × 360', neon: '500 × 600', cinta: '940 × 90', bolitas: '250 × 760' },
 };
 OV_SIZE.gifts = OV_SIZE.likes;
 OV_STYLES.countdown = [['vice', 'Vice', 'Atardecer rosa, naranja y morado'], ['neon', 'Neón', 'Oscuro con luz rosa y cian'], ['minimal', 'Minimal', 'Solo el texto'], ['pastilla', 'Pastilla', 'Una línea delgada']];
@@ -3303,7 +3368,7 @@ function crCard(r) {
   const when = r.kind === 'gift'
     ? `<input type="text" list="gift-catalog" placeholder="Nombre del regalo" value="${esc(r.gift)}" data-crf="gift" aria-label="Regalo">${gimg ? `<img class="cr-gimg" src="${esc(gimg)}" alt="" referrerpolicy="no-referrer">` : ''}${!r.gift.trim() ? '<span class="cr-warn">Escribe qué regalo</span>' : ''}`
     : `<span class="lbl">Desde</span><input type="number" min="1" value="${r.min}" data-crf="min" aria-label="Diamantes mínimos"><span class="lbl">💎 en total</span>`;
-  const sounds = [...(r.mediaType === 'video' ? [['video', 'Sonido del video']] : []), ['campana', 'Campanita de siempre'], ['ninguno', 'Sin sonido']];
+  const sounds = [...(r.mediaType === 'video' ? [['video', 'Sonido del video']] : []), ['campana', 'El sonido de la alerta'], ['ninguno', 'Sin sonido']];
   return `<article class="cr${r.on === false ? ' off' : ''}" data-cr="${esc(r.id)}">
     <div class="cr-media"><div class="cr-thumb">${thumb}</div><button type="button" class="btn sm quiet" data-cract="file">Cambiar archivo</button></div>
     <div class="cr-body">
@@ -3457,18 +3522,153 @@ function renderAlertLink() {
   $$('[data-alpos]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.alpos === alPos)));
   try { $('#al-frame').contentWindow.setPosition?.(alPos); } catch {}
 }
-// Diseño de las alertas: Botín (el nuevo) o Clásica.
+// Diseño de las alertas: Botín (el nuevo) o Clásica. Los efectos son del Botín.
 function syncAlDesign() {
   const cur = settings?.alerts?.style === 'clasica' ? 'clasica' : 'botin';
   $$('[data-aldesign]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.aldesign === cur)));
+  const ef = settings?.alerts?.effect || 'luz';
+  $$('[data-alef]').forEach((b) => { b.setAttribute('aria-checked', String(b.dataset.alef === ef)); b.tabIndex = b.dataset.alef === ef ? 0 : -1; });
+  $('#al-efs')?.classList.toggle('off', cur === 'clasica');
+  if ($('#al-ef-note')) $('#al-ef-note').hidden = cur !== 'clasica';
 }
 socket.on('config', () => queueMicrotask(syncAlDesign));
+socket.on('config', () => queueMicrotask(() => renderSounds()));
+// Efectos: se mueven con las flechas, como cualquier grupo de opciones.
+$('#al-efs')?.addEventListener('keydown', (e) => {
+  const dir = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+  if (!dir) return;
+  e.preventDefault();
+  const list = [...$$('[data-alef]')];
+  const i = list.indexOf(document.activeElement);
+  const next = list[(i + dir + list.length) % list.length];
+  next.focus();
+  next.click();
+});
+
+// Sonido de cada alerta: uno incluido o uno tuyo, con su volumen (sobre el general).
+const SND_ROWS = [
+  ['regalo', '🌹 Regalo chico', 0, 'gift'], ['epico', '🍩 Épico · 100+ 💎', 1, 'gift'], ['legendario', '🎆 Legendario · 1,000+ 💎', 2, 'gift'],
+  ['mitico', '🌌 Mítico · 10,000+ 💎', 3, 'gift'], ['follow', '💖 Nuevo seguidor', 0, 'follow'], ['share', '📢 Compartido', 0, 'share'],
+  ['sub', '⭐ Super Fan y subs de Kick', 1, 'sub'], ['likes', '❤️ Meta de likes', 1, 'goal'], ['cofre', '💰 Cofre', 2, 'chest'], ['join', '👋 Bienvenida', 0, 'join'],
+];
+const SND_DEFAULT = { regalo: 'campana', epico: 'campana', legendario: 'campana', mitico: 'campana', follow: 'campana', share: 'campana', sub: 'fanfarria', likes: 'magia', cofre: 'moneda', join: 'burbuja' };
+let sndTarget = null;
+let sndRendered = '';
+function renderSounds(force) {
+  const box = $('#snd-list');
+  if (!box || !settings?.alerts?.sounds || !window.AlertSounds) return;
+  const files = settings.alerts.soundFiles || [];
+  const json = JSON.stringify([settings.alerts.sounds, files]);
+  if (!force && json === sndRendered) return;
+  // No redibujar mientras mueves un volumen o tienes abierta una lista.
+  if (!force && box.contains(document.activeElement)) return;
+  sndRendered = json;
+  const opts = (cur) => `<optgroup label="Incluidos">${AlertSounds.PRESETS.map(([id, l]) => `<option value="${id}"${cur === id ? ' selected' : ''}>${l}</option>`).join('')}</optgroup>`
+    + (files.length ? `<optgroup label="Tus sonidos">${files.map((f) => `<option value="file:${esc(f.file)}"${cur === `file:${f.file}` ? ' selected' : ''}>${esc(f.name)}</option>`).join('')}</optgroup>` : '');
+  box.innerHTML = SND_ROWS.map(([k, label]) => {
+    const s = settings.alerts.sounds[k] || { s: SND_DEFAULT[k], v: 1 };
+    return `<div class="snd" data-snd="${k}">
+      <span class="snd-l">${label}</span>
+      <select data-sndf="s" aria-label="Sonido de ${esc(label)}">${opts(s.s)}</select>
+      <input type="range" min="0" max="1.5" step="0.05" value="${s.v}" data-sndf="v" aria-label="Volumen de ${esc(label)}"><span class="snd-v">${Math.round(s.v * 100)}%</span>
+      <button type="button" class="btn sm" data-sndact="play" aria-label="Escuchar ${esc(label)}" title="Escuchar">▶</button>
+      <button type="button" class="btn sm quiet" data-sndact="up" title="Subir un sonido tuyo para esta alerta">Subir</button>
+    </div>`;
+  }).join('');
+  $('#snd-files').innerHTML = files.length
+    ? `<span class="hint">Tus sonidos:</span>${files.map((f) => `<span class="snd-file">${esc(f.name)}<button type="button" data-snddel="${esc(f.file)}" aria-label="Quitar ${esc(f.name)}" title="Quitar">✕</button></span>`).join('')}`
+    : '';
+}
+function playRow(k) {
+  const row = SND_ROWS.find((r) => r[0] === k);
+  const s = settings?.alerts?.sounds?.[k];
+  if (!row || !s) return;
+  AlertSounds.play(s.s, { vol: (settings.alerts.volume ?? 0.6) * s.v, tier: row[2], kind: row[3] });
+}
+let sndSaveT;
+document.addEventListener('input', (e) => {
+  const el = e.target.closest('[data-sndf="v"]');
+  if (!el || !settings?.alerts?.sounds) return;
+  const k = el.closest('[data-snd]').dataset.snd;
+  settings.alerts.sounds[k].v = Number(el.value);
+  el.nextElementSibling.textContent = `${Math.round(Number(el.value) * 100)}%`;
+  clearTimeout(sndSaveT);
+  sndSaveT = setTimeout(saveSettingsNow, 400);
+});
+document.addEventListener('change', (e) => {
+  const el = e.target.closest('[data-sndf]');
+  if (!el || !settings?.alerts?.sounds) return;
+  const k = el.closest('[data-snd]').dataset.snd;
+  if (el.dataset.sndf === 's') {
+    settings.alerts.sounds[k].s = el.value;
+    saveSettingsNow();
+  }
+  playRow(k);
+});
+document.addEventListener('click', (e) => {
+  const act = e.target.closest('[data-sndact]');
+  if (act) {
+    const k = act.closest('[data-snd]').dataset.snd;
+    if (act.dataset.sndact === 'play') return playRow(k);
+    sndTarget = k;
+    return $('#snd-file').click();
+  }
+  const del = e.target.closest('[data-snddel]');
+  if (del && settings?.alerts) {
+    const file = del.dataset.snddel;
+    settings.alerts.soundFiles = (settings.alerts.soundFiles || []).filter((f) => f.file !== file);
+    // Las alertas que lo usaban regresan a su sonido de siempre.
+    for (const [k, v] of Object.entries(settings.alerts.sounds)) if (v.s === `file:${file}`) v.s = SND_DEFAULT[k] || 'campana';
+    saveSettingsNow();
+    renderSounds(true);
+    toast('Sonido quitado');
+  }
+});
+$('#snd-file')?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  const k = sndTarget;
+  sndTarget = null;
+  if (!file || !k) return;
+  const status = $('#snd-status');
+  const before = status.textContent;
+  const xhr = new XMLHttpRequest();
+  xhr.open('POST', `/api/media?name=${encodeURIComponent(file.name)}`);
+  xhr.onload = () => {
+    let res = {};
+    try { res = JSON.parse(xhr.responseText); } catch {}
+    status.textContent = before;
+    if (xhr.status !== 200) return toast(res.error || 'No se pudo subir el sonido');
+    if (res.kind !== 'audio') return toast('Ese archivo no es de audio. Usa MP3, WAV u OGG.');
+    const name = file.name.replace(/\.[^.]+$/, '').slice(0, 60) || 'Mi sonido';
+    settings.alerts.soundFiles = [...(settings.alerts.soundFiles || []), { file: res.file, name }];
+    settings.alerts.sounds[k].s = `file:${res.file}`;
+    saveSettingsNow();
+    renderSounds(true);
+    playRow(k);
+    toast(`Listo: ${name}`);
+  };
+  xhr.onerror = () => { status.textContent = before; toast('No se pudo subir el sonido'); };
+  status.textContent = `Subiendo ${file.name}…`;
+  xhr.send(file);
+});
 if (window.ResizeObserver && $('#al-screen')) new ResizeObserver(fitAlertPreview).observe($('#al-screen'));
 $('#al-frame')?.addEventListener('load', () => { fitAlertPreview(); renderAlertLink(); });
 renderAlertLink();
 document.addEventListener('click', (e) => {
   const p = e.target.closest('[data-alprev]');
   if (p) { try { $('#al-frame').contentWindow.preview?.(p.dataset.alprev); } catch {} return; }
+  const ef = e.target.closest('[data-alef]');
+  if (ef && settings?.alerts) {
+    // Los efectos son del diseño Botín: elegir uno lo prende.
+    settings.alerts.effect = ef.dataset.alef;
+    settings.alerts.style = 'botin';
+    saveSettingsNow();
+    syncAlDesign();
+    // La vista previa recibe el ajuste un momento después; por eso se le pasa el efecto.
+    try { $('#al-frame').contentWindow.preview?.('grande', ef.dataset.alef); } catch {}
+    return;
+  }
   const sh = e.target.closest('[data-alshape]');
   if (sh) {
     $('#al-screen').classList.toggle('vertical', sh.dataset.alshape === 'v');
