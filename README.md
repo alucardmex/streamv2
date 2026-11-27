@@ -189,7 +189,11 @@ El bot lee con voces de **Fish Audio**, una biblioteca con miles de voces (narra
 
 1. Crea una cuenta en [fish.audio](https://fish.audio), copia tu **API key** en [fish.audio/app/api-keys](https://fish.audio/app/api-keys/) y pégala en **Voz** (la primera vez aparece una tarjeta para hacerlo). Se guarda solo en tu computadora (`config.json`); no la compartas.
 2. Toca **Explorar voces**: busca por nombre o estilo, filtra por español o todos los idiomas, ordena por más usadas, mejor valoradas o nuevas, y escucha cada una con ▶. Toca **Agregar** para guardarla en **Tus voces**.
-3. En cada voz, **Ajustar** te deja cambiarle el nombre, la **emoción** (emocionado, sarcástico, susurrando, gritando…) y la **velocidad**.
+3. En cada voz, **Ajustar** te deja cambiarle el nombre, la **emoción** (emocionado, sarcástico, susurrando, gritando…), la **velocidad** y el **volumen**.
+
+**Volumen de cada voz:** hay voces de Fish Audio que se escuchan más bajito que otras. Cada tarjeta de **Tus voces** tiene su barra 🔊 de 0 a **200%** (la rayita del centro es 100%). Con ▶ escuchas la muestra, y si mueves la barra mientras suena, cambia al momento. Toca el porcentaje para regresarla a 100%. Arriba de 100% el audio pasa por un limitador para que no truene.
+
+**Quitar voces:** cada tarjeta tiene un bote 🗑 para quitarla de tus voces. Las voces que no tienen ningún uso dicen **Sin usar**, y con **Quitar las que no uso** (arriba a la derecha) las quitas todas de un jalón. Si te equivocas, toca **Deshacer** en el aviso de abajo y regresan con todo lo que tenían asignado. Quitar una voz solo la quita de la app, no de tu cuenta de Fish Audio.
 
 ### Quién habla
 
@@ -206,7 +210,7 @@ El bot lee con voces de **Fish Audio**, una biblioteca con miles de voces (narra
 - Los regalos se leen antes que los comentarios.
 - Para más voces del navegador en Windows: Configuración → Hora e idioma → Voz → Agregar voces.
 
-**Volumen por tipo y por persona:** en **Voz → Qué se lee**, además del volumen general, cada cosa tiene su volumen: comentarios, regalos, regalos grandes, nuevos seguidores y compartidos. En **Voces por usuario** cada persona con voz especial tiene su propio volumen 🔊. Se multiplican: por ejemplo, general 80% y comentarios 50% suenan al 40%.
+**Volumen por tipo y por persona:** en **Voz → Qué se lee**, además del volumen general, cada cosa tiene su volumen: comentarios, regalos, regalos grandes, nuevos seguidores y compartidos. En **Voces por usuario** cada persona con voz especial tiene su propio volumen 🔊. Se multiplican junto con el volumen de cada voz: por ejemplo, general 80% y comentarios 50% suenan al 40%, y si esa voz está al 200%, al 80%.
 
 **Solo seguidores:** en **Voz → Quién y qué no se lee**, prende **Solo seguidores** y el bot solo lee los comentarios de quien te sigue (tus moderadores también se leen). Los demás comentarios salen en el chat de "En vivo" marcados como *no te sigue*. Los regalos, follows y compartidos se siguen leyendo de todos. Para probarlo usa **Comentario (no te sigue)** en las pruebas.
 

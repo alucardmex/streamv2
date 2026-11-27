@@ -61,7 +61,7 @@ const DEFAULT_CONFIG = {
     // Al empezar un live nuevo (otra sala de TikTok) se borran comentarios, likes, diamantes y rankings del anterior.
     resetOnNewLive: true,
     voices: {
-      // Tus voces de Fish Audio: { id, name, voice (ID de Fish), cover, author, emotion, speed }
+      // Tus voces de Fish Audio: { id, name, voice (ID de Fish), cover, author, emotion, speed, volume (0 a 2 = 200%) }
       characters: [],
       // Qué voz habla en cada momento. Vacío = voz de respaldo del navegador.
       assign: { chat: '', gift: '', bigGift: '', follow: '', share: '' },
@@ -239,6 +239,7 @@ function migrateVoices() {
     .map((c) => ({
       id: String(c.id), name: String(c.name || 'Voz'), voice: String(c.voice),
       cover: c.cover || '', author: c.author || '', emotion: c.emotion || '', speed: Number(c.speed) || 1,
+      volume: voiceVolume(c.volume),
     }));
   const ids = new Set(v.characters.map((c) => c.id));
   for (const k of Object.keys(DEFAULT_CONFIG.settings.voices.assign)) {
@@ -250,6 +251,12 @@ function migrateVoices() {
   }
 }
 const saveConfig = () => fs.writeFileSync(CONFIG_FILE, JSON.stringify(config, null, 2));
+
+// Volumen de cada voz: de 0 a 2 (200%), para las voces que se escuchan bajito.
+function voiceVolume(x) {
+  const n = Number(x);
+  return x === undefined || x === null || x === '' || !Number.isFinite(n) ? 1 : Math.max(0, Math.min(2, Math.round(n * 100) / 100));
+}
 
 // ---------------------------------------------------------------------------
 // Alertas personalizadas: archivos que subes (video, foto o GIF)
@@ -1205,6 +1212,7 @@ io.on('connection', (socket) => {
 
   socket.on('saveSettings', (settings) => {
     config.settings = deepMerge(DEFAULT_CONFIG.settings, settings);
+    for (const c of config.settings.voices.characters || []) if (c && typeof c === 'object') c.volume = voiceVolume(c.volume);
     config.settings.alerts.custom = cleanCustom(config.settings.alerts.custom);
     cleanAlertSounds(config.settings.alerts);
     config.settings.scenes = cleanScenes(config.settings.scenes);
